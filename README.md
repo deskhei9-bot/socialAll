@@ -66,6 +66,41 @@ Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, Linke
 **Domain**: socialautoupload.com (Cloudflare DNS + Proxy)  
 **Infrastructure**: 100% Self-Hosted (Zero Cloud Dependencies)
 
+### 🎉 Latest Updates (December 2, 2025)
+
+#### 📹 Social Media URL Support
+- ✅ **YouTube Video Downloads** - yt-dlp integration
+- ✅ **TikTok Video Downloads** - Direct video extraction
+- ✅ **Facebook Video Downloads** - Public video support
+- ✅ **Twitter/X Media** - Video and image downloads
+- ✅ **Instagram Media** - Photo and video downloads (limited)
+- ✅ **Telegram Media** - Channel video/photo downloads
+- ✅ **7 Platforms Supported** - Paste URL to auto-download
+
+#### 🎨 Enhanced Media Preview System
+- ✅ **Dual-View Layout** - Visual grid preview + Text-based file list
+- ✅ **Fullscreen Media Viewer** - Click any media to view full size
+- ✅ **Smart Aspect Ratio** - Videos show in original ratio (no cropping)
+- ✅ **Color-Coded Icons** - Blue (photos) / Purple (videos)
+- ✅ **Individual Delete** - X icon on each file in text list
+- ✅ **Bulk Delete** - "Clear All" button
+- ✅ **Hover Effects** - "Full View" label on hover
+- ✅ **File Info Display** - Name, type, size in overlay
+
+#### 🎬 Video Processing
+- ✅ **H.264 Codec Priority** - 99% browser compatibility
+- ✅ **yt-dlp v2025.11.12** - Latest video downloader
+- ✅ **Auto Format Selection** - Best quality with H.264
+- ✅ **FFmpeg Post-Processing** - AV1 → H.264 conversion
+- ✅ **Platform-Specific Settings** - Optimized per platform
+
+#### 🌙 UI/UX Improvements
+- ✅ **Dark/Light Theme Toggle** - System preference + manual switch
+- ✅ **Streamlined Preview Panel** - No duplicate sections
+- ✅ **Upload from URL** - Paste social media links directly
+- ✅ **Nginx Static Serving** - Fast media file delivery
+- ✅ **Mobile-Friendly** - Responsive layout
+
 ### ✨ Key Features (လက်ရှိ အလုပ်လုပ်နေသော Features)
 
 #### 🤖 AI-Powered Content Tools
@@ -106,6 +141,10 @@ Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, Linke
 - ✅ **Facebook Albums** - Multi-photo uploads (max 10)
 - ✅ **Link Posts** - Share URLs with previews
 - ✅ **Media Uploader** - Drag & drop, multiple files, progress tracking
+- ✅ **Social Media URL Upload** - YouTube, TikTok, Facebook, Twitter, Instagram, Telegram
+- ✅ **Fullscreen Media Viewer** - Click preview to view full size
+- ✅ **Dual Preview Layout** - Visual grid + Text-based file list with delete buttons
+- ✅ **Smart Video Processing** - H.264 codec, aspect ratio preservation
 
 #### 🔐 Authentication & Security
 - ✅ **JWT Authentication** - 30-day token expiration
@@ -181,10 +220,13 @@ Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, Linke
 #### Backend API Endpoints (လိုအပ်သေးသော API များ)
 - ✅ Posts CRUD (create, read, update, delete) - **Implemented**
 - ✅ Media upload handling (multer integration) - **Working**
+- ✅ Social media URL downloads (yt-dlp) - **7 platforms supported**
+- ✅ Video processing (H.264 conversion) - **FFmpeg integration**
 - ✅ AI caption generation (Gemini/OpenAI) - **API routes ready**
 - ✅ Hashtag suggestions - **API routes ready**
 - ✅ Scheduled posts processor - **Running every 60s**
 - ✅ Analytics endpoints - **4 endpoints deployed**
+- ✅ Static file serving (/uploads/) - **Nginx configured**
 - ⏳ Connected channels management - **Database ready, UI pending**
 - ⏳ OAuth endpoints (Facebook, YouTube, TikTok) - **Partially implemented**
 
@@ -284,6 +326,7 @@ Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, Linke
 - **Icons**: Lucide React
 - **Date Handling**: date-fns
 - **Charts**: Recharts
+- **Theme**: Dark/Light mode with system preference detection
 
 ### Backend Layer
 - **Runtime**: Node.js 20.19.6
@@ -294,7 +337,8 @@ Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, Linke
 - **Process Manager**: PM2 with systemd integration
 - **Security**: Helmet.js + CORS
 - **Logging**: Morgan (HTTP request logger)
-- **File Uploads**: Multer (ready to implement)
+- **File Uploads**: Multer (multipart/form-data)
+- **Video Processing**: yt-dlp v2025.11.12 + FFmpeg
 - **Validation**: Express-validator (to be added)
 
 ### Database Layer
