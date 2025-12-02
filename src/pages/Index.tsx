@@ -27,11 +27,11 @@ const Index = () => {
             {/* Logo/Brand */}
             <div className="flex justify-center mb-8">
               <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20">
-                <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center p-1">
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1 overflow-hidden">
                   <img 
                     src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/refs/heads/master/Screenshot%202025-12-03%20at%2004.53.28.png" 
                     alt="SocialFlow Logo" 
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain rounded-md"
                   />
                 </div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
@@ -291,11 +291,11 @@ const Index = () => {
           {/* Bottom Footer */}
           <div className="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
+              <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center p-0.5 overflow-hidden">
                 <img 
                   src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/refs/heads/master/Screenshot%202025-12-03%20at%2004.53.28.png" 
                   alt="SocialFlow Logo" 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain rounded-sm"
                 />
               </div>
               <span className="font-semibold">SocialFlow</span>
