@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Zap, Shield, Globe, Sparkles, Clock, TrendingUp, Smartphone, Database, Lock } from "lucide-react";
+import { ArrowRight, Zap, Shield, Globe, Sparkles, Clock, TrendingUp, Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -29,7 +29,7 @@ const Index = () => {
               <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20">
                 <Zap className="w-6 h-6 text-primary" />
                 <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  Social Symphony
+                  SocialFlow
                 </span>
               </div>
             </div>
@@ -177,67 +177,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Tech Stack Section */}
-      <div className="bg-muted/30 py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Technology Stack
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Built with modern, cutting-edge technologies for reliability and performance
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Smartphone className="w-8 h-8 text-primary" />
-                  <h3 className="text-xl font-semibold">Frontend</h3>
-                </div>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• React 18 + TypeScript</li>
-                  <li>• Vite Build Tool</li>
-                  <li>• Tailwind CSS + shadcn/ui</li>
-                  <li>• TanStack Query</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Zap className="w-8 h-8 text-primary" />
-                  <h3 className="text-xl font-semibold">Backend</h3>
-                </div>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• Node.js 20 + Express</li>
-                  <li>• TypeScript</li>
-                  <li>• JWT Authentication</li>
-                  <li>• PM2 Process Manager</li>
-                </ul>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Database className="w-8 h-8 text-primary" />
-                  <h3 className="text-xl font-semibold">Infrastructure</h3>
-                </div>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li>• PostgreSQL 16</li>
-                  <li>• Nginx Web Server</li>
-                  <li>• Let's Encrypt SSL</li>
-                  <li>• Cloudflare CDN</li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-
       {/* CTA Section */}
       <div className="container mx-auto px-4 py-20">
         <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-2 border-primary/20">
@@ -261,7 +200,7 @@ const Index = () => {
                 size="lg" 
                 variant="outline" 
                 className="text-lg px-8 py-6"
-                onClick={() => window.open('https://github.com/deskhei9-bot/social-symphony', '_blank')}
+                onClick={() => window.open('https://github.com/deskhei9-bot/socialflow', '_blank')}
               >
                 View on GitHub
               </Button>
@@ -286,7 +225,7 @@ const Index = () => {
                   <a href="/contact.html" className="hover:text-primary transition-colors">Contact</a>
                 </li>
                 <li>
-                  <a href="https://github.com/deskhei9-bot/social-symphony" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">GitHub</a>
+                  <a href="https://github.com/deskhei9-bot/socialflow" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">GitHub</a>
                 </li>
               </ul>
             </div>
@@ -347,11 +286,11 @@ const Index = () => {
           <div className="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-primary" />
-              <span className="font-semibold">Social Symphony</span>
+              <span className="font-semibold">SocialFlow</span>
               <span className="text-muted-foreground">v1.0.0</span>
             </div>
             <div className="text-sm text-muted-foreground">
-              © 2025 Social Symphony. All rights reserved.
+              © 2025 SocialFlow. All rights reserved.
             </div>
           </div>
         </div>
