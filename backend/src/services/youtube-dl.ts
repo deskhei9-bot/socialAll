@@ -88,21 +88,70 @@ export function isTelegramUrl(url: string): boolean {
 }
 
 /**
+ * Check if URL is a Weibo (微博) post
+ */
+export function isWeiboUrl(url: string): boolean {
+  return /weibo\.com/.test(url);
+}
+
+/**
+ * Check if URL is a Douyin (抖音 - Chinese TikTok) video
+ */
+export function isDouyinUrl(url: string): boolean {
+  return /douyin\.com/.test(url);
+}
+
+/**
+ * Check if URL is a Xiaohongshu (小红书 / RED) post
+ */
+export function isXiaohongshuUrl(url: string): boolean {
+  return /(xiaohongshu\.com|xhslink\.com)/.test(url);
+}
+
+/**
+ * Check if URL is a Pinterest pin
+ */
+export function isPinterestUrl(url: string): boolean {
+  return /pinterest\.com/.test(url);
+}
+
+/**
+ * Check if URL is a Kuaishou (快手) video
+ */
+export function isKuaishouUrl(url: string): boolean {
+  return /kuaishou\.com/.test(url);
+}
+
+/**
+ * Check if URL is a Threads post
+ */
+export function isThreadsUrl(url: string): boolean {
+  return /threads\.net/.test(url);
+}
+
+/**
  * Get platform name from URL
  */
 export function getPlatformName(url: string): string {
   if (isYouTubeUrl(url)) return 'YouTube';
   if (isTikTokUrl(url)) return 'TikTok';
+  if (isDouyinUrl(url)) return 'Douyin (抖音)';
   if (isTwitterUrl(url)) return 'Twitter/X';
   if (isFacebookUrl(url)) return 'Facebook';
   if (isInstagramUrl(url)) return 'Instagram';
   if (isTelegramUrl(url)) return 'Telegram';
+  if (isWeiboUrl(url)) return 'Weibo (微博)';
+  if (isXiaohongshuUrl(url)) return 'Xiaohongshu (小红书)';
+  if (isPinterestUrl(url)) return 'Pinterest';
+  if (isKuaishouUrl(url)) return 'Kuaishou (快手)';
+  if (isThreadsUrl(url)) return 'Threads';
   return 'Unknown Platform';
 }
 
 /**
  * Download video using yt-dlp
- * Supports: YouTube, TikTok, Twitter, Facebook, Instagram, Telegram
+ * Supports: YouTube, TikTok, Douyin, Twitter, Facebook, Instagram, Telegram, Weibo, Xiaohongshu, Pinterest
+ * Not Supported (yet): Kuaishou (快手), Threads
  */
 export async function downloadVideo(
   url: string,
@@ -115,6 +164,21 @@ export async function downloadVideo(
       return {
         success: false,
         error: 'yt-dlp is not installed on the server. Please install it first: pip install yt-dlp',
+      };
+    }
+
+    // Check for unsupported platforms
+    if (isKuaishouUrl(url)) {
+      return {
+        success: false,
+        error: 'Kuaishou (快手) is not yet supported by yt-dlp. Please contact support.',
+      };
+    }
+    
+    if (isThreadsUrl(url)) {
+      return {
+        success: false,
+        error: 'Threads is not yet supported by yt-dlp. Please contact support.',
       };
     }
 
@@ -154,10 +218,33 @@ export async function downloadVideo(
     console.log('[yt-dlp] Downloading from:', getPlatformName(url));
     console.log('[yt-dlp] URL:', url);
     
-    const { stdout, stderr } = await execAsync(command, {
-      timeout: 300000, // 5 minutes
-      maxBuffer: 10 * 1024 * 1024, // 10MB buffer
-    });
+    let stdout: string, stderr: string;
+    try {
+      const result = await execAsync(command, {
+        timeout: 300000, // 5 minutes
+        maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+      });
+      stdout = result.stdout;
+      stderr = result.stderr;
+    } catch (execError: any) {
+      // Check for specific platform errors
+      const errorOutput = execError.stderr || execError.stdout || '';
+      
+      // Douyin/Chinese platforms often need cookies
+      if (errorOutput.includes('Fresh cookies') || errorOutput.includes('cookies are needed')) {
+        const platformName = getPlatformName(url);
+        throw new Error(
+          `${platformName} requires authentication. This platform needs cookies to download videos. ` +
+          `Please try:\n` +
+          `1. Use the platform's official download feature\n` +
+          `2. Copy the video and re-upload it manually\n` +
+          `Note: ${platformName} has restrictions on automated downloads.`
+        );
+      }
+      
+      // Re-throw for other errors to be handled below
+      throw execError;
+    }
 
     console.log('[yt-dlp] Download completed');
 
@@ -196,7 +283,10 @@ export async function downloadVideo(
 
     let errorMessage = 'Failed to download video';
     
-    if (error.message.includes('HTTP Error 403')) {
+    // Check for authentication/cookie requirements
+    if (error.message.includes('Fresh cookies') || error.message.includes('authentication') || error.message.includes('requires cookies')) {
+      errorMessage = error.message; // Use our custom message
+    } else if (error.message.includes('HTTP Error 403')) {
       errorMessage = 'Video is private or restricted';
     } else if (error.message.includes('HTTP Error 404')) {
       errorMessage = 'Video not found';
@@ -204,6 +294,9 @@ export async function downloadVideo(
       errorMessage = 'Download timeout (video may be too large)';
     } else if (error.message.includes('age')) {
       errorMessage = 'Video has age restrictions';
+    } else if (error.message.includes('Unsupported URL')) {
+      const platformName = getPlatformName(url);
+      errorMessage = `This ${platformName} URL format is not supported. Please try using the full/original URL from the platform.`;
     }
 
     return {

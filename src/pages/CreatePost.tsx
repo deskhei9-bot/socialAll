@@ -8,6 +8,7 @@ import {
   Twitter, 
   Linkedin,
   Send as TelegramIcon,
+  Pin,
   Hash,
   Smile,
   Calendar,
@@ -53,6 +54,7 @@ const platforms = [
   { id: "twitter", icon: Twitter, label: "Twitter", color: "hover:border-sky-400 hover:bg-sky-400/10", apiSupported: false },
   { id: "linkedin", icon: Linkedin, label: "LinkedIn", color: "hover:border-blue-600 hover:bg-blue-600/10", apiSupported: false },
   { id: "telegram", icon: TelegramIcon, label: "Telegram", color: "hover:border-blue-400 hover:bg-blue-400/10", apiSupported: true },
+  { id: "pinterest", icon: Pin, label: "Pinterest", color: "hover:border-red-600 hover:bg-red-600/10", apiSupported: true },
 ];
 
 export default function CreatePost() {
@@ -99,8 +101,8 @@ export default function CreatePost() {
     { 
       value: 'photo', 
       label: 'Photo/Image',
-      description: 'Single photo (Facebook, Instagram, Twitter, Telegram, LinkedIn)',
-      platforms: ['facebook', 'instagram', 'twitter', 'telegram', 'linkedin']
+      description: 'Single photo (Facebook, Instagram, Twitter, Telegram, LinkedIn, Pinterest)',
+      platforms: ['facebook', 'instagram', 'twitter', 'telegram', 'linkedin', 'pinterest']
     },
     { 
       value: 'video', 
@@ -126,6 +128,12 @@ export default function CreatePost() {
       description: 'Share a link with preview (Facebook, LinkedIn, Twitter)',
       platforms: ['facebook', 'linkedin', 'twitter']
     },
+    { 
+      value: 'pin', 
+      label: 'Pin (Pinterest)',
+      description: 'Image pin with description and link (Pinterest only)',
+      platforms: ['pinterest']
+    },
   ];
 
   // Map universal type to platform-specific type
@@ -143,6 +151,7 @@ export default function CreatePost() {
         'twitter': 'media',
         'telegram': 'photo',
         'linkedin': 'image',
+        'pinterest': 'pin',
       },
       'video': {
         'facebook': 'video',
@@ -166,6 +175,9 @@ export default function CreatePost() {
         'facebook': 'link',
         'linkedin': 'post',
         'twitter': 'text',
+      },
+      'pin': {
+        'pinterest': 'pin',
       },
     };
 

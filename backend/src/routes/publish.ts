@@ -7,6 +7,7 @@ import { TikTokService } from '../services/tiktok';
 import { TwitterService } from '../services/twitter';
 import { TelegramService } from '../services/telegram';
 import { LinkedInService } from '../services/linkedin';
+import { MediaCleanupService } from '../services/media-cleanup';
 import crypto from 'crypto';
 
 const router = express.Router();
@@ -614,6 +615,11 @@ router.post('/', async (req: any, res) => {
       'UPDATE posts SET status = $1, updated_at = NOW() WHERE id = $2',
       [newStatus, post_id]
     );
+
+    // ✅ Auto-cleanup media after successful publish (5 minutes delay)
+    if (anySuccess) {
+      MediaCleanupService.cleanupPostMedia(post_id, { delay: 5 * 60 * 1000 });
+    }
 
     res.json({ success: anySuccess, results, post_status: newStatus });
 

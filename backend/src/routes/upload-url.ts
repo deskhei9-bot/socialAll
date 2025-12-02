@@ -13,6 +13,12 @@ import {
   isFacebookUrl,
   isInstagramUrl,
   isTelegramUrl,
+  isWeiboUrl,
+  isDouyinUrl,
+  isXiaohongshuUrl,
+  isPinterestUrl,
+  isKuaishouUrl,
+  isThreadsUrl,
   getPlatformName,
   downloadVideo,
   checkYtDlpInstalled 
@@ -90,7 +96,9 @@ router.post('/from-url', async (req: any, res) => {
 
     // Check if it's a social media video URL
     const isSocialMedia = isYouTubeUrl(url) || isTikTokUrl(url) || isTwitterUrl(url) || 
-                          isFacebookUrl(url) || isInstagramUrl(url) || isTelegramUrl(url);
+                          isFacebookUrl(url) || isInstagramUrl(url) || isTelegramUrl(url) ||
+                          isWeiboUrl(url) || isDouyinUrl(url) || isXiaohongshuUrl(url) || 
+                          isPinterestUrl(url) || isKuaishouUrl(url) || isThreadsUrl(url);
     
     if (isSocialMedia) {
       const platformName = getPlatformName(url);
@@ -126,10 +134,16 @@ router.post('/from-url', async (req: any, res) => {
       let platform = 'unknown';
       if (isYouTubeUrl(url)) platform = 'youtube';
       else if (isTikTokUrl(url)) platform = 'tiktok';
+      else if (isDouyinUrl(url)) platform = 'douyin';
       else if (isTwitterUrl(url)) platform = 'twitter';
       else if (isFacebookUrl(url)) platform = 'facebook';
       else if (isInstagramUrl(url)) platform = 'instagram';
       else if (isTelegramUrl(url)) platform = 'telegram';
+      else if (isWeiboUrl(url)) platform = 'weibo';
+      else if (isXiaohongshuUrl(url)) platform = 'xiaohongshu';
+      else if (isPinterestUrl(url)) platform = 'pinterest';
+      else if (isKuaishouUrl(url)) platform = 'kuaishou';
+      else if (isThreadsUrl(url)) platform = 'threads';
 
       // Save to database
       const dbResult = await pool.query(

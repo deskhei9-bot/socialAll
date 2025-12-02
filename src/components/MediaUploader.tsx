@@ -202,10 +202,16 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
               )}
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground font-medium">
-                  ✅ Supported: YouTube, TikTok, Twitter/X, Facebook (public), Instagram (limited)
+                  ✅ Supported: YouTube, TikTok, Twitter/X, Facebook, Instagram, Weibo, Xiaohongshu, Pinterest
+                </p>
+                <p className="text-[11px] text-amber-600/80 dark:text-amber-500/80">
+                  ⚠️ Requires Auth: Douyin (抖音) - please download manually first
                 </p>
                 <p className="text-[11px] text-muted-foreground/70">
                   Direct media URLs (jpg, png, gif, mp4) also work • Max 500MB
+                </p>
+                <p className="text-[11px] text-red-600/80 dark:text-red-500/80 mt-1">
+                  ❌ Not yet: Kuaishou (快手), Threads
                 </p>
               </div>
             </div>

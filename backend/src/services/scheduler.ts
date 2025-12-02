@@ -6,6 +6,7 @@ import { TikTokService } from './tiktok';
 import { TwitterService } from './twitter';
 import { TelegramService } from './telegram';
 import { LinkedInService } from './linkedin';
+import { MediaCleanupService } from './media-cleanup';
 import crypto from 'crypto';
 
 let isRunning = false;
@@ -63,6 +64,9 @@ async function publishPost(post: any): Promise<void> {
     'UPDATE posts SET status = $1, published_at = NOW(), updated_at = NOW() WHERE id = $2',
     ['published', post.id]
   );
+
+  // ✅ Auto-cleanup media after successful scheduled post (5 minutes delay)
+  MediaCleanupService.cleanupPostMedia(post.id, { delay: 5 * 60 * 1000 });
 }
 
 async function processScheduledPosts(): Promise<void> {
