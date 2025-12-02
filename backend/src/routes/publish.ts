@@ -44,7 +44,7 @@ function getSmartTitle(post: any, maxLength: number = 100): string {
 
 /**
  * POST /api/publish
- * Publish a post to selected platforms
+ * Publish a post to selected channels (supports multiple channels per platform)
  */
 router.post('/', async (req: any, res) => {
   const { post_id } = req.body;
@@ -61,35 +61,58 @@ router.post('/', async (req: any, res) => {
     }
 
     const post = postResult.rows[0];
+    
+    // NEW: Use selected_channel_ids if available, otherwise fall back to platforms
+    const selectedChannelIds = post.selected_channel_ids || [];
     const platforms = post.platforms || [];
     const postType = post.post_type || 'text';
     const results: any[] = [];
+    
+    let channelsToPublish: any[] = [];
+    
+    if (selectedChannelIds.length > 0) {
+      // NEW BEHAVIOR: Publish to specific selected channels
+      const channelResult = await pool.query(
+        'SELECT * FROM connected_channels WHERE id = ANY($1) AND user_id = $2 AND is_active = true',
+        [selectedChannelIds, userId]
+      );
+      channelsToPublish = channelResult.rows;
+    } else if (platforms.length > 0) {
+      // LEGACY BEHAVIOR: Publish to first channel of each platform (backward compatibility)
+      for (const platform of platforms) {
+        const channelResult = await pool.query(
+          'SELECT * FROM connected_channels WHERE user_id = $1 AND platform = $2 AND is_active = true LIMIT 1',
+          [userId, platform]
+        );
+        if (channelResult.rows.length > 0) {
+          channelsToPublish.push(channelResult.rows[0]);
+        }
+      }
+    } else {
+      return res.status(400).json({ error: 'No channels selected for publishing' });
+    }
+    
+    if (channelsToPublish.length === 0) {
+      return res.status(400).json({ error: 'No active channels found for publishing' });
+    }
 
-    for (const platform of platforms) {
+    // Publish to each selected channel
+    for (const channel of channelsToPublish) {
+      const platform = channel.platform;
+      const accessToken = decryptToken(channel.access_token);
+      const channelId = channel.channel_id;
+      const channelName = channel.account_name || channel.channel_name;
+      
       try {
+        let publishResult;
+        
         if (platform === 'facebook') {
-          const channelResult = await pool.query(
-            'SELECT * FROM connected_channels WHERE user_id = $1 AND platform = $2 AND is_active = true LIMIT 1',
-            [userId, 'facebook']
-          );
-
-          if (channelResult.rows.length === 0) {
-            results.push({ platform: 'facebook', status: 'failed', error: 'No Facebook page connected' });
-            continue;
-          }
-
-          const channel = channelResult.rows[0];
-          const accessToken = decryptToken(channel.access_token);
-          const pageId = channel.channel_id;
-
-          let publishResult;
-
           // Publish based on post type
           switch (postType) {
             case 'reel':
               if (post.media_url && post.media_url.includes('/videos/')) {
                 const filePath = post.media_url.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
-                publishResult = await FacebookService.publishReel(accessToken, pageId, filePath, post.content);
+                publishResult = await FacebookService.publishReel(accessToken, channelId, filePath, post.content);
               } else {
                 throw new Error('Reel requires a video file');
               }
@@ -99,7 +122,7 @@ router.post('/', async (req: any, res) => {
               // Expect multiple media URLs in metadata
               const mediaUrls = post.metadata?.media_urls || [];
               if (mediaUrls.length > 0) {
-                publishResult = await FacebookService.publishPhotoAlbum(accessToken, pageId, mediaUrls, post.content);
+                publishResult = await FacebookService.publishPhotoAlbum(accessToken, channelId, mediaUrls, post.content);
               } else {
                 throw new Error('Album requires multiple photos');
               }
@@ -108,7 +131,7 @@ router.post('/', async (req: any, res) => {
             case 'link':
               const linkUrl = post.metadata?.link_url || post.media_url;
               if (linkUrl) {
-                publishResult = await FacebookService.publishLink(accessToken, pageId, linkUrl, post.content);
+                publishResult = await FacebookService.publishLink(accessToken, channelId, linkUrl, post.content);
               } else {
                 throw new Error('Link post requires a URL');
               }
@@ -117,7 +140,7 @@ router.post('/', async (req: any, res) => {
             case 'video':
               if (post.media_url && post.media_url.includes('/videos/')) {
                 const filePath = post.media_url.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
-                publishResult = await FacebookService.publishVideoPost(accessToken, pageId, filePath, post.content);
+                publishResult = await FacebookService.publishVideoPost(accessToken, channelId, filePath, post.content);
               } else {
                 throw new Error('Video post requires a video file');
               }
@@ -125,7 +148,7 @@ router.post('/', async (req: any, res) => {
 
             case 'photo':
               if (post.media_url && post.media_url.includes('/images/')) {
-                publishResult = await FacebookService.publishPhotoPost(accessToken, pageId, post.media_url, post.content);
+                publishResult = await FacebookService.publishPhotoPost(accessToken, channelId, post.media_url, post.content);
               } else {
                 throw new Error('Photo post requires an image');
               }
@@ -133,7 +156,7 @@ router.post('/', async (req: any, res) => {
 
             case 'text':
             default:
-              publishResult = await FacebookService.publishTextPost(accessToken, pageId, post.content);
+              publishResult = await FacebookService.publishTextPost(accessToken, channelId, post.content);
               break;
           }
 
@@ -146,11 +169,22 @@ router.post('/', async (req: any, res) => {
               'facebook',
               (publishResult as any).postId || (publishResult as any).videoId || (publishResult as any).reelId || (publishResult as any).albumId,
               'success',
-              JSON.stringify({ url: publishResult.url, post_type: postType }),
+              JSON.stringify({ 
+                url: publishResult.url, 
+                post_type: postType,
+                channel_name: channelName 
+              }),
             ]
           );
 
-          results.push({ platform: 'facebook', status: 'success', url: publishResult.url, post_type: postType });
+          results.push({ 
+            platform: 'facebook', 
+            channel_id: channel.id,
+            channel_name: channelName,
+            status: 'success', 
+            url: publishResult.url, 
+            post_type: postType 
+          });
 
         } else if (platform === 'instagram') {
           // Instagram Publishing

@@ -49,13 +49,43 @@ router.get('/:id', async (req: any, res) => {
 router.post('/', async (req: any, res) => {
   try {
     const userId = req.user.id;
-    const { title, content, platforms, status, scheduled_for, media_url, media_type, metadata, post_type } = req.body;
+    const { 
+      title, 
+      content, 
+      platforms, 
+      status, 
+      scheduled_at,
+      scheduled_for, // legacy support 
+      media_url, 
+      media_urls,
+      media_type, 
+      metadata, 
+      post_type,
+      selected_channel_ids // NEW: Array of channel IDs to publish to
+    } = req.body;
     
     const result = await pool.query(
-      `INSERT INTO posts (user_id, title, content, platforms, status, scheduled_for, media_url, media_type, metadata, post_type)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      `INSERT INTO posts (
+        user_id, title, content, platforms, status, 
+        scheduled_at, media_url, media_urls, media_type, metadata, post_type,
+        selected_channel_ids
+      )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        RETURNING *`,
-      [userId, title, content, platforms || [], status || 'draft', scheduled_for, media_url, media_type, metadata || {}, post_type || 'text']
+      [
+        userId, 
+        title, 
+        content, 
+        platforms || [], 
+        status || 'draft', 
+        scheduled_at || scheduled_for, // support both field names
+        media_url, 
+        media_urls || [],
+        media_type, 
+        metadata || {}, 
+        post_type || 'text',
+        selected_channel_ids || [] // Default to empty array
+      ]
     );
     
     res.status(201).json(result.rows[0]);
@@ -70,7 +100,20 @@ router.put('/:id', async (req: any, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
-    const { title, content, platforms, status, scheduled_for, media_url, media_type, metadata, post_type } = req.body;
+    const { 
+      title, 
+      content, 
+      platforms, 
+      status, 
+      scheduled_at,
+      scheduled_for,
+      media_url, 
+      media_urls,
+      media_type, 
+      metadata, 
+      post_type,
+      selected_channel_ids 
+    } = req.body;
     
     const result = await pool.query(
       `UPDATE posts 
@@ -78,15 +121,32 @@ router.put('/:id', async (req: any, res) => {
            content = COALESCE($2, content),
            platforms = COALESCE($3, platforms),
            status = COALESCE($4, status),
-           scheduled_for = COALESCE($5, scheduled_for),
-           media_url = COALESCE($6, media_url),
-           media_type = COALESCE($7, media_type),
-           metadata = COALESCE($8, metadata),
-           post_type = COALESCE($9, post_type),
+           scheduled_at = COALESCE($5, $6, scheduled_at),
+           media_url = COALESCE($7, media_url),
+           media_urls = COALESCE($8, media_urls),
+           media_type = COALESCE($9, media_type),
+           metadata = COALESCE($10, metadata),
+           post_type = COALESCE($11, post_type),
+           selected_channel_ids = COALESCE($12, selected_channel_ids),
            updated_at = NOW()
-       WHERE id = $10 AND user_id = $11
+       WHERE id = $13 AND user_id = $14
        RETURNING *`,
-      [title, content, platforms, status, scheduled_for, media_url, media_type, metadata, post_type, id, userId]
+      [
+        title, 
+        content, 
+        platforms, 
+        status, 
+        scheduled_at, 
+        scheduled_for, // legacy support
+        media_url, 
+        media_urls,
+        media_type, 
+        metadata, 
+        post_type, 
+        selected_channel_ids,
+        id, 
+        userId
+      ]
     );
     
     if (result.rows.length === 0) {

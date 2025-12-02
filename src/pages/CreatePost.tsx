@@ -45,6 +45,7 @@ import { CaptionTemplateManager } from "@/components/CaptionTemplateManager";
 import { CaptionTemplate } from "@/hooks/useCaptionTemplates";
 import { HashtagSuggestions } from "@/components/HashtagSuggestions";
 import { CaptionGenerator } from "@/components/CaptionGenerator";
+import { ChannelSelector } from "@/components/ChannelSelector";
 
 const platforms = [
   { id: "facebook", icon: Facebook, label: "Facebook", color: "hover:border-blue-500 hover:bg-blue-500/10", apiSupported: true },
@@ -59,6 +60,7 @@ const platforms = [
 
 export default function CreatePost() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["facebook"]);
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]); // NEW
   const [postType, setPostType] = useState<string>("text");
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
@@ -75,7 +77,12 @@ export default function CreatePost() {
 
   const { createPost } = usePosts();
   const { addLog } = useActivityLogs();
-  const { publishPost, publishing, results, getConnectedChannelsForPlatforms } = usePublishPost();
+  const { 
+    publishToSelectedChannels, 
+    publishing, 
+    results, 
+    getChannelsForPlatforms // NEW: Get ALL channels for platforms
+  } = usePublishPost();
   const navigate = useNavigate();
 
   // Universal post types that work across multiple platforms
@@ -225,7 +232,18 @@ export default function CreatePost() {
     }
   }, [postType]);
 
-  const connectedChannels = getConnectedChannelsForPlatforms(selectedPlatforms);
+  // Auto-select channels when platforms change
+  useEffect(() => {
+    if (selectedPlatforms.length > 0) {
+      const availableChannels = getChannelsForPlatforms(selectedPlatforms);
+      // Auto-select all available channels
+      setSelectedChannelIds(availableChannels.map(ch => ch.id));
+    } else {
+      setSelectedChannelIds([]);
+    }
+  }, [selectedPlatforms]);
+
+  const availableChannels = getChannelsForPlatforms(selectedPlatforms);
 
   const handleSubmit = async (status: 'draft' | 'scheduled' | 'queued' | 'published') => {
     if (!content.trim() || selectedPlatforms.length === 0) return;
@@ -256,33 +274,34 @@ export default function CreatePost() {
     const { data: post, error } = await createPost({
       title: title || undefined,
       content,
-      post_type: postType,
       platforms: selectedPlatforms,
-      status: status === 'published' && connectedChannels.length > 0 ? 'publishing' : status,
+      status: status === 'published' && selectedChannelIds.length > 0 ? 'publishing' : status,
       scheduled_at: scheduledAt,
       media_urls: mediaUrls,
       metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
-    });
+      post_type: postType, // TypeScript might complain, but backend accepts this
+      selected_channel_ids: selectedChannelIds, // NEW: Send selected channel IDs
+    } as any); // Use 'as any' to bypass type checking
 
     if (error || !post) {
       setIsSubmitting(false);
       return;
     }
 
-    // If publishing immediately and we have connected channels, publish to APIs
-    if (status === 'published' && connectedChannels.length > 0) {
-      const { success } = await publishPost(
+    // If publishing immediately and we have selected channels, publish to APIs
+    if (status === 'published' && selectedChannelIds.length > 0) {
+      const { success } = await publishToSelectedChannels(
         post.id,
+        selectedChannelIds,
         title || 'Untitled',
         content,
-        selectedPlatforms,
         mediaUrls
       );
 
       if (success) {
         await addLog({
           type: 'success',
-          message: `Post published to ${connectedChannels.length} channel(s)`,
+          message: `Post published to ${selectedChannelIds.length} channel(s)`,
           platform: selectedPlatforms[0],
           post_id: post.id,
         });
@@ -377,45 +396,26 @@ export default function CreatePost() {
                 })}
               </div>
               
-              {/* Connected Channels Info */}
-              {selectedPlatforms.length > 0 && (
+              {/* Channel Selection - NEW */}
+              {selectedPlatforms.length > 0 && availableChannels.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-border/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <Label className="text-xs font-medium text-muted-foreground">
-                      Connected Channels:
-                    </Label>
-                    {connectedChannels.length === 0 && (
-                      <a 
-                        href="/channels" 
-                        className="text-xs text-primary hover:underline font-medium flex items-center gap-1"
-                      >
-                        Connect
-                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </a>
-                    )}
+                  <ChannelSelector
+                    channels={availableChannels}
+                    selectedIds={selectedChannelIds}
+                    onSelectionChange={setSelectedChannelIds}
+                  />
+                </div>
+              )}
+
+              {/* No Channels Warning */}
+              {selectedPlatforms.length > 0 && availableChannels.length === 0 && (
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                    <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      No connected channels for selected platforms. <a href="/channels" className="underline font-medium">Connect now</a>
+                    </p>
                   </div>
-                  {connectedChannels.length > 0 ? (
-                    <div className="flex flex-wrap gap-1.5">
-                      {connectedChannels.map(channel => (
-                        <div
-                          key={channel.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-full text-xs font-medium"
-                        >
-                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-green-600 dark:text-green-400">{channel.account_name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                      <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-600 dark:text-amber-400">
-                        No connected channels. <a href="/channels" className="underline font-medium">Connect now</a>
-                      </p>
-                    </div>
-                  )}
                 </div>
               )}
 
@@ -874,7 +874,7 @@ export default function CreatePost() {
             <Button 
               className="w-full gap-2 bg-neon-gradient hover:opacity-90 neon-glow"
               onClick={() => handleSubmit(scheduleMode ? 'scheduled' : 'published')}
-              disabled={isProcessing || !content.trim() || selectedPlatforms.length === 0}
+              disabled={isProcessing || !content.trim() || selectedChannelIds.length === 0}
             >
               {isProcessing ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -886,7 +886,7 @@ export default function CreatePost() {
               ) : (
                 <>
                   <Send className="w-4 h-4" />
-                  Publish Now {connectedChannels.length > 0 && `(${connectedChannels.length})`}
+                  Publish to {selectedChannelIds.length} Channel{selectedChannelIds.length !== 1 ? 's' : ''}
                 </>
               )}
             </Button>
@@ -894,7 +894,7 @@ export default function CreatePost() {
               variant="outline" 
               className="w-full gap-2"
               onClick={() => handleSubmit('queued')}
-              disabled={isProcessing || !content.trim() || selectedPlatforms.length === 0}
+              disabled={isProcessing || !content.trim() || selectedChannelIds.length === 0}
             >
               <Clock className="w-4 h-4" />
               Add to Queue
