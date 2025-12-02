@@ -29,7 +29,7 @@ const Index = () => {
               <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20">
                 <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1 overflow-hidden">
                   <img 
-                    src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/refs/heads/master/Screenshot%202025-12-03%20at%2004.53.28.png" 
+                    src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/master/8e616651-fa00-4358-9da7-2c76e7a78c6f.png" 
                     alt="SocialFlow Logo" 
                     className="w-full h-full object-contain rounded-md"
                   />
@@ -293,7 +293,7 @@ const Index = () => {
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center p-0.5 overflow-hidden">
                 <img 
-                  src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/refs/heads/master/Screenshot%202025-12-03%20at%2004.53.28.png" 
+                  src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/master/8e616651-fa00-4358-9da7-2c76e7a78c6f.png" 
                   alt="SocialFlow Logo" 
                   className="w-full h-full object-contain rounded-sm"
                 />
