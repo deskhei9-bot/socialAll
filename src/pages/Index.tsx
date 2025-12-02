@@ -272,17 +272,86 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t bg-muted/30">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="container mx-auto px-4 py-12">
+          {/* Footer Links Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+            {/* Company */}
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <a href="/about.html" className="hover:text-primary transition-colors">About Us</a>
+                </li>
+                <li>
+                  <a href="/contact.html" className="hover:text-primary transition-colors">Contact</a>
+                </li>
+                <li>
+                  <a href="https://github.com/deskhei9-bot/social-symphony" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">GitHub</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h4 className="font-semibold mb-4">Support</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <a href="/help.html" className="hover:text-primary transition-colors">Help Center</a>
+                </li>
+                <li>
+                  <a href="/faq.html" className="hover:text-primary transition-colors">FAQ</a>
+                </li>
+                <li>
+                  <a href="/status" className="hover:text-primary transition-colors">System Status</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <a href="/privacy-policy.html" className="hover:text-primary transition-colors">Privacy Policy</a>
+                </li>
+                <li>
+                  <a href="/terms-of-service.html" className="hover:text-primary transition-colors">Terms of Service</a>
+                </li>
+                <li>
+                  <a href="/cookie-policy.html" className="hover:text-primary transition-colors">Cookie Policy</a>
+                </li>
+                <li>
+                  <a href="/user-data-deletion.html" className="hover:text-primary transition-colors">Data Deletion</a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <h4 className="font-semibold mb-4">Resources</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <a href="/help.html#api" className="hover:text-primary transition-colors">API Documentation</a>
+                </li>
+                <li>
+                  <a href="/help.html#quick-start" className="hover:text-primary transition-colors">Quick Start Guide</a>
+                </li>
+                <li>
+                  <a href="/help.html#troubleshooting" className="hover:text-primary transition-colors">Troubleshooting</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Footer */}
+          <div className="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-primary" />
               <span className="font-semibold">Social Symphony</span>
               <span className="text-muted-foreground">v1.0.0</span>
             </div>
-            <div className="flex gap-6 text-sm text-muted-foreground">
-              <a href="/status" className="hover:text-primary transition-colors">System Status</a>
-              <a href="https://github.com/deskhei9-bot/social-symphony" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">GitHub</a>
-              <span>© 2025 Social Symphony</span>
+            <div className="text-sm text-muted-foreground">
+              © 2025 Social Symphony. All rights reserved.
             </div>
           </div>
         </div>
