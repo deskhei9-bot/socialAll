@@ -193,7 +193,7 @@ const Index = () => {
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Take control of your social media strategy with our powerful, self-hosted platform
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+            <div className="flex justify-center pt-4">
               <Button 
                 size="lg" 
                 className="text-lg px-8 py-6 group"
@@ -201,14 +201,6 @@ const Index = () => {
               >
                 Start Free Now
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-lg px-8 py-6"
-                onClick={() => window.open('https://github.com/deskhei9-bot/socialflow', '_blank')}
-              >
-                View on GitHub
               </Button>
             </div>
           </CardContent>
