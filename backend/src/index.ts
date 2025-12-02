@@ -81,6 +81,7 @@ import uploadUrlRoutes from './routes/upload-url';
 import oauthRoutes from './routes/oauth';
 import aiRoutes from './routes/ai';
 import pinterestOAuthRoutes from './routes/pinterest-oauth';
+import publishingProfilesRoutes from './routes/publishing-profiles';
 
 app.use('/api/posts', authenticate, postsRoutes);
 app.use('/api/channels', authenticate, channelsRoutes);
@@ -90,6 +91,7 @@ app.use('/api/upload', authenticate, uploadUrlRoutes);
 app.use('/api/oauth', authenticate, oauthRoutes);
 app.use('/api/ai', authenticate, aiRoutes);
 app.use('/api', pinterestOAuthRoutes); // Pinterest OAuth routes (includes auth middleware internally)
+app.use('/api/publishing-profiles', authenticate, publishingProfilesRoutes);
 import publishRoutes from './routes/publish';
 app.use('/api/publish', authenticate, publishRoutes);
 

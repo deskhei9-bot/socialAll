@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { usePosts } from "@/hooks/usePosts";
 import { useActivityLogs } from "@/hooks/useActivityLogs";
 import { usePublishPost } from "@/hooks/usePublishPost";
+import { usePublishingProfiles } from "@/hooks/usePublishingProfiles";
 import { MediaUploader } from "@/components/MediaUploader";
 import { UploadedMedia } from "@/hooks/useMediaUpload";
 import { CaptionTemplateManager } from "@/components/CaptionTemplateManager";
@@ -46,6 +47,8 @@ import { CaptionTemplate } from "@/hooks/useCaptionTemplates";
 import { HashtagSuggestions } from "@/components/HashtagSuggestions";
 import { CaptionGenerator } from "@/components/CaptionGenerator";
 import { ChannelSelector } from "@/components/ChannelSelector";
+import { ProfileSelector } from "@/components/ProfileSelector";
+import { ProfileManager } from "@/components/ProfileManager";
 
 const platforms = [
   { id: "facebook", icon: Facebook, label: "Facebook", color: "hover:border-blue-500 hover:bg-blue-500/10", apiSupported: true },
@@ -61,6 +64,8 @@ const platforms = [
 export default function CreatePost() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["facebook"]);
   const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]); // NEW
+  const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null); // NEW: For profile-based selection
+  const [profileManagerOpen, setProfileManagerOpen] = useState(false); // NEW: Profile manager dialog
   const [postType, setPostType] = useState<string>("text");
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
@@ -83,6 +88,13 @@ export default function CreatePost() {
     results, 
     getChannelsForPlatforms // NEW: Get ALL channels for platforms
   } = usePublishPost();
+  const { 
+    profiles, 
+    createProfile, 
+    updateProfile, 
+    deleteProfile,
+    loading: profilesLoading 
+  } = usePublishingProfiles(); // NEW: Publishing profiles hook
   const navigate = useNavigate();
 
   // Universal post types that work across multiple platforms
@@ -234,6 +246,9 @@ export default function CreatePost() {
 
   // Auto-select channels when platforms change
   useEffect(() => {
+    // If a profile is selected, don't auto-select channels
+    if (selectedProfileId) return;
+    
     if (selectedPlatforms.length > 0) {
       const availableChannels = getChannelsForPlatforms(selectedPlatforms);
       // Auto-select all available channels
@@ -241,7 +256,52 @@ export default function CreatePost() {
     } else {
       setSelectedChannelIds([]);
     }
-  }, [selectedPlatforms]);
+  }, [selectedPlatforms, selectedProfileId]);
+
+  // Auto-load default profile on mount
+  useEffect(() => {
+    if (!profilesLoading && profiles.length > 0) {
+      const defaultProfile = profiles.find(p => p.is_default);
+      if (defaultProfile) {
+        setSelectedProfileId(defaultProfile.id);
+        setSelectedChannelIds(defaultProfile.channel_ids);
+      }
+    }
+  }, [profilesLoading, profiles]);
+
+  // Handle profile selection
+  const handleProfileSelect = (profileId: string | null) => {
+    setSelectedProfileId(profileId);
+    if (profileId) {
+      const profile = profiles.find(p => p.id === profileId);
+      if (profile) {
+        setSelectedChannelIds(profile.channel_ids);
+      }
+    } else {
+      // Manual mode - reset to auto-select based on platforms
+      if (selectedPlatforms.length > 0) {
+        const availableChannels = getChannelsForPlatforms(selectedPlatforms);
+        setSelectedChannelIds(availableChannels.map(ch => ch.id));
+      }
+    }
+  };
+
+  // Handle manual channel selection (switches to manual mode)
+  const handleChannelSelectionChange = (channelIds: string[]) => {
+    setSelectedChannelIds(channelIds);
+    setSelectedProfileId(null); // Switch to manual mode
+  };
+
+  const handleSaveProfile = async (profileData: any) => {
+    await createProfile(
+      profileData.name,
+      profileData.description,
+      profileData.channel_ids,
+      profileData.is_default,
+      profileData.color,
+      profileData.icon
+    );
+  };
 
   const availableChannels = getChannelsForPlatforms(selectedPlatforms);
 
@@ -396,13 +456,26 @@ export default function CreatePost() {
                 })}
               </div>
               
+              {/* Profile Selection - NEW */}
+              {selectedPlatforms.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <ProfileSelector
+                    profiles={profiles}
+                    selectedProfileId={selectedProfileId}
+                    onSelectProfile={handleProfileSelect}
+                    onCreateProfile={() => setProfileManagerOpen(true)}
+                    channelCount={selectedChannelIds.length}
+                  />
+                </div>
+              )}
+              
               {/* Channel Selection - NEW */}
               {selectedPlatforms.length > 0 && availableChannels.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-border/50">
                   <ChannelSelector
                     channels={availableChannels}
                     selectedIds={selectedChannelIds}
-                    onSelectionChange={setSelectedChannelIds}
+                    onSelectionChange={handleChannelSelectionChange}
                   />
                 </div>
               )}
@@ -952,6 +1025,13 @@ export default function CreatePost() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Profile Manager Dialog */}
+      <ProfileManager
+        open={profileManagerOpen}
+        onOpenChange={setProfileManagerOpen}
+        onSave={handleSaveProfile}
+      />
     </div>
   );
 }
