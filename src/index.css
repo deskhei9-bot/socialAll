@@ -1,11 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @layer base {
   :root {
+    /* Light Theme - Default */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 252 100% 69%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 187 100% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 270 100% 70%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 252 100% 69%;
+
+    --radius: 0.75rem;
+
+    /* Custom colors */
+    --neon-indigo: 252 100% 69%;
+    --neon-cyan: 187 100% 50%;
+    --neon-purple: 270 100% 70%;
+    --neon-pink: 330 100% 65%;
+    --neon-green: 150 100% 50%;
+
+    /* Glassmorphism for Light */
+    --glass-bg: 0 0% 98%;
+    --glass-border: 214 32% 88%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 252 100% 69%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 252 100% 69%;
+  }
+
+  .dark {
+    /* Dark Theme */
     --background: 222 47% 6%;
     --foreground: 210 40% 98%;
 
@@ -34,16 +88,7 @@
     --input: 222 30% 18%;
     --ring: 252 100% 69%;
 
-    --radius: 0.75rem;
-
-    /* Custom colors */
-    --neon-indigo: 252 100% 69%;
-    --neon-cyan: 187 100% 50%;
-    --neon-purple: 270 100% 70%;
-    --neon-pink: 330 100% 65%;
-    --neon-green: 150 100% 50%;
-
-    /* Glassmorphism */
+    /* Glassmorphism for Dark */
     --glass-bg: 222 47% 11%;
     --glass-border: 222 30% 22%;
 
@@ -55,11 +100,6 @@
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 222 30% 15%;
     --sidebar-ring: 252 100% 69%;
-  }
-
-  .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
   }
 }
 
@@ -80,7 +120,15 @@
 
 @layer components {
   .glass-card {
-    @apply bg-card/60 backdrop-blur-xl border border-border/50 rounded-xl;
+    @apply bg-card/80 backdrop-blur-xl border border-border/50 rounded-xl;
+    box-shadow: 
+      0 0 0 1px hsl(var(--glass-border) / 0.15),
+      0 4px 24px hsl(var(--foreground) / 0.06),
+      inset 0 1px 0 hsl(var(--background) / 0.8);
+  }
+
+  .dark .glass-card {
+    @apply bg-card/60;
     box-shadow: 
       0 0 0 1px hsl(var(--glass-border) / 0.1),
       0 8px 32px hsl(var(--background) / 0.4),
@@ -138,6 +186,7 @@
   .platform-tiktok { --platform-color: 180 100% 50%; }
   .platform-twitter { --platform-color: 203 89% 53%; }
   .platform-linkedin { --platform-color: 201 100% 35%; }
+  .platform-telegram { --platform-color: 203 89% 53%; }
 }
 
 @layer utilities {

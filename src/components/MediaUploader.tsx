@@ -1,7 +1,9 @@
 import { useState, useCallback } from "react";
-import { Upload, X, Image, Video, Loader2 } from "lucide-react";
+import { Upload, X, Image, Video, Loader2, Link as LinkIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { useMediaUpload, UploadedMedia } from "@/hooks/useMediaUpload";
 
@@ -13,7 +15,9 @@ interface MediaUploaderProps {
 
 export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const { uploadMultiple, deleteMedia, uploading, progress } = useMediaUpload();
+  const [mediaUrl, setMediaUrl] = useState("");
+  const [uploadTab, setUploadTab] = useState<"file" | "url">("file");
+  const { uploadMultiple, deleteMedia, uploadFromUrl, uploading, progress } = useMediaUpload();
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -36,8 +40,13 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
     const filesToUpload = files.slice(0, remainingSlots);
 
     if (filesToUpload.length > 0) {
-      const uploaded = await uploadMultiple(filesToUpload);
-      onMediaChange([...media, ...uploaded]);
+      const result = await uploadMultiple(filesToUpload);
+      if (result.data && !result.error) {
+        onMediaChange([...media, ...result.data]);
+      } else if (result.error) {
+        console.error('Upload error:', result.error);
+        alert(`Upload failed: ${result.error.message}`);
+      }
     }
   }, [media, maxFiles, uploadMultiple, onMediaChange]);
 
@@ -49,8 +58,17 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
     const filesToUpload = files.slice(0, remainingSlots);
 
     if (filesToUpload.length > 0) {
-      const uploaded = await uploadMultiple(filesToUpload);
-      onMediaChange([...media, ...uploaded]);
+      const result = await uploadMultiple(filesToUpload);
+      if (result.data && !result.error) {
+        console.log('Upload successful! Files:', result.data);
+        result.data.forEach(file => {
+          console.log(`- ${file.name}: ${file.url}`);
+        });
+        onMediaChange([...media, ...result.data]);
+      } else if (result.error) {
+        console.error('Upload error:', result.error);
+        alert(`Upload failed: ${result.error.message}`);
+      }
     }
 
     // Reset input
@@ -58,9 +76,26 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
   };
 
   const handleRemove = async (item: UploadedMedia) => {
-    const success = await deleteMedia(item.id);
-    if (success) {
+    const result = await deleteMedia(item.id);
+    if (!result.error) {
       onMediaChange(media.filter(m => m.id !== item.id));
+    } else {
+      console.error('Delete error:', result.error);
+      alert(`Failed to delete: ${result.error.message}`);
+    }
+  };
+
+  const handleUrlUpload = async () => {
+    if (!mediaUrl.trim()) return;
+
+    const result = await uploadFromUrl(mediaUrl.trim());
+    if (result.data && !result.error) {
+      console.log('URL upload successful:', result.data);
+      onMediaChange([...media, result.data]);
+      setMediaUrl("");
+    } else if (result.error) {
+      console.error('URL upload error:', result.error);
+      alert(`Upload failed: ${result.error.message}`);
     }
   };
 
@@ -71,105 +106,111 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
   };
 
   return (
-    <div className="space-y-4">
-      {/* Upload Area */}
-      <div
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        className={cn(
-          "border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer",
-          isDragging 
-            ? "border-primary bg-primary/10" 
-            : "border-border/50 hover:border-primary/50",
-          uploading && "pointer-events-none opacity-50"
-        )}
-      >
-        <input
-          type="file"
-          id="media-upload"
-          className="hidden"
-          multiple
-          accept="image/*,video/*"
-          onChange={handleFileSelect}
-          disabled={uploading || media.length >= maxFiles}
-        />
-        <label htmlFor="media-upload" className="cursor-pointer">
-          {uploading ? (
-            <div className="space-y-4">
-              <Loader2 className="w-10 h-10 mx-auto text-primary animate-spin" />
-              <p className="font-medium">Uploading...</p>
-              <Progress value={progress} className="w-48 mx-auto h-2" />
-            </div>
-          ) : (
-            <>
-              <Upload className="w-10 h-10 mx-auto text-muted-foreground" />
-              <p className="mt-4 font-medium">Drop files here or click to upload</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Images up to 50MB, videos up to 500MB
-              </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                {media.length}/{maxFiles} files uploaded
-              </p>
-            </>
-          )}
-        </label>
-      </div>
+    <div className="space-y-3">
+      {/* Upload Area Only - No Preview Grid */}
+      {media.length < maxFiles && (
+        <Tabs value={uploadTab} onValueChange={(v) => setUploadTab(v as "file" | "url")} className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-2">
+            <TabsTrigger value="file" className="text-xs">
+              <Upload className="w-3 h-3 mr-1.5" />
+              Upload File
+            </TabsTrigger>
+            <TabsTrigger value="url" className="text-xs">
+              <LinkIcon className="w-3 h-3 mr-1.5" />
+              From URL
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Preview Grid */}
-      {media.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {media.map((item) => (
+          <TabsContent value="file" className="mt-0">
             <div
-              key={item.id}
-              className="relative group rounded-xl overflow-hidden bg-muted aspect-square"
-            >
-              {item.type === 'image' ? (
-                <img
-                  src={item.url}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <video
-                  src={item.url}
-                  className="w-full h-full object-cover"
-                />
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={cn(
+                "border-2 border-dashed rounded-lg p-4 text-center transition-all cursor-pointer",
+                isDragging 
+                  ? "border-primary bg-primary/10" 
+                  : "border-border/30 hover:border-primary/50 bg-muted/20",
+                uploading && "pointer-events-none opacity-50"
               )}
+            >
+              <input
+                type="file"
+                id="media-upload"
+                className="hidden"
+                multiple
+                accept="image/*,video/*"
+                onChange={handleFileSelect}
+                disabled={uploading || media.length >= maxFiles}
+              />
+              <label htmlFor="media-upload" className="cursor-pointer">
+                {uploading && uploadTab === "file" ? (
+                  <div className="space-y-2">
+                    <Loader2 className="w-6 h-6 mx-auto text-primary animate-spin" />
+                    <p className="text-sm font-medium">Uploading...</p>
+                    <Progress value={progress} className="w-32 mx-auto h-1.5" />
+                    <p className="text-xs text-muted-foreground">{progress}%</p>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2">
+                    <Upload className="w-5 h-5 text-muted-foreground" />
+                    <div className="text-left">
+                      <p className="text-sm font-medium">Upload media</p>
+                      <p className="text-xs text-muted-foreground">
+                        {media.length}/{maxFiles} • Images/Videos
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </label>
+            </div>
+          </TabsContent>
 
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center p-2">
-                <div className="flex items-center gap-1 text-xs mb-2">
-                  {item.type === 'image' ? (
-                    <Image className="w-4 h-4" />
-                  ) : (
-                    <Video className="w-4 h-4" />
-                  )}
-                  <span>{formatFileSize(item.size)}</span>
-                </div>
-                <p className="text-xs text-center truncate w-full mb-2">{item.name}</p>
+          <TabsContent value="url" className="mt-0">
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Paste YouTube, TikTok, Twitter, Facebook, Instagram, or direct media URL..."
+                  value={mediaUrl}
+                  onChange={(e) => setMediaUrl(e.target.value)}
+                  disabled={uploading}
+                  className="flex-1 text-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && mediaUrl.trim()) {
+                      handleUrlUpload();
+                    }
+                  }}
+                />
                 <Button
-                  variant="destructive"
+                  onClick={handleUrlUpload}
+                  disabled={uploading || !mediaUrl.trim() || media.length >= maxFiles}
                   size="sm"
-                  onClick={() => handleRemove(item)}
-                  className="h-7 text-xs"
+                  className="px-3"
                 >
-                  <X className="w-3 h-3 mr-1" />
-                  Remove
+                  {uploading && uploadTab === "url" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
                 </Button>
               </div>
-
-              {/* Type badge */}
-              <div className="absolute top-2 left-2 px-2 py-1 rounded-md bg-background/80 text-xs font-medium">
-                {item.type === 'image' ? (
-                  <Image className="w-3 h-3" />
-                ) : (
-                  <Video className="w-3 h-3" />
-                )}
+              {uploading && uploadTab === "url" && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>Downloading from URL...</span>
+                </div>
+              )}
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground font-medium">
+                  ✅ Supported: YouTube, TikTok, Twitter/X, Facebook (public), Instagram (limited)
+                </p>
+                <p className="text-[11px] text-muted-foreground/70">
+                  Direct media URLs (jpg, png, gif, mp4) also work • Max 500MB
+                </p>
               </div>
             </div>
-          ))}
-        </div>
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   );

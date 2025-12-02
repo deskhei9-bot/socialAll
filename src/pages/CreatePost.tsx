@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Facebook, 
@@ -7,6 +7,7 @@ import {
   Music2, 
   Twitter, 
   Linkedin,
+  Send as TelegramIcon,
   Hash,
   Smile,
   Calendar,
@@ -15,7 +16,9 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
-  FileText
+  FileText,
+  X,
+  Maximize2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,6 +52,7 @@ const platforms = [
   { id: "tiktok", icon: Music2, label: "TikTok", color: "hover:border-cyan-400 hover:bg-cyan-400/10", apiSupported: true },
   { id: "twitter", icon: Twitter, label: "Twitter", color: "hover:border-sky-400 hover:bg-sky-400/10", apiSupported: false },
   { id: "linkedin", icon: Linkedin, label: "LinkedIn", color: "hover:border-blue-600 hover:bg-blue-600/10", apiSupported: false },
+  { id: "telegram", icon: TelegramIcon, label: "Telegram", color: "hover:border-blue-400 hover:bg-blue-400/10", apiSupported: true },
 ];
 
 export default function CreatePost() {
@@ -62,6 +66,7 @@ export default function CreatePost() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [media, setMedia] = useState<UploadedMedia[]>([]);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
+  const [fullscreenMedia, setFullscreenMedia] = useState<UploadedMedia | null>(null);
   
   // YouTube metadata
   const [youtubeDescription, setYoutubeDescription] = useState("");
@@ -83,52 +88,101 @@ export default function CreatePost() {
   const { publishPost, publishing, results, getConnectedChannelsForPlatforms } = usePublishPost();
   const navigate = useNavigate();
 
-  // Get available post types based on selected platforms
-  const getAvailablePostTypes = () => {
-    const types = new Set<string>();
-    
-    selectedPlatforms.forEach(platform => {
-      switch (platform) {
-        case 'facebook':
-          types.add('text');
-          types.add('photo');
-          types.add('video');
-          types.add('reel');
-          types.add('album');
-          types.add('link');
-          break;
-        case 'youtube':
-          types.add('video');
-          types.add('short');
-          break;
-        case 'tiktok':
-          types.add('video');
-          break;
-        case 'instagram':
-          types.add('photo');
-          types.add('video');
-          types.add('reel');
-          break;
-        case 'twitter':
-          types.add('text');
-          types.add('media');
-          break;
-        case 'telegram':
-          types.add('message');
-          types.add('photo');
-          types.add('video');
-          break;
-        case 'linkedin':
-          types.add('post');
-          types.add('image');
-          break;
-      }
-    });
-    
-    return Array.from(types);
+  // Universal post types that work across multiple platforms
+  const UNIVERSAL_POST_TYPES = [
+    { 
+      value: 'text', 
+      label: 'Text Post',
+      description: 'Text-only post (Facebook, Twitter, LinkedIn, Telegram)',
+      platforms: ['facebook', 'twitter', 'linkedin', 'telegram']
+    },
+    { 
+      value: 'photo', 
+      label: 'Photo/Image',
+      description: 'Single photo (Facebook, Instagram, Twitter, Telegram, LinkedIn)',
+      platforms: ['facebook', 'instagram', 'twitter', 'telegram', 'linkedin']
+    },
+    { 
+      value: 'video', 
+      label: 'Video',
+      description: 'Regular video (Facebook, YouTube, Instagram, TikTok, Twitter, Telegram)',
+      platforms: ['facebook', 'youtube', 'instagram', 'tiktok', 'twitter', 'telegram']
+    },
+    { 
+      value: 'reel', 
+      label: 'Short Video/Reel',
+      description: 'Short-form video (Facebook Reel, Instagram Reel, YouTube Shorts, TikTok)',
+      platforms: ['facebook', 'instagram', 'youtube', 'tiktok']
+    },
+    { 
+      value: 'album', 
+      label: 'Photo Album',
+      description: 'Multiple photos (Facebook only)',
+      platforms: ['facebook']
+    },
+    { 
+      value: 'link', 
+      label: 'Link/Article',
+      description: 'Share a link with preview (Facebook, LinkedIn, Twitter)',
+      platforms: ['facebook', 'linkedin', 'twitter']
+    },
+  ];
+
+  // Map universal type to platform-specific type
+  const mapPostTypeToPlatform = (universalType: string, platform: string): string => {
+    const mapping: Record<string, Record<string, string>> = {
+      'text': {
+        'facebook': 'text',
+        'twitter': 'text',
+        'linkedin': 'post',
+        'telegram': 'text',
+      },
+      'photo': {
+        'facebook': 'photo',
+        'instagram': 'photo',
+        'twitter': 'media',
+        'telegram': 'photo',
+        'linkedin': 'image',
+      },
+      'video': {
+        'facebook': 'video',
+        'youtube': 'video',
+        'instagram': 'video',
+        'tiktok': 'video',
+        'twitter': 'media',
+        'telegram': 'video',
+      },
+      'reel': {
+        'facebook': 'reel',
+        'instagram': 'reel',
+        'youtube': 'short',
+        'tiktok': 'video',
+      },
+      'album': {
+        'facebook': 'album',
+        'telegram': 'album',
+      },
+      'link': {
+        'facebook': 'link',
+        'linkedin': 'post',
+        'twitter': 'text',
+      },
+    };
+
+    return mapping[universalType]?.[platform] || universalType;
   };
 
-  const availablePostTypes = getAvailablePostTypes();
+  // Get available universal types based on selected platforms
+  const getAvailableUniversalTypes = () => {
+    if (selectedPlatforms.length === 0) return UNIVERSAL_POST_TYPES;
+    
+    return UNIVERSAL_POST_TYPES.filter(type => {
+      // Type is available if at least one selected platform supports it
+      return selectedPlatforms.some(platform => type.platforms.includes(platform));
+    });
+  };
+
+  const availablePostTypes = getAvailableUniversalTypes();
 
   const handleApplyTemplate = (template: CaptionTemplate) => {
     // Replace {title} placeholder with actual title
@@ -160,6 +214,17 @@ export default function CreatePost() {
     );
   };
 
+  // Auto-filter platforms when post type changes
+  useEffect(() => {
+    const currentType = UNIVERSAL_POST_TYPES.find(t => t.value === postType);
+    if (currentType) {
+      // Remove platforms that don't support the current post type
+      setSelectedPlatforms(prev => 
+        prev.filter(platformId => currentType.platforms.includes(platformId))
+      );
+    }
+  }, [postType]);
+
   const connectedChannels = getConnectedChannelsForPlatforms(selectedPlatforms);
 
   const handleSubmit = async (status: 'draft' | 'scheduled' | 'queued' | 'published') => {
@@ -176,6 +241,11 @@ export default function CreatePost() {
 
     // Build metadata object
     const metadata: any = {};
+    
+    // Add media_urls for album/multiple media support
+    if (mediaUrls.length > 1) {
+      metadata.media_urls = mediaUrls;
+    }
     
     // YouTube metadata
     if (selectedPlatforms.includes('youtube')) {
@@ -271,25 +341,53 @@ export default function CreatePost() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                {platforms.map((platform) => (
-                  <button
-                    key={platform.id}
-                    onClick={() => togglePlatform(platform.id)}
-                    className={cn(
-                      "relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200",
-                      selectedPlatforms.includes(platform.id)
-                        ? "border-primary bg-primary/10"
-                        : "border-border/50 bg-muted/30",
-                      platform.color
-                    )}
-                  >
-                    {platform.apiSupported && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full" title="API Publishing Available" />
-                    )}
-                    <platform.icon className="w-6 h-6" />
-                    <span className="text-xs font-medium">{platform.label}</span>
-                  </button>
-                ))}
+                {platforms.map((platform) => {
+                  // Check if current post type supports this platform
+                  const currentType = UNIVERSAL_POST_TYPES.find(t => t.value === postType);
+                  const isSupported = currentType?.platforms.includes(platform.id) ?? true;
+                  const isSelected = selectedPlatforms.includes(platform.id);
+                  
+                  return (
+                    <button
+                      key={platform.id}
+                      onClick={() => togglePlatform(platform.id)}
+                      disabled={!isSupported}
+                      className={cn(
+                        "relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200",
+                        !isSupported && "opacity-40 cursor-not-allowed",
+                        isSupported && isSelected
+                          ? "border-primary bg-primary/10 shadow-md shadow-primary/30"
+                          : "border-border/50 bg-muted/30 hover:border-primary/30",
+                        isSupported && platform.color
+                      )}
+                      title={!isSupported ? `${currentType?.label || 'This post type'} is not supported on ${platform.label}` : ''}
+                    >
+                      {/* Selection Checkmark - Most Visible */}
+                      {isSelected && isSupported && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg z-10">
+                          <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      )}
+                      
+                      {/* API Support Indicator */}
+                      {platform.apiSupported && isSupported && !isSelected && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full" title="API Publishing Available" />
+                      )}
+                      
+                      {/* Platform Compatibility Badge */}
+                      {!isSupported && (
+                        <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-red-500/80 text-white text-[8px] font-bold rounded-full" title="Not supported for this post type">
+                          ✕
+                        </span>
+                      )}
+                      
+                      <platform.icon className="w-6 h-6" />
+                      <span className="text-xs font-medium">{platform.label}</span>
+                    </button>
+                  );
+                })}
               </div>
               
               {/* Connected Channels Info */}
@@ -327,26 +425,79 @@ export default function CreatePost() {
             <Card className="glass-card animate-fade-in" style={{ animationDelay: "50ms" }}>
               <CardHeader>
                 <CardTitle className="text-lg">Post Type</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Choose a content type - it will automatically adapt to each platform
+                </p>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <Label htmlFor="post-type">Select Content Type</Label>
-                  <Select value={postType} onValueChange={setPostType}>
-                    <SelectTrigger id="post-type" className="bg-muted/30 border-border/50">
-                      <SelectValue placeholder="Select post type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availablePostTypes.map(type => (
-                        <SelectItem key={type} value={type}>
-                          {type.charAt(0).toUpperCase() + type.slice(1)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Available types based on selected platforms
-                  </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {availablePostTypes.map(type => {
+                    const isSelected = postType === type.value;
+                    const supportedPlatforms = type.platforms.filter(p => selectedPlatforms.includes(p));
+                    const totalSupportedCount = type.platforms.length;
+                    
+                    return (
+                      <button
+                        key={type.value}
+                        onClick={() => setPostType(type.value)}
+                        className={cn(
+                          "relative flex flex-col items-start gap-2 p-4 rounded-lg border-2 transition-all duration-200 text-left",
+                          isSelected
+                            ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
+                            : "border-border/50 bg-muted/30 hover:border-primary/50 hover:bg-muted/50"
+                        )}
+                      >
+                        {/* Selection indicator */}
+                        {isSelected && (
+                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        )}
+                        
+                        {/* Platform count badge */}
+                        <div className="absolute -top-2 -left-2 px-2 py-0.5 bg-blue-500 text-white text-[10px] font-bold rounded-full">
+                          {totalSupportedCount} {totalSupportedCount === 1 ? 'platform' : 'platforms'}
+                        </div>
+                        
+                        {/* Type label */}
+                        <div className="font-semibold text-base mt-2">{type.label}</div>
+                        
+                        {/* Description */}
+                        <div className="text-xs text-muted-foreground line-clamp-2 min-h-[2.5rem]">
+                          {type.description}
+                        </div>
+                        
+                        {/* Supported platforms badges */}
+                        {supportedPlatforms.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-auto pt-2 border-t border-border/30 w-full">
+                            {supportedPlatforms.map(platform => (
+                              <span 
+                                key={platform}
+                                className="text-[10px] px-2 py-0.5 bg-primary/20 text-primary rounded-full font-medium uppercase"
+                              >
+                                {platform}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
+                
+                {/* Info message about platform filtering */}
+                {selectedPlatforms.length > 0 && (
+                  <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <p className="text-xs text-blue-400 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>
+                        When you select a post type, only compatible platforms will remain selected automatically.
+                      </span>
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -598,24 +749,7 @@ export default function CreatePost() {
             </CardContent>
           </Card>
 
-          {/* Media Upload */}
-          <Card className="glass-card animate-fade-in" style={{ animationDelay: "300ms" }}>
-            <CardHeader>
-              <CardTitle className="text-lg">Media</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <MediaUploader 
-                media={media} 
-                onMediaChange={setMedia}
-                maxFiles={postType === 'album' ? 10 : 10}
-              />
-              {postType === 'album' && selectedPlatforms.includes('facebook') && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  Upload multiple photos for Facebook album (max 10)
-                </p>
-              )}
-            </CardContent>
-          </Card>
+          {/* Media Upload - REMOVED, moved to Preview panel */}
         </div>
 
         {/* Sidebar */}
@@ -665,36 +799,189 @@ export default function CreatePost() {
             <CardHeader>
               <CardTitle className="text-lg">Preview</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="p-4 rounded-xl bg-muted/30 min-h-[200px]">
-                {content || media.length > 0 ? (
-                  <div className="space-y-3">
-                    {title && <p className="font-medium">{title}</p>}
-                    {content && <p className="text-sm whitespace-pre-wrap">{content}</p>}
-                    {media.length > 0 && (
-                      <div className="grid grid-cols-2 gap-2 mt-3">
-                        {media.slice(0, 4).map((item, i) => (
-                          <div key={item.id} className="relative aspect-square rounded-lg overflow-hidden">
-                            {item.type === 'image' ? (
-                              <img src={item.url} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                              <video src={item.url} className="w-full h-full object-cover" />
-                            )}
-                            {i === 3 && media.length > 4 && (
-                              <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                                <span className="font-bold">+{media.length - 4}</span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
+            <CardContent className="space-y-4">
+              <div className="p-4 rounded-xl bg-muted/30 min-h-[150px] border border-border/30 space-y-3">
+                {/* Text Content Preview */}
+                {(content || title) ? (
+                  <div className="space-y-2">
+                    {title && <p className="font-semibold text-base">{title}</p>}
+                    {content && <p className="text-sm whitespace-pre-wrap text-muted-foreground">{content}</p>}
                   </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground text-center">
+                  <p className="text-sm text-muted-foreground/50 text-center py-2">
                     Start typing to see preview
                   </p>
                 )}
+
+                {/* Media Section */}
+                <div className="space-y-3">
+                  {media.length > 0 ? (
+                    <>
+                      {/* Visual Preview - Top (No X icons) */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-muted-foreground">
+                            {media.length} media {media.length === 1 ? 'file' : 'files'}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setMedia([])}
+                            className="h-6 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                          >
+                            Clear All
+                          </Button>
+                        </div>
+                        
+                        {/* Media Preview Grid */}
+                        <div className={cn(
+                          "grid gap-2",
+                          media.length === 1 ? "grid-cols-1" : "grid-cols-2"
+                        )}>
+                          {media.slice(0, 4).map((item, index) => (
+                            <div 
+                              key={item.id} 
+                              className={cn(
+                                "relative rounded-lg overflow-hidden bg-background border border-border/30 group cursor-pointer",
+                                item.type === 'image' ? "aspect-square" : ""
+                              )}
+                              onClick={() => setFullscreenMedia(item)}
+                            >
+                              {item.type === 'image' ? (
+                                <img
+                                  src={item.url}
+                                  alt={item.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    console.error('Preview image error:', item.url);
+                                    e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23222" width="100" height="100"/%3E%3Ctext fill="%23666" font-size="10" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EImage Error%3C/text%3E%3C/svg%3E';
+                                  }}
+                                />
+                              ) : (
+                                <div className="relative w-full bg-black">
+                                  <video
+                                    src={item.url}
+                                    className="w-full max-h-60 object-contain"
+                                    controls
+                                    preload="metadata"
+                                    playsInline
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                </div>
+                              )}
+                              
+                              {/* File info badge - Top left */}
+                              <div className="absolute top-2 left-2 px-2 py-1 bg-black/70 backdrop-blur-sm rounded text-xs font-medium text-white flex items-center gap-1">
+                                {item.type === 'image' ? (
+                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                ) : (
+                                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                  </svg>
+                                )}
+                                <span>{item.type === 'image' ? 'Photo' : 'Video'}</span>
+                              </div>
+
+                              {/* Full View icon on hover */}
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                <div className="bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center gap-2">
+                                  <Maximize2 className="w-4 h-4" />
+                                  <span className="text-sm font-medium">Full View</span>
+                                </div>
+                              </div>
+
+                              {/* More items indicator */}
+                              {index === 3 && media.length > 4 && (
+                                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                                  <span className="text-2xl font-bold text-white">
+                                    +{media.length - 4}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Text-based Media List - Bottom (With X icons) */}
+                      <div className="space-y-1.5 pt-2 border-t border-border/30">
+                        {media.map((item) => (
+                          <div 
+                            key={item.id}
+                            className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors group"
+                          >
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              {/* Media Icon */}
+                              <div className="flex-shrink-0">
+                                {item.type === 'image' ? (
+                                  <div className="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center">
+                                    <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                  </div>
+                                ) : (
+                                  <div className="w-8 h-8 rounded bg-purple-500/10 flex items-center justify-center">
+                                    <svg className="w-4 h-4 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* File Name */}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">{item.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {item.type === 'image' ? 'Photo' : 'Video'} • {(item.size / (1024 * 1024)).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                            
+                            {/* Remove Button - X Icon */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setMedia(media.filter(m => m.id !== item.id))}
+                              className="h-7 w-7 p-0 flex-shrink-0 opacity-70 hover:opacity-100 hover:bg-destructive/10"
+                            >
+                              <X className="w-4 h-4 text-destructive" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* Add More Media Button - Always show when media exists */}
+                      <div className="pt-2">
+                        <MediaUploader 
+                          media={media} 
+                          onMediaChange={setMedia}
+                          maxFiles={postType === 'album' ? 10 : 10}
+                        />
+                        {postType === 'album' && selectedPlatforms.includes('facebook') && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            📸 Upload multiple photos for Facebook album (max 10)
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-xs text-muted-foreground mb-3">No media uploaded</p>
+                      <MediaUploader 
+                        media={media} 
+                        onMediaChange={setMedia}
+                        maxFiles={postType === 'album' ? 10 : 10}
+                      />
+                      {postType === 'album' && selectedPlatforms.includes('facebook') && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          📸 Upload multiple photos for Facebook album (max 10)
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -770,6 +1057,48 @@ export default function CreatePost() {
           </div>
         </div>
       </div>
+
+      {/* Fullscreen Media Modal */}
+      <Dialog open={!!fullscreenMedia} onOpenChange={() => setFullscreenMedia(null)}>
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black border-none">
+          <div className="relative w-full h-full flex items-center justify-center">
+            {fullscreenMedia?.type === 'image' ? (
+              <img
+                src={fullscreenMedia.url}
+                alt={fullscreenMedia.name}
+                className="max-w-full max-h-[95vh] w-auto h-auto object-contain"
+              />
+            ) : fullscreenMedia?.type === 'video' ? (
+              <video
+                src={fullscreenMedia.url}
+                className="max-w-full max-h-[95vh] w-auto h-auto object-contain"
+                controls
+                autoPlay
+              />
+            ) : null}
+            
+            {/* Close button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white"
+              onClick={() => setFullscreenMedia(null)}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+
+            {/* File info overlay */}
+            {fullscreenMedia && (
+              <div className="absolute bottom-4 left-4 px-3 py-2 bg-black/70 backdrop-blur-sm rounded-lg text-white">
+                <p className="text-sm font-medium">{fullscreenMedia.name}</p>
+                <p className="text-xs text-gray-300">
+                  {fullscreenMedia.type === 'image' ? 'Photo' : 'Video'} • {(fullscreenMedia.size / (1024 * 1024)).toFixed(2)} MB
+                </p>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

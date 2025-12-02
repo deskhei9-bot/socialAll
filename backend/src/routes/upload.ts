@@ -55,7 +55,7 @@ router.post('/single', upload.single('file'), async (req: any, res) => {
     const { file } = req;
     
     const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'image';
-    const filePath = `/uploads/${mediaType}s/${file.filename}`;
+    const filePath = `/${mediaType}s/${file.filename}`;
     
     // Save to database
     const result = await pool.query(
@@ -72,7 +72,7 @@ router.post('/single', upload.single('file'), async (req: any, res) => {
         id: result.rows[0].id,
         name: file.originalname,
         path: filePath,
-        url: `${process.env.FRONTEND_URL}${filePath}`,
+        url: `${process.env.BACKEND_URL || 'https://socialautoupload.com'}/uploads${filePath}`,
         size: file.size,
         type: mediaType,
         mimeType: file.mimetype,
@@ -98,7 +98,7 @@ router.post('/multiple', upload.array('files', 10), async (req: any, res) => {
     
     for (const file of files) {
       const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'image';
-      const filePath = `/uploads/${mediaType}s/${file.filename}`;
+      const filePath = `/${mediaType}s/${file.filename}`;
       
       const result = await pool.query(
         `INSERT INTO media_uploads 
@@ -112,7 +112,7 @@ router.post('/multiple', upload.array('files', 10), async (req: any, res) => {
         id: result.rows[0].id,
         name: file.originalname,
         path: filePath,
-        url: `${process.env.FRONTEND_URL}${filePath}`,
+        url: `${process.env.BACKEND_URL || 'https://socialautoupload.com'}/uploads${filePath}`,
         size: file.size,
         type: mediaType,
         mimeType: file.mimetype,
@@ -145,7 +145,7 @@ router.get('/media', async (req: any, res) => {
       id: row.id,
       name: row.filename,
       path: row.file_path,
-      url: `${process.env.FRONTEND_URL}${row.file_path}`,
+      url: `${process.env.BACKEND_URL || 'https://socialautoupload.com'}/uploads${row.file_path}`,
       size: row.file_size,
       mimeType: row.mime_type,
       createdAt: row.created_at,

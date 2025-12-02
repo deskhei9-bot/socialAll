@@ -433,13 +433,14 @@ router.post('/', async (req: any, res) => {
           let publishResult;
 
           switch (postType) {
-            case 'message':
+            case 'text':
               publishResult = await TelegramService.sendMessage(botToken, chatId, post.content);
               break;
 
             case 'photo':
               if (post.media_url) {
-                publishResult = await TelegramService.sendPhoto(botToken, chatId, post.media_url, post.content);
+                const filePath = post.media_url.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
+                publishResult = await TelegramService.sendPhoto(botToken, chatId, filePath, post.content);
               } else {
                 throw new Error('Photo post requires an image');
               }
@@ -447,31 +448,31 @@ router.post('/', async (req: any, res) => {
 
             case 'video':
               if (post.media_url) {
-                publishResult = await TelegramService.sendVideo(botToken, chatId, post.media_url, post.content);
+                const filePath = post.media_url.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
+                publishResult = await TelegramService.sendVideo(botToken, chatId, filePath, post.content);
               } else {
                 throw new Error('Video post requires a video file');
-              }
-              break;
-
-            case 'document':
-              if (post.media_url) {
-                publishResult = await TelegramService.sendDocument(botToken, chatId, post.media_url, post.content);
-              } else {
-                throw new Error('Document post requires a file');
               }
               break;
 
             case 'album':
               const albumMedia = post.metadata?.media_urls || [];
               if (albumMedia.length >= 2) {
-                publishResult = await TelegramService.sendMediaGroup(botToken, chatId, albumMedia, post.content);
+                const mediaArray = albumMedia.map((url: string) => ({
+                  type: url.includes('/videos/') ? 'video' : 'photo',
+                  path: url.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/'),
+                  caption: post.content || '',
+                }));
+                publishResult = await TelegramService.sendMediaGroup(botToken, chatId, mediaArray);
               } else {
                 throw new Error('Album requires at least 2 media files');
               }
               break;
 
             default:
-              throw new Error(`Unsupported Telegram post type: ${postType}`);
+              // Default to text message
+              publishResult = await TelegramService.sendMessage(botToken, chatId, post.content);
+              break;
           }
 
           await pool.query(

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +54,8 @@ export function Topbar({ onMenuToggle }: TopbarProps) {
               <span className="hidden sm:inline">New Post</span>
             </Button>
           </Link>
+
+          <ThemeToggle />
 
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="w-5 h-5" />

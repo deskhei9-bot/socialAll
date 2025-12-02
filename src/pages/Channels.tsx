@@ -7,6 +7,7 @@ import {
   Music2, 
   Twitter, 
   Linkedin,
+  Send as TelegramIcon,
   Plus,
   CheckCircle2,
   AlertCircle,
@@ -49,6 +50,7 @@ const availablePlatforms = [
   { id: "tiktok", icon: Music2, label: "TikTok Account", color: "bg-foreground", oauth: true },
   { id: "twitter", icon: Twitter, label: "Twitter / X", color: "bg-sky-500", oauth: false },
   { id: "linkedin", icon: Linkedin, label: "LinkedIn Page", color: "bg-blue-600", oauth: false },
+  { id: "telegram", icon: TelegramIcon, label: "Telegram Channel", color: "bg-blue-400", oauth: false },
 ];
 
 const platformIcons: Record<string, React.ReactNode> = {
@@ -58,6 +60,7 @@ const platformIcons: Record<string, React.ReactNode> = {
   tiktok: <Music2 className="w-5 h-5" />,
   twitter: <Twitter className="w-5 h-5" />,
   linkedin: <Linkedin className="w-5 h-5" />,
+  telegram: <TelegramIcon className="w-5 h-5" />,
 };
 
 const platformColors: Record<string, string> = {
@@ -67,6 +70,7 @@ const platformColors: Record<string, string> = {
   tiktok: "bg-foreground",
   twitter: "bg-sky-500",
   linkedin: "bg-blue-600",
+  telegram: "bg-blue-400",
 };
 
 export default function Channels() {
@@ -77,6 +81,7 @@ export default function Channels() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isTelegramDialogOpen, setIsTelegramDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [processingCallback, setProcessingCallback] = useState(false);
   const [newChannel, setNewChannel] = useState({
@@ -84,6 +89,10 @@ export default function Channels() {
     account_name: "",
     account_handle: "",
     followers_count: 0,
+  });
+  const [telegramConfig, setTelegramConfig] = useState({
+    bot_token: "",
+    chat_id: "",
   });
 
   // Handle OAuth callbacks
@@ -129,7 +138,10 @@ export default function Channels() {
   const handleConnectPlatform = (platformId: string) => {
     const platform = availablePlatforms.find(p => p.id === platformId);
     
-    if (platform?.oauth) {
+    if (platformId === 'telegram') {
+      // Open Telegram setup dialog
+      setIsTelegramDialogOpen(true);
+    } else if (platform?.oauth) {
       if (platformId === 'facebook') {
         connectFacebook();
       } else if (platformId === 'youtube') {
@@ -141,6 +153,37 @@ export default function Channels() {
       // Manual connection for non-OAuth platforms
       setNewChannel(prev => ({ ...prev, platform: platformId }));
       setIsDialogOpen(true);
+    }
+  };
+
+  const handleTelegramConnect = async () => {
+    if (!telegramConfig.bot_token || !telegramConfig.chat_id) return;
+    
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/oauth/telegram`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+        },
+        body: JSON.stringify(telegramConfig),
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setIsTelegramDialogOpen(false);
+        setTelegramConfig({ bot_token: "", chat_id: "" });
+        refetch();
+      } else {
+        alert(data.error || 'Failed to connect Telegram');
+      }
+    } catch (error) {
+      console.error('Telegram connection error:', error);
+      alert('Failed to connect Telegram');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -242,6 +285,62 @@ export default function Channels() {
               >
                 {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Connect
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Telegram Setup Dialog */}
+        <Dialog open={isTelegramDialogOpen} onOpenChange={setIsTelegramDialogOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Connect Telegram Channel/Group</DialogTitle>
+              <DialogDescription>
+                Set up your Telegram bot to post messages to your channel or group.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Bot Token</Label>
+                <Input
+                  placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
+                  value={telegramConfig.bot_token}
+                  onChange={(e) => setTelegramConfig(prev => ({ ...prev, bot_token: e.target.value }))}
+                  type="password"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Get your bot token from <a href="https://t.me/BotFather" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@BotFather</a> on Telegram
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>Chat ID</Label>
+                <Input
+                  placeholder="-1001234567890 or @channelname"
+                  value={telegramConfig.chat_id}
+                  onChange={(e) => setTelegramConfig(prev => ({ ...prev, chat_id: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Your channel ID (starts with -100) or username (@yourchannelname). Make sure bot is admin in the channel.
+                </p>
+              </div>
+              <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+                <h4 className="text-sm font-semibold">Setup Instructions:</h4>
+                <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                  <li>Create a bot via @BotFather and get the bot token</li>
+                  <li>Add your bot to your channel/group as an administrator</li>
+                  <li>Get your channel/group ID (use @userinfobot)</li>
+                  <li>Paste both values above and click Connect</li>
+                </ol>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsTelegramDialogOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={handleTelegramConnect} 
+                disabled={isSubmitting || !telegramConfig.bot_token || !telegramConfig.chat_id}
+              >
+                {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                Connect Telegram
               </Button>
             </DialogFooter>
           </DialogContent>

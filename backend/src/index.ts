@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import path from 'path';
 import { pool } from './lib/database';
 import { verifyToken } from './lib/auth';
 
@@ -12,7 +13,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost',
   credentials: true
@@ -20,6 +23,9 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded media files
+app.use('/uploads', express.static('/opt/social-symphony/uploads'));
 
 // Auth middleware
 export const authenticate = (req: any, res: any, next: any) => {
@@ -71,6 +77,7 @@ import postsRoutes from './routes/posts';
 import channelsRoutes from './routes/channels';
 import usersRoutes from './routes/users';
 import uploadRoutes from './routes/upload';
+import uploadUrlRoutes from './routes/upload-url';
 import oauthRoutes from './routes/oauth';
 import aiRoutes from './routes/ai';
 
@@ -78,6 +85,7 @@ app.use('/api/posts', authenticate, postsRoutes);
 app.use('/api/channels', authenticate, channelsRoutes);
 app.use('/api/users', authenticate, usersRoutes);
 app.use('/api/upload', authenticate, uploadRoutes);
+app.use('/api/upload', authenticate, uploadUrlRoutes);
 app.use('/api/oauth', authenticate, oauthRoutes);
 app.use('/api/ai', authenticate, aiRoutes);
 import publishRoutes from './routes/publish';
