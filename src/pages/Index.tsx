@@ -27,11 +27,13 @@ const Index = () => {
             {/* Logo/Brand */}
             <div className="flex justify-center mb-8">
               <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20">
-                <img 
-                  src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/refs/heads/master/Screenshot%202025-12-03%20at%2004.53.28.png" 
-                  alt="SocialFlow Logo" 
-                  className="w-8 h-8 object-contain"
-                />
+                <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center p-1">
+                  <img 
+                    src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/refs/heads/master/Screenshot%202025-12-03%20at%2004.53.28.png" 
+                    alt="SocialFlow Logo" 
+                    className="w-full h-full object-contain"
+                  />
+                </div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                   SocialFlow
                 </span>
@@ -289,11 +291,13 @@ const Index = () => {
           {/* Bottom Footer */}
           <div className="pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
-              <img 
-                src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/refs/heads/master/Screenshot%202025-12-03%20at%2004.53.28.png" 
-                alt="SocialFlow Logo" 
-                className="w-6 h-6 object-contain"
-              />
+              <div className="w-6 h-6 bg-white rounded flex items-center justify-center p-0.5">
+                <img 
+                  src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/refs/heads/master/Screenshot%202025-12-03%20at%2004.53.28.png" 
+                  alt="SocialFlow Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <span className="font-semibold">SocialFlow</span>
               <span className="text-muted-foreground">v1.0.0</span>
             </div>
