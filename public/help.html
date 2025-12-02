@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Support Center - SocialFlow</title>
+    <meta name="description" content="Get help with SocialFlow - guides, tutorials, troubleshooting, and support resources.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.3em;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Search Box */
+        .search-section {
+            background: white;
+            padding: 40px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 1.1em;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.3em;
+            color: #667eea;
+        }
+        
+        /* Content Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+        
+        /* Section Styles */
+        section {
+            margin-bottom: 60px;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 2.2em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f0f0f0;
+        }
+        
+        h3 {
+            color: #333;
+            font-size: 1.5em;
+            margin: 25px 0 15px;
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .card-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .card h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        
+        .card p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .card ul {
+            margin-left: 20px;
+        }
+        
+        .card li {
+            color: #555;
+            margin-bottom: 8px;
+        }
+        
+        /* Step-by-Step Guides */
+        .guide {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .guide h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .steps {
+            counter-reset: step-counter;
+        }
+        
+        .step {
+            counter-increment: step-counter;
+            margin-bottom: 15px;
+            padding-left: 50px;
+            position: relative;
+        }
+        
+        .step::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Troubleshooting Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        /* Alert Boxes */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            color: #0c5460;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border-left: 4px solid #856404;
+            color: #856404;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border-left: 4px solid #155724;
+            color: #155724;
+        }
+        
+        /* CTA Box */
+        .cta-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .cta-box h3 {
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.3s;
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Footer */
+        footer {
+            background: #f8f9fa;
+            padding: 40px 20px;
+            text-align: center;
+            color: #666;
+            margin-top: 60px;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+            
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>📚 Help & Support Center</h1>
+        <p>Find guides, tutorials, and solutions to get the most out of SocialFlow</p>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="helpSearch" placeholder="Search for help articles, guides, or solutions...">
+                <span class="search-icon">🔍</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Quick Start Guides -->
+        <section id="quick-start">
+            <h2>🚀 Quick Start Guides</h2>
+            
+            <div class="guide">
+                <h4>Getting Started with SocialFlow</h4>
+                <div class="steps">
+                    <div class="step">
+                        <strong>Access the Platform:</strong> Open your browser and navigate to your SocialFlow instance at https://socialautoupload.com
+                    </div>
+                    <div class="step">
+                        <strong>Register an Account:</strong> Click "Sign Up" and create your account with email and password
+                    </div>
+                    <div class="step">
+                        <strong>Connect Social Media:</strong> Go to Settings → Social Accounts and connect your Facebook, Instagram, YouTube, TikTok, Twitter, or LinkedIn accounts
+                    </div>
+                    <div class="step">
+                        <strong>Create Publishing Profile:</strong> Set up your first publishing profile with default settings for your posts
+                    </div>
+                    <div class="step">
+                        <strong>Create Your First Post:</strong> Navigate to "New Post", upload media, write caption, and publish or schedule
+                    </div>
+                </div>
+            </div>
+
+            <div class="guide">
+                <h4>Connecting Social Media Accounts</h4>
+                <div class="steps">
+                    <div class="step">
+                        <strong>Navigate to Settings:</strong> Click the gear icon in the sidebar or go to /settings
+                    </div>
+                    <div class="step">
+                        <strong>Select Platform:</strong> Choose the social media platform you want to connect (Facebook, Instagram, YouTube, etc.)
+                    </div>
+                    <div class="step">
+                        <strong>Authorize Access:</strong> Click "Connect" and log in to your social media account when prompted
+                    </div>
+                    <div class="step">
+                        <strong>Grant Permissions:</strong> Allow SocialFlow to post on your behalf (permissions vary by platform)
+                    </div>
+                    <div class="step">
+                        <strong>Verify Connection:</strong> You should see "Connected" status with your account name displayed
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feature Guides -->
+        <section id="features">
+            <h2>✨ Feature Guides</h2>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📝</div>
+                    <h3>Creating Posts</h3>
+                    <p>Learn how to create engaging posts:</p>
+                    <ul>
+                        <li>Upload images or videos (up to 100MB)</li>
+                        <li>Write captions (auto-save enabled)</li>
+                        <li>Add hashtags and mentions</li>
+                        <li>Select target platforms</li>
+                        <li>Preview before publishing</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🤖</div>
+                    <h3>AI Features</h3>
+                    <p>Leverage AI to enhance your content:</p>
+                    <ul>
+                        <li><strong>Caption Generation:</strong> Auto-generate engaging captions</li>
+                        <li><strong>Hashtag Suggestions:</strong> Get relevant hashtags</li>
+                        <li><strong>Content Analysis:</strong> Optimize your posts</li>
+                        <li>Powered by OpenAI GPT-4</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">⏰</div>
+                    <h3>Scheduling Posts</h3>
+                    <p>Schedule posts for optimal engagement:</p>
+                    <ul>
+                        <li>Pick date and time for each platform</li>
+                        <li>Schedule weeks or months in advance</li>
+                        <li>View upcoming posts in calendar</li>
+                        <li>Edit or cancel scheduled posts</li>
+                        <li>Automatic timezone handling</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">👥</div>
+                    <h3>Publishing Profiles</h3>
+                    <p>Create reusable publishing templates:</p>
+                    <ul>
+                        <li>Save default platforms</li>
+                        <li>Store preferred hashtags</li>
+                        <li>Set default privacy settings</li>
+                        <li>Quick posting with saved profiles</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">📊</div>
+                    <h3>Analytics & Insights</h3>
+                    <p>Track your post performance:</p>
+                    <ul>
+                        <li>View post history</li>
+                        <li>Check publishing status</li>
+                        <li>Track successful/failed posts</li>
+                        <li>Export post reports</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🔐</div>
+                    <h3>Security & Privacy</h3>
+                    <p>Your data is protected:</p>
+                    <ul>
+                        <li>100% self-hosted (your server)</li>
+                        <li>End-to-end encryption</li>
+                        <li>No third-party data sharing</li>
+                        <li>Secure OAuth authentication</li>
+                        <li>GDPR & CCPA compliant</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section id="troubleshooting">
+            <h2>🔧 Troubleshooting</h2>
+            
+            <h3>Common Issues & Solutions</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Problem</th>
+                        <th>Possible Cause</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Cannot log in</td>
+                        <td>Incorrect credentials or expired session</td>
+                        <td>Reset password or clear browser cookies and try again</td>
+                    </tr>
+                    <tr>
+                        <td>Social media won't connect</td>
+                        <td>OAuth permissions denied or expired tokens</td>
+                        <td>Disconnect and reconnect the account. Check platform app settings.</td>
+                    </tr>
+                    <tr>
+                        <td>Upload fails</td>
+                        <td>File too large or unsupported format</td>
+                        <td>Max 100MB. Supported: JPG, PNG, MP4, MOV. Compress large files.</td>
+                    </tr>
+                    <tr>
+                        <td>Post failed to publish</td>
+                        <td>Token expired or platform API issue</td>
+                        <td>Reconnect account. Check platform status. Try again later.</td>
+                    </tr>
+                    <tr>
+                        <td>Scheduler not working</td>
+                        <td>Server timezone mismatch or cron job disabled</td>
+                        <td>Check server time. Ensure cron is running. Contact admin.</td>
+                    </tr>
+                    <tr>
+                        <td>AI features not working</td>
+                        <td>OpenAI API key missing or quota exceeded</td>
+                        <td>Check OPENAI_API_KEY in .env file. Verify API quota.</td>
+                    </tr>
+                    <tr>
+                        <td>500 Internal Server Error</td>
+                        <td>Backend service down or database connection issue</td>
+                        <td>Check backend logs: pm2 logs. Restart: pm2 restart socialflow-backend</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="alert alert-warning">
+                <strong>⚠️ Still having issues?</strong> Check the logs for detailed error messages: <code>pm2 logs socialflow-backend</code>
+            </div>
+        </section>
+
+        <!-- Platform-Specific Guides -->
+        <section id="platforms">
+            <h2>📱 Platform-Specific Guides</h2>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📘</div>
+                    <h3>Facebook & Instagram</h3>
+                    <ul>
+                        <li>Requires Facebook App with publish permissions</li>
+                        <li>Instagram: Must connect Facebook page first</li>
+                        <li>Image: Max 8MB, ratio 1.91:1 to 4:5</li>
+                        <li>Video: Max 100MB, up to 60 minutes</li>
+                        <li>Stories: 9:16 ratio recommended</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">▶️</div>
+                    <h3>YouTube</h3>
+                    <ul>
+                        <li>Requires Google OAuth consent</li>
+                        <li>Video upload: Max 128GB, up to 12 hours</li>
+                        <li>Thumbnails: JPG/PNG, 1280x720 recommended</li>
+                        <li>Daily upload limit: 100 videos</li>
+                        <li>Processing time varies by length</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🎵</div>
+                    <h3>TikTok</h3>
+                    <ul>
+                        <li>Video: 3 seconds to 10 minutes</li>
+                        <li>Aspect ratio: 9:16 vertical recommended</li>
+                        <li>Resolution: 1080x1920 or higher</li>
+                        <li>Format: MP4, MOV</li>
+                        <li>Hashtags: Use trending tags for reach</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🐦</div>
+                    <h3>Twitter (X)</h3>
+                    <ul>
+                        <li>Text: 280 characters max</li>
+                        <li>Images: Max 4 per post, 5MB each</li>
+                        <li>Video: Max 512MB, up to 2:20 minutes</li>
+                        <li>GIF: Max 15MB</li>
+                        <li>Threads: Post multiple tweets together</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💼</div>
+                    <h3>LinkedIn</h3>
+                    <ul>
+                        <li>Text: 3,000 characters max</li>
+                        <li>Image: Max 20MB, 1200x627 recommended</li>
+                        <li>Video: Max 10 minutes, 200MB</li>
+                        <li>Professional tone recommended</li>
+                        <li>Hashtags: 3-5 relevant tags</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Requirements -->
+        <section id="requirements">
+            <h2>💻 System Requirements</h2>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <h3>Server Requirements</h3>
+                    <ul>
+                        <li><strong>OS:</strong> Linux (Ubuntu 20.04+ recommended)</li>
+                        <li><strong>Node.js:</strong> v20.x or higher</li>
+                        <li><strong>Database:</strong> PostgreSQL 14+</li>
+                        <li><strong>RAM:</strong> 2GB minimum, 4GB recommended</li>
+                        <li><strong>Storage:</strong> 20GB+ (depends on uploads)</li>
+                        <li><strong>CPU:</strong> 2+ cores recommended</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Browser Support</h3>
+                    <ul>
+                        <li>Chrome 90+ ✅</li>
+                        <li>Firefox 88+ ✅</li>
+                        <li>Safari 14+ ✅</li>
+                        <li>Edge 90+ ✅</li>
+                        <li>Mobile browsers supported ✅</li>
+                        <li>JavaScript required ⚠️</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h3>Network Requirements</h3>
+                    <ul>
+                        <li><strong>Bandwidth:</strong> 10Mbps+ recommended</li>
+                        <li><strong>SSL:</strong> HTTPS required for OAuth</li>
+                        <li><strong>Ports:</strong> 443 (HTTPS), 80 (HTTP redirect)</li>
+                        <li><strong>Firewall:</strong> Allow outbound to social media APIs</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Documentation -->
+        <section id="api">
+            <h2>🔌 API Documentation</h2>
+            
+            <div class="alert alert-info">
+                <strong>📖 Full API Documentation:</strong> Comprehensive API reference available at 
+                <a href="/docs/API_DOCUMENTATION.md" target="_blank">/docs/API_DOCUMENTATION.md</a>
+            </div>
+
+            <h3>Quick API Reference</h3>
+            
+            <div class="guide">
+                <h4>Authentication</h4>
+                <p><code>POST /api/auth/register</code> - Register new user</p>
+                <p><code>POST /api/auth/login</code> - Login and get JWT token</p>
+                <p><code>GET /api/auth/me</code> - Get current user info</p>
+            </div>
+
+            <div class="guide">
+                <h4>Posts</h4>
+                <p><code>POST /api/posts</code> - Create new post</p>
+                <p><code>GET /api/posts</code> - Get all user posts</p>
+                <p><code>GET /api/posts/:id</code> - Get specific post</p>
+                <p><code>DELETE /api/posts/:id</code> - Delete post</p>
+            </div>
+
+            <div class="guide">
+                <h4>Publishing Profiles</h4>
+                <p><code>GET /api/publishing-profiles</code> - Get all profiles</p>
+                <p><code>POST /api/publishing-profiles</code> - Create profile</p>
+                <p><code>PUT /api/publishing-profiles/:id</code> - Update profile</p>
+                <p><code>DELETE /api/publishing-profiles/:id</code> - Delete profile</p>
+            </div>
+        </section>
+
+        <!-- Video Tutorials -->
+        <section id="tutorials">
+            <h2>🎬 Video Tutorials</h2>
+            
+            <div class="alert alert-info">
+                <strong>Coming Soon:</strong> Video tutorials and screencasts will be available soon to help you master SocialFlow!
+            </div>
+
+            <div class="cards-grid">
+                <div class="card">
+                    <h3>Planned Tutorials</h3>
+                    <ul>
+                        <li>✅ Platform installation and setup</li>
+                        <li>✅ Connecting social media accounts</li>
+                        <li>✅ Creating and scheduling your first post</li>
+                        <li>✅ Using AI features for content creation</li>
+                        <li>✅ Managing publishing profiles</li>
+                        <li>✅ Troubleshooting common issues</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Support -->
+        <section id="support">
+            <h2>📞 Contact Support</h2>
+            
+            <div class="cards-grid">
+                <div class="card">
+                    <div class="card-icon">📧</div>
+                    <h3>Email Support</h3>
+                    <p><strong>Email:</strong> <a href="mailto:deikhei.msi@gmail.com">deikhei.msi@gmail.com</a></p>
+                    <p><strong>Response Time:</strong> Within 48 hours</p>
+                    <p>For technical issues, please include:</p>
+                    <ul>
+                        <li>Your SocialFlow version</li>
+                        <li>Browser and OS details</li>
+                        <li>Steps to reproduce the issue</li>
+                        <li>Error messages or screenshots</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">💬</div>
+                    <h3>Community Support</h3>
+                    <p>Join our community for:</p>
+                    <ul>
+                        <li>Quick answers from other users</li>
+                        <li>Feature discussions</li>
+                        <li>Tips and best practices</li>
+                        <li>Share your feedback</li>
+                    </ul>
+                    <p><strong>Forum:</strong> Coming soon!</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-icon">🐛</div>
+                    <h3>Bug Reports</h3>
+                    <p>Found a bug? Report it:</p>
+                    <ul>
+                        <li>Email with "BUG:" in subject</li>
+                        <li>Include reproduction steps</li>
+                        <li>Attach logs if possible</li>
+                        <li>Screenshots are helpful</li>
+                    </ul>
+                    <p><strong>Priority:</strong> Security bugs handled within 24h</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <div class="cta-box">
+            <h3>Need More Help?</h3>
+            <p>Can't find what you're looking for? We're here to help!</p>
+            <a href="/contact.html" class="cta-button">Contact Support</a>
+            <a href="/faq.html" class="cta-button">View FAQ</a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 SocialFlow. All rights reserved.</p>
+        <p>
+            <a href="/privacy-policy.html">Privacy Policy</a> |
+            <a href="/terms-of-service.html">Terms of Service</a> |
+            <a href="/about.html">About</a> |
+            <a href="/contact.html">Contact</a> |
+            <a href="/faq.html">FAQ</a>
+        </p>
+    </footer>
+
+    <script>
+        // Simple search functionality
+        document.getElementById('helpSearch').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            if (searchTerm.length < 2) return;
+
+            // Highlight matching sections
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                const text = section.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    section.style.display = 'block';
+                    section.style.background = '#fffacd';
+                    setTimeout(() => {
+                        section.style.background = 'transparent';
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

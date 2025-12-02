@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Frequently Asked Questions - SocialFlow</title>
+    <meta name="description" content="Find answers to frequently asked questions about SocialFlow social media management platform.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .search-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1em;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .category {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 30px 0;
+        }
+        
+        .category h2 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .faq-item {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .faq-question {
+            color: #333;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-question:hover {
+            color: #667eea;
+        }
+        
+        .faq-answer {
+            color: #555;
+            font-size: 1.05em;
+            line-height: 1.7;
+            margin-top: 10px;
+        }
+        
+        .faq-answer ul {
+            margin: 10px 0 10px 25px;
+        }
+        
+        .faq-answer li {
+            margin: 8px 0;
+        }
+        
+        .faq-answer code {
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .cta-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .cta-box h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        
+        .cta-box a {
+            display: inline-block;
+            background: white;
+            color: #667eea;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .cta-box a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        footer {
+            background: #2d3748;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+            .hero p {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>❓ Frequently Asked Questions</h1>
+        <p>Find answers to common questions about SocialFlow</p>
+    </div>
+
+    <div class="container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="🔍 Search for questions..." onkeyup="searchFAQ()">
+        </div>
+
+        <!-- GENERAL QUESTIONS -->
+        <div class="category">
+            <h2>📋 General Questions</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    What is SocialFlow?
+                </div>
+                <div class="faq-answer">
+                    SocialFlow is a 100% self-hosted social media management platform that allows you to manage, schedule, and publish content across multiple social media platforms from a single dashboard. It supports Facebook, Instagram, YouTube, TikTok, Twitter, LinkedIn, Telegram, and Pinterest.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Is SocialFlow free?
+                </div>
+                <div class="faq-answer">
+                    Yes! SocialFlow is currently free to use. You only pay for your own infrastructure (server hosting). There are no monthly SaaS fees, no per-user charges, and no hidden costs.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    What does "self-hosted" mean?
+                </div>
+                <div class="faq-answer">
+                    Self-hosted means you deploy and run SocialFlow on your own server infrastructure. Your data stays completely under your control - we never have access to it. This gives you complete privacy, security, and freedom.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Which social media platforms are supported?
+                </div>
+                <div class="faq-answer">
+                    Currently supported platforms:
+                    <ul>
+                        <li>✅ Facebook (Pages)</li>
+                        <li>✅ Instagram (Business/Creator accounts via Facebook)</li>
+                        <li>✅ YouTube (Channels)</li>
+                        <li>✅ TikTok (Business accounts)</li>
+                        <li>✅ Twitter/X</li>
+                        <li>✅ LinkedIn (Pages and Personal)</li>
+                        <li>✅ Telegram (Channels and Groups)</li>
+                        <li>✅ Pinterest (Boards)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETUP & INSTALLATION -->
+        <div class="category">
+            <h2>🔧 Setup & Installation</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    What are the system requirements?
+                </div>
+                <div class="faq-answer">
+                    <strong>Minimum Requirements:</strong>
+                    <ul>
+                        <li>Ubuntu 22.04/24.04 or similar Linux distribution</li>
+                        <li>2 GB RAM (4 GB recommended)</li>
+                        <li>20 GB disk space (more for media storage)</li>
+                        <li>Node.js 20.x or higher</li>
+                        <li>PostgreSQL 16</li>
+                        <li>Nginx (for reverse proxy)</li>
+                        <li>SSL certificate (Let's Encrypt recommended)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    How do I install SocialFlow?
+                </div>
+                <div class="faq-answer">
+                    Installation involves several steps:
+                    <ol>
+                        <li>Set up a server with Ubuntu 22.04+</li>
+                        <li>Install Node.js, PostgreSQL, and Nginx</li>
+                        <li>Clone the repository</li>
+                        <li>Configure environment variables</li>
+                        <li>Set up the database</li>
+                        <li>Build and deploy the application</li>
+                        <li>Configure OAuth for social platforms</li>
+                    </ol>
+                    <p>Detailed instructions are available in the documentation at your deployment.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Do I need technical knowledge to set up SocialFlow?
+                </div>
+                <div class="faq-answer">
+                    Basic server administration knowledge is recommended. You should be comfortable with:
+                    <ul>
+                        <li>Linux command line</li>
+                        <li>Basic database operations</li>
+                        <li>Web server configuration</li>
+                        <li>Environment variables</li>
+                    </ul>
+                    <p>If you're not technical, consider hiring a developer for initial setup.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="category">
+            <h2>⚡ Features</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    What is the Publishing Profiles feature?
+                </div>
+                <div class="faq-answer">
+                    Publishing Profiles allow you to save combinations of social media channels as reusable profiles. For example, if you manage multiple brands, you can create a "Brand A Profile" that includes all Brand A's channels across Facebook, YouTube, TikTok, etc. Then publish to all those channels with a single click.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Does SocialFlow support AI features?
+                </div>
+                <div class="faq-answer">
+                    Yes! SocialFlow integrates with OpenAI to provide:
+                    <ul>
+                        <li>Automated caption generation</li>
+                        <li>Smart hashtag suggestions</li>
+                        <li>Content optimization for different platforms</li>
+                    </ul>
+                    <p>You need to configure your OpenAI API key to use these features.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Can I schedule posts?
+                </div>
+                <div class="faq-answer">
+                    Yes! You can schedule posts for future publishing. The scheduler runs automatically and publishes posts at the specified times. It includes retry mechanisms for failed posts.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    What file types are supported for uploads?
+                </div>
+                <div class="faq-answer">
+                    <strong>Images:</strong> JPEG, PNG, GIF, WebP<br>
+                    <strong>Videos:</strong> MP4, MOV, AVI, WebM<br>
+                    <strong>Maximum file size:</strong> 500 MB per file<br>
+                    <br>
+                    Note: Each platform has its own limitations which are enforced.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Can I manage multiple accounts on the same platform?
+                </div>
+                <div class="faq-answer">
+                    Yes! You can connect unlimited accounts from the same platform. For example:
+                    <ul>
+                        <li>10 Facebook Pages</li>
+                        <li>10 YouTube Channels</li>
+                        <li>10 TikTok accounts</li>
+                        <li>And more...</li>
+                    </ul>
+                    <p>Use Publishing Profiles to organize and publish to multiple accounts efficiently.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACCOUNT & SECURITY -->
+        <div class="category">
+            <h2>🔐 Account & Security</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    How is my data protected?
+                </div>
+                <div class="faq-answer">
+                    Your data is protected through:
+                    <ul>
+                        <li>HTTPS/TLS encryption for all connections</li>
+                        <li>Encrypted password storage (bcrypt)</li>
+                        <li>JWT token-based authentication</li>
+                        <li>Database access controls</li>
+                        <li>Regular security updates</li>
+                        <li>Self-hosted infrastructure (you control access)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Are my social media access tokens secure?
+                </div>
+                <div class="faq-answer">
+                    Yes. Access tokens are:
+                    <ul>
+                        <li>Encrypted in the database</li>
+                        <li>Never exposed in API responses</li>
+                        <li>Only used for operations you request</li>
+                        <li>Can be revoked at any time</li>
+                        <li>Stored only on YOUR server (self-hosted)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    I forgot my password. How do I reset it?
+                </div>
+                <div class="faq-answer">
+                    Currently, password reset requires contacting support at <code>deikhei.msi@gmail.com</code>. We're working on implementing an automated password reset feature.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Can I delete my account and data?
+                </div>
+                <div class="faq-answer">
+                    Yes! You have complete control over your data. You can:
+                    <ul>
+                        <li>Delete your account from Settings</li>
+                        <li>Request data deletion via email</li>
+                        <li>Delete specific posts or content</li>
+                    </ul>
+                    <p>See our <a href="/user-data-deletion.html" style="color: #667eea;">Data Deletion page</a> for detailed instructions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TROUBLESHOOTING -->
+        <div class="category">
+            <h2>🔧 Troubleshooting</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    My post failed to publish. What should I do?
+                </div>
+                <div class="faq-answer">
+                    Common causes and solutions:
+                    <ul>
+                        <li><strong>Token expired:</strong> Reconnect your social media account</li>
+                        <li><strong>Platform limits:</strong> Check if you exceeded posting limits</li>
+                        <li><strong>Content restrictions:</strong> Ensure content complies with platform policies</li>
+                        <li><strong>Media format:</strong> Verify file format and size are supported</li>
+                        <li><strong>Network issues:</strong> Check server connectivity</li>
+                    </ul>
+                    <p>Check the Activity Logs for detailed error messages.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Why can't I connect my Instagram account?
+                </div>
+                <div class="faq-answer">
+                    Instagram requires a Business or Creator account linked to a Facebook Page. Steps:
+                    <ol>
+                        <li>Convert your Instagram to Business/Creator account</li>
+                        <li>Link it to a Facebook Page</li>
+                        <li>Connect Facebook Page in SocialFlow</li>
+                        <li>Instagram will appear automatically</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    The scheduler is not running. How do I fix it?
+                </div>
+                <div class="faq-answer">
+                    Check the following:
+                    <ul>
+                        <li>Ensure the backend is running (<code>pm2 list</code>)</li>
+                        <li>Check PM2 logs for errors (<code>pm2 logs</code>)</li>
+                        <li>Verify database connection</li>
+                        <li>Restart the backend (<code>pm2 restart social-symphony-api</code>)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    I'm getting a "500 Internal Server Error". What does this mean?
+                </div>
+                <div class="faq-answer">
+                    This indicates a server-side error. Common causes:
+                    <ul>
+                        <li>Database connection issues</li>
+                        <li>Missing environment variables</li>
+                        <li>Permission errors</li>
+                        <li>Backend crash or misconfiguration</li>
+                    </ul>
+                    <p>Check the PM2 logs: <code>pm2 logs social-symphony-api</code></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- BILLING & PRICING -->
+        <div class="category">
+            <h2>💰 Billing & Pricing</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    Is SocialFlow really free?
+                </div>
+                <div class="faq-answer">
+                    Yes! The software is free. You only pay for:
+                    <ul>
+                        <li>Your server hosting (VPS/cloud provider)</li>
+                        <li>Domain name (optional)</li>
+                        <li>SSL certificate (free with Let's Encrypt)</li>
+                        <li>OpenAI API usage (if using AI features)</li>
+                    </ul>
+                    <p>There are no SocialFlow licensing fees or subscriptions.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    What are the infrastructure costs?
+                </div>
+                <div class="faq-answer">
+                    Typical monthly costs:
+                    <ul>
+                        <li><strong>VPS Hosting:</strong> $5-20/month (DigitalOcean, Vultr, etc.)</li>
+                        <li><strong>Domain:</strong> $10-15/year</li>
+                        <li><strong>SSL:</strong> Free (Let's Encrypt)</li>
+                        <li><strong>OpenAI:</strong> Pay-as-you-go (optional)</li>
+                    </ul>
+                    <p>Total: ~$5-25/month depending on usage and server size.</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Will there be paid plans in the future?
+                </div>
+                <div class="faq-answer">
+                    We may introduce premium features or enterprise support in the future, but:
+                    <ul>
+                        <li>Current free features will remain free</li>
+                        <li>Self-hosted option will always be available</li>
+                        <li>No forced upgrades or paywalls</li>
+                        <li>You'll be notified 30 days in advance</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SUPPORT -->
+        <div class="category">
+            <h2>🆘 Support & Help</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">
+                    How do I get support?
+                </div>
+                <div class="faq-answer">
+                    Support options:
+                    <ul>
+                        <li><strong>Email:</strong> <a href="mailto:deikhei.msi@gmail.com" style="color: #667eea;">deikhei.msi@gmail.com</a></li>
+                        <li><strong>Documentation:</strong> Available on your deployment</li>
+                        <li><strong>FAQ:</strong> This page</li>
+                        <li><strong>Contact Form:</strong> <a href="/contact.html" style="color: #667eea;">Contact page</a></li>
+                    </ul>
+                    <p>Response time: Within 48 hours</p>
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Is there a community or forum?
+                </div>
+                <div class="faq-answer">
+                    We're currently building a community platform. For now, reach out via email for support, questions, or to connect with other users.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">
+                    Can I hire someone to set up SocialFlow for me?
+                </div>
+                <div class="faq-answer">
+                    Yes! Contact us at <code>deikhei.msi@gmail.com</code> for setup assistance or to discuss custom implementation services.
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-box">
+            <h3>Still have questions?</h3>
+            <p>We're here to help! Contact our support team</p>
+            <a href="/contact.html">Contact Us →</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 SocialFlow. All rights reserved.</p>
+        <p>
+            <a href="/privacy-policy.html">Privacy Policy</a> |
+            <a href="/terms-of-service.html">Terms of Service</a> |
+            <a href="/about.html">About</a> |
+            <a href="/contact.html">Contact</a>
+        </p>
+    </footer>
+
+    <script>
+        function searchFAQ() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const items = document.getElementsByClassName('faq-item');
+            
+            for (let i = 0; i < items.length; i++) {
+                const question = items[i].getElementsByClassName('faq-question')[0];
+                const answer = items[i].getElementsByClassName('faq-answer')[0];
+                const txtValue = question.textContent + ' ' + answer.textContent;
+                
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    items[i].style.display = '';
+                } else {
+                    items[i].style.display = 'none';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

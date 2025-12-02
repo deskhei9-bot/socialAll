@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - SocialFlow</title>
+    <meta name="description" content="Get in touch with SocialFlow. Contact us for support, questions, or feedback about our social media management platform.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .contact-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .contact-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        
+        .contact-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+        
+        .contact-card p {
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .contact-card a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .contact-card a:hover {
+            text-decoration: underline;
+        }
+        
+        .form-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+        
+        .form-section h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .info-section {
+            background: #e7f3ff;
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            margin: 30px 0;
+        }
+        
+        .faq-section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 40px 0;
+        }
+        
+        .faq-section h2 {
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .faq-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .faq-item p {
+            color: #555;
+        }
+        
+        footer {
+            background: #2d3748;
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            margin-top: 60px;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2em;
+            }
+            .hero p {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>📧 Contact Us</h1>
+        <p>We're here to help! Get in touch with our team</p>
+    </div>
+
+    <div class="container">
+        <div class="contact-grid">
+            <div class="contact-card">
+                <div class="contact-icon">📧</div>
+                <h2>Email Support</h2>
+                <p>Send us an email and we'll respond within 48 hours</p>
+                <p><a href="mailto:deikhei.msi@gmail.com">deikhei.msi@gmail.com</a></p>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">🌐</div>
+                <h2>Website</h2>
+                <p>Visit our main website for more information</p>
+                <p><a href="https://socialautoupload.com">socialautoupload.com</a></p>
+            </div>
+
+            <div class="contact-card">
+                <div class="contact-icon">📍</div>
+                <h2>Location</h2>
+                <p>Moo 10, 90/10 30 Soi Rae Khang</p>
+                <p>Sam Phran District, Nakhon Pathom 73210</p>
+                <p>Thailand</p>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2>Send Us a Message</h2>
+            <p style="color: #666; margin-bottom: 30px;">
+                Fill out the form below and we'll get back to you as soon as possible. 
+                Please provide as much detail as possible so we can assist you better.
+            </p>
+            
+            <form action="mailto:deikhei.msi@gmail.com" method="get" enctype="text/plain">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Subject *</label>
+                    <select id="subject" name="subject" required>
+                        <option value="">-- Select a subject --</option>
+                        <option value="General Inquiry">General Inquiry</option>
+                        <option value="Technical Support">Technical Support</option>
+                        <option value="Feature Request">Feature Request</option>
+                        <option value="Bug Report">Bug Report</option>
+                        <option value="Account Issue">Account Issue</option>
+                        <option value="Billing Question">Billing Question</option>
+                        <option value="Partnership">Partnership Opportunity</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message *</label>
+                    <textarea id="message" name="message" required placeholder="Please provide details about your inquiry, including any relevant information that would help us assist you better."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">Send Message</button>
+            </form>
+        </div>
+
+        <div class="info-section">
+            <h3 style="color: #667eea; margin-bottom: 15px;">📢 What to Expect</h3>
+            <ul style="margin-left: 20px;">
+                <li><strong>Response Time:</strong> We typically respond within 48 hours during business days</li>
+                <li><strong>Support Hours:</strong> Monday - Friday, 9:00 AM - 6:00 PM (GMT+7, Bangkok Time)</li>
+                <li><strong>Emergency Issues:</strong> For critical bugs affecting your service, we prioritize responses</li>
+                <li><strong>Documentation:</strong> Check our <a href="/faq.html" style="color: #667eea;">FAQ page</a> for quick answers</li>
+            </ul>
+        </div>
+
+        <div class="faq-section">
+            <h2>Quick Answers</h2>
+            
+            <div class="faq-item">
+                <h3>💬 How can I get technical support?</h3>
+                <p>Email us at <a href="mailto:deikhei.msi@gmail.com" style="color: #667eea;">deikhei.msi@gmail.com</a> with details about your issue, including error messages, screenshots, and steps to reproduce the problem.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>🔧 Where can I find setup instructions?</h3>
+                <p>Check our comprehensive documentation at <a href="https://socialautoupload.com" style="color: #667eea;">socialautoupload.com</a> or the README files in the project repository.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>💡 How do I request a new feature?</h3>
+                <p>Send us an email with "Feature Request" in the subject line, describing the feature you'd like to see and how it would help you.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>🐛 Found a bug? How do I report it?</h3>
+                <p>Email us with "Bug Report" in the subject. Include: what you were doing, what happened, what you expected to happen, error messages, and if possible, screenshots or logs.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>🔐 I forgot my password. What should I do?</h3>
+                <p>Currently, password reset can be done by contacting us directly. We're working on an automated password reset feature.</p>
+            </div>
+
+            <div class="faq-item">
+                <h3>🤝 Are you interested in partnerships?</h3>
+                <p>Yes! We're open to partnerships, integrations, and collaborations. Email us with "Partnership" in the subject line.</p>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3 style="color: #667eea; margin-bottom: 15px;">📚 Other Resources</h3>
+            <ul style="margin-left: 20px;">
+                <li><a href="/privacy-policy.html" style="color: #667eea;">Privacy Policy</a> - How we protect your data</li>
+                <li><a href="/terms-of-service.html" style="color: #667eea;">Terms of Service</a> - Usage terms and conditions</li>
+                <li><a href="/user-data-deletion.html" style="color: #667eea;">Data Deletion</a> - How to delete your account and data</li>
+                <li><a href="/faq.html" style="color: #667eea;">FAQ</a> - Frequently asked questions</li>
+                <li><a href="/about.html" style="color: #667eea;">About Us</a> - Learn more about SocialFlow</li>
+            </ul>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 SocialFlow. All rights reserved.</p>
+        <p>
+            <a href="/privacy-policy.html">Privacy Policy</a> |
+            <a href="/terms-of-service.html">Terms of Service</a> |
+            <a href="/about.html">About</a> |
+            <a href="/faq.html">FAQ</a>
+        </p>
+    </footer>
+</body>
+</html>
