@@ -89,35 +89,37 @@ export const CaptionGenerator = ({ onGenerate, topic, platforms = [] }: CaptionG
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="gap-2"
+          size="sm"
+          className="h-8 rounded-lg gap-1.5 text-xs border hover:border-primary/50 hover:bg-primary/10 transition-all"
         >
-          <Sparkles className="w-4 h-4" />
-          Generate with AI
+          <Sparkles className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">AI Generate</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80" align="start">
-        <div className="space-y-4">
-          <div>
-            <h4 className="font-medium mb-2">AI Caption Generator</h4>
-            <p className="text-sm text-muted-foreground">
-              Generate engaging captions using AI
+      <PopoverContent className="w-72" align="start">
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <h4 className="text-sm font-semibold">AI Caption Generator</h4>
+            <p className="text-xs text-muted-foreground">
+              Generate engaging captions
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="topic">Topic (Optional)</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="topic" className="text-xs">Topic (Optional)</Label>
             <Input
               id="topic"
-              placeholder="Enter topic or leave blank"
+              placeholder="Enter topic..."
               value={customTopic}
               onChange={(e) => setCustomTopic(e.target.value)}
+              className="h-9 text-sm"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="tone">Tone</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="tone" className="text-xs">Tone</Label>
             <Select value={tone} onValueChange={setTone}>
-              <SelectTrigger id="tone">
+              <SelectTrigger id="tone" className="h-9 text-sm">
                 <SelectValue placeholder="Select tone" />
               </SelectTrigger>
               <SelectContent>
@@ -135,17 +137,17 @@ export const CaptionGenerator = ({ onGenerate, topic, platforms = [] }: CaptionG
           <Button 
             onClick={handleGenerate} 
             disabled={generating}
-            className="w-full gap-2"
+            className="w-full h-9 text-sm gap-1.5"
           >
             {generating ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 Generating...
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
-                Generate Caption
+                <Sparkles className="w-3.5 h-3.5" />
+                Generate
               </>
             )}
           </Button>

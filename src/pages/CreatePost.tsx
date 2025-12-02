@@ -525,6 +525,7 @@ export default function CreatePost() {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Title Field */}
               <div className="space-y-1.5">
                 <Label htmlFor="post-title" className="text-xs font-medium text-foreground/80">
                   Post Title <span className="text-muted-foreground font-normal">(Optional)</span>
@@ -537,16 +538,8 @@ export default function CreatePost() {
                   className="h-10 text-sm bg-muted/30 border-border/50 focus:border-primary/50 transition-colors"
                 />
               </div>
-              
-              {/* AI Caption Generator */}
-              <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-3">
-                <CaptionGenerator
-                  topic={title}
-                  platforms={selectedPlatforms}
-                  onGenerate={setContent}
-                />
-              </div>
 
+              {/* Caption/Description */}
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="post-content" className="text-xs font-medium text-foreground/80">
@@ -564,12 +557,21 @@ export default function CreatePost() {
                   placeholder="What do you want to share today?..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  className="min-h-[200px] text-sm leading-relaxed bg-muted/30 border-border/50 focus:border-primary/50 resize-none transition-colors"
+                  className="min-h-[180px] text-sm leading-relaxed bg-muted/30 border-border/50 focus:border-primary/50 resize-none transition-colors"
                 />
               </div>
               
+              {/* Action Buttons Row */}
               <div className="flex items-center justify-between pt-2 border-t border-border/30">
                 <div className="flex gap-1.5">
+                  {/* AI Caption Generator */}
+                  <CaptionGenerator
+                    topic={title}
+                    platforms={selectedPlatforms}
+                    onGenerate={setContent}
+                  />
+                  
+                  {/* Templates */}
                   <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
                     <DialogTrigger asChild>
                       <Button 
@@ -588,20 +590,6 @@ export default function CreatePost() {
                       <CaptionTemplateManager mode="select" onApply={handleApplyTemplate} />
                     </DialogContent>
                   </Dialog>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 w-8 p-0 rounded-lg border hover:border-primary/50 hover:bg-primary/10 transition-all"
-                  >
-                    <Hash className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 w-8 p-0 rounded-lg border hover:border-primary/50 hover:bg-primary/10 transition-all"
-                  >
-                    <Smile className="w-3.5 h-3.5" />
-                  </Button>
                 </div>
                 
                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
@@ -609,28 +597,19 @@ export default function CreatePost() {
                   <span className="hidden sm:inline">Auto-saves</span>
                 </div>
               </div>
+
+              {/* Hashtags Section - Integrated */}
+              <div className="pt-3 border-t border-border/30 space-y-3">
+                <HashtagSuggestions
+                  content={content}
+                  platforms={selectedPlatforms}
+                  onAdd={handleAddHashtags}
+                />
+              </div>
             </CardContent>
           </Card>
 
-          {/* Hashtag Suggestions */}
-          <Card className="glass-card animate-fade-in border-2" style={{ animationDelay: "200ms" }}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                <Hash className="w-5 h-5 text-primary" />
-                Hashtags
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                AI-powered suggestions
-              </p>
-            </CardHeader>
-            <CardContent>
-              <HashtagSuggestions
-                content={content}
-                platforms={selectedPlatforms}
-                onAdd={handleAddHashtags}
-              />
-            </CardContent>
-          </Card>
+
 
           {/* Media Upload - REMOVED, moved to Preview panel */}
         </div>

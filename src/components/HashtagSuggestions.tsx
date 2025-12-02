@@ -88,11 +88,11 @@ export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggest
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium flex items-center gap-2">
-          <Hash className="w-4 h-4" />
-          Hashtag Suggestions
+        <label className="text-xs font-medium text-foreground/80 flex items-center gap-1.5">
+          <Hash className="w-3.5 h-3.5" />
+          Hashtags
         </label>
         <Popover>
           <PopoverTrigger asChild>
@@ -100,24 +100,34 @@ export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggest
               variant="outline"
               size="sm"
               disabled={!content || generating}
+              className="h-8 rounded-lg gap-1.5 text-xs border hover:border-primary/50 hover:bg-primary/10 transition-all"
             >
-              {generating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Get Suggestions
+              {generating ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span className="hidden sm:inline">Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Hash className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">AI Suggest</span>
+                </>
+              )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <h4 className="font-medium leading-none">AI Hashtag Generator</h4>
-                <p className="text-sm text-muted-foreground">
-                  Generate relevant hashtags for your content
+          <PopoverContent className="w-72" align="end">
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <h4 className="text-sm font-semibold">AI Hashtag Generator</h4>
+                <p className="text-xs text-muted-foreground">
+                  Generate relevant hashtags
                 </p>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="count">Number of Hashtags</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="count" className="text-xs">Count</Label>
                 <Select value={count} onValueChange={setCount}>
-                  <SelectTrigger id="count">
+                  <SelectTrigger id="count" className="h-9 text-sm">
                     <SelectValue placeholder="Select count" />
                   </SelectTrigger>
                   <SelectContent>
@@ -132,15 +142,15 @@ export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggest
               <Button 
                 onClick={handleSuggest} 
                 disabled={generating || !content}
-                className="w-full"
+                className="w-full h-9 text-sm"
               >
                 {generating ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
                     Generating...
                   </>
                 ) : (
-                  'Generate Hashtags'
+                  'Generate'
                 )}
               </Button>
             </div>
@@ -149,13 +159,13 @@ export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggest
       </div>
       
       {suggestions.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-2 p-2.5 rounded-lg bg-muted/30 border border-border/30">
+          <div className="flex flex-wrap gap-1.5">
             {suggestions.map((tag) => (
               <Badge
                 key={tag}
                 variant="secondary"
-                className="cursor-pointer"
+                className="cursor-pointer text-[10px] px-2 py-0.5 hover:bg-primary/20 transition-colors"
                 onClick={() => onAdd([tag])}
               >
                 #{tag}
@@ -166,9 +176,9 @@ export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggest
             variant="outline"
             size="sm"
             onClick={handleAddAll}
-            className="w-full"
+            className="w-full h-7 text-xs"
           >
-            Add All Hashtags
+            Add All
           </Button>
         </div>
       )}
