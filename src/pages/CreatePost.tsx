@@ -70,18 +70,6 @@ export default function CreatePost() {
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [fullscreenMedia, setFullscreenMedia] = useState<UploadedMedia | null>(null);
   
-  // YouTube metadata
-  const [youtubeDescription, setYoutubeDescription] = useState("");
-  const [youtubeTags, setYoutubeTags] = useState("");
-  const [youtubeCategory, setYoutubeCategory] = useState("22"); // People & Blogs
-  const [youtubePrivacy, setYoutubePrivacy] = useState("public");
-  
-  // TikTok metadata
-  const [tiktokPrivacy, setTiktokPrivacy] = useState("public");
-  const [tiktokAllowComments, setTiktokAllowComments] = useState(true);
-  const [tiktokAllowDuet, setTiktokAllowDuet] = useState(true);
-  const [tiktokAllowStitch, setTiktokAllowStitch] = useState(true);
-  
   // Link metadata
   const [linkUrl, setLinkUrl] = useState("");
 
@@ -259,26 +247,6 @@ export default function CreatePost() {
       metadata.media_urls = mediaUrls;
     }
     
-    // YouTube metadata
-    if (selectedPlatforms.includes('youtube')) {
-      metadata.youtube = {
-        description: youtubeDescription || undefined,
-        tags: youtubeTags ? youtubeTags.split(',').map(t => t.trim()).filter(Boolean) : undefined,
-        category_id: youtubeCategory,
-        privacy_status: youtubePrivacy,
-      };
-    }
-    
-    // TikTok metadata
-    if (selectedPlatforms.includes('tiktok')) {
-      metadata.tiktok = {
-        privacy_level: tiktokPrivacy,
-        disable_comment: !tiktokAllowComments,
-        disable_duet: !tiktokAllowDuet,
-        disable_stitch: !tiktokAllowStitch,
-      };
-    }
-    
     // Link metadata
     if (postType === 'link' && linkUrl) {
       metadata.link_url = linkUrl;
@@ -336,23 +304,24 @@ export default function CreatePost() {
   const isProcessing = isSubmitting || publishing;
 
   return (
-    <div className="space-y-6">
+    <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold neon-text">Create Post</h1>
-        <p className="text-muted-foreground mt-1">Compose and schedule your content across platforms.</p>
+      <div className="space-y-1">
+        <h1 className="text-2xl sm:text-3xl font-bold neon-text">Create Post</h1>
+        <p className="text-muted-foreground text-sm">Compose and schedule your content across multiple platforms.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Editor */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-6">
           {/* Platform Selection */}
-          <Card className="glass-card animate-fade-in">
-            <CardHeader>
-              <CardTitle className="text-lg">Select Platforms</CardTitle>
+          <Card className="glass-card animate-fade-in border-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold">Select Platforms</CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">Choose where to publish</p>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2.5 sm:gap-3">
                 {platforms.map((platform) => {
                   // Check if current post type supports this platform
                   const currentType = UNIVERSAL_POST_TYPES.find(t => t.value === postType);
@@ -365,38 +334,44 @@ export default function CreatePost() {
                       onClick={() => togglePlatform(platform.id)}
                       disabled={!isSupported}
                       className={cn(
-                        "relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-200",
-                        !isSupported && "opacity-40 cursor-not-allowed",
+                        "relative flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 group",
+                        !isSupported && "opacity-40 cursor-not-allowed grayscale",
                         isSupported && isSelected
-                          ? "border-primary bg-primary/10 shadow-md shadow-primary/30"
-                          : "border-border/50 bg-muted/30 hover:border-primary/30",
-                        isSupported && platform.color
+                          ? "border-primary bg-primary/15 shadow-md shadow-primary/20 scale-[1.02]"
+                          : "border-border/60 bg-card/50 hover:border-primary/60 hover:bg-primary/5 hover:scale-[1.02]",
                       )}
-                      title={!isSupported ? `${currentType?.label || 'This post type'} is not supported on ${platform.label}` : ''}
+                      title={!isSupported ? `${currentType?.label || 'This post type'} is not supported on ${platform.label}` : platform.label}
                     >
-                      {/* Selection Checkmark - Most Visible */}
+                      {/* Selection Checkmark */}
                       {isSelected && isSupported && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg z-10">
-                          <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-md shadow-primary/40 z-10">
+                          <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
                       )}
                       
                       {/* API Support Indicator */}
-                      {platform.apiSupported && isSupported && !isSelected && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-neon-green rounded-full" title="API Publishing Available" />
+                      {platform.apiSupported && isSupported && (
+                        <div className="absolute top-1 left-1 w-2 h-2 bg-green-500 rounded-full shadow-sm shadow-green-500/50 animate-pulse" title="Direct API Publishing" />
                       )}
                       
-                      {/* Platform Compatibility Badge */}
-                      {!isSupported && (
-                        <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-red-500/80 text-white text-[8px] font-bold rounded-full" title="Not supported for this post type">
-                          ✕
-                        </span>
-                      )}
+                      {/* Platform Icon */}
+                      <div className={cn(
+                        "transition-transform duration-300",
+                        isSelected && "scale-105",
+                        !isSelected && "group-hover:scale-105"
+                      )}>
+                        <platform.icon className="w-8 h-8 sm:w-9 sm:h-9" />
+                      </div>
                       
-                      <platform.icon className="w-6 h-6" />
-                      <span className="text-xs font-medium">{platform.label}</span>
+                      {/* Platform Label */}
+                      <span className={cn(
+                        "text-xs sm:text-sm font-semibold text-center transition-colors",
+                        isSelected ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                      )}>
+                        {platform.label}
+                      </span>
                     </button>
                   );
                 })}
@@ -404,267 +379,114 @@ export default function CreatePost() {
               
               {/* Connected Channels Info */}
               {selectedPlatforms.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-border/30">
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Will publish to:
-                  </p>
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-xs font-medium text-muted-foreground">
+                      Connected Channels:
+                    </Label>
+                    {connectedChannels.length === 0 && (
+                      <a 
+                        href="/channels" 
+                        className="text-xs text-primary hover:underline font-medium flex items-center gap-1"
+                      >
+                        Connect
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </a>
+                    )}
+                  </div>
                   {connectedChannels.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5">
                       {connectedChannels.map(channel => (
-                        <span
+                        <div
                           key={channel.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-neon-green/10 text-neon-green border border-neon-green/20 rounded-full text-xs font-medium"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/10 border border-green-500/30 rounded-full text-xs font-medium"
                         >
-                          <CheckCircle2 className="w-3 h-3" />
-                          {channel.account_name}
-                        </span>
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                          <span className="text-green-600 dark:text-green-400">{channel.account_name}</span>
+                        </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-yellow-500 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4" />
-                      No API-connected channels for selected platforms. 
-                      <a href="/channels" className="underline">Connect channels</a>
-                    </p>
+                    <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                      <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                        No connected channels. <a href="/channels" className="underline font-medium">Connect now</a>
+                      </p>
+                    </div>
                   )}
+                </div>
+              )}
+
+              {/* Compact Post Type Selection */}
+              {selectedPlatforms.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <Label className="text-xs font-medium text-muted-foreground mb-2 block">
+                    Post Type:
+                  </Label>
+                  <div className="flex flex-wrap gap-2">
+                    {availablePostTypes.map(type => {
+                      const isSelected = postType === type.value;
+                      const supportedPlatforms = type.platforms.filter(p => selectedPlatforms.includes(p));
+                      const isCompatible = supportedPlatforms.length > 0;
+                      
+                      return (
+                        <button
+                          key={type.value}
+                          onClick={() => setPostType(type.value)}
+                          disabled={!isCompatible}
+                          className={cn(
+                            "relative px-3 py-1.5 rounded-lg border-2 text-xs font-semibold transition-all duration-200",
+                            "disabled:opacity-40 disabled:cursor-not-allowed",
+                            isSelected
+                              ? "border-primary bg-primary/20 text-primary shadow-sm shadow-primary/20"
+                              : isCompatible
+                                ? "border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
+                                : "border-border/30 bg-muted/20 text-muted-foreground"
+                          )}
+                        >
+                          {isSelected && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center shadow-sm">
+                              <CheckCircle2 className="w-2.5 h-2.5 text-primary-foreground" />
+                            </div>
+                          )}
+                          <span>{type.label}</span>
+                          {isCompatible && (
+                            <span className="ml-1 opacity-60">
+                              ({supportedPlatforms.length})
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1.5">
+                    <AlertCircle className="w-3 h-3" />
+                    Numbers show compatible platforms
+                  </p>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Post Type Selection */}
-          {selectedPlatforms.length > 0 && (
-            <Card className="glass-card animate-fade-in" style={{ animationDelay: "50ms" }}>
-              <CardHeader>
-                <CardTitle className="text-lg">Post Type</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Choose a content type - it will automatically adapt to each platform
+          {/* Upload Media Section */}
+          {selectedPlatforms.length > 0 && postType && (
+            <Card className="glass-card animate-fade-in border-2" style={{ animationDelay: "75ms" }}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  Upload Media
+                </CardTitle>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add images or videos for <span className="font-semibold text-primary">{postType}</span>
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {availablePostTypes.map(type => {
-                    const isSelected = postType === type.value;
-                    const supportedPlatforms = type.platforms.filter(p => selectedPlatforms.includes(p));
-                    const totalSupportedCount = type.platforms.length;
-                    
-                    return (
-                      <button
-                        key={type.value}
-                        onClick={() => setPostType(type.value)}
-                        className={cn(
-                          "relative flex flex-col items-start gap-2 p-4 rounded-lg border-2 transition-all duration-200 text-left",
-                          isSelected
-                            ? "border-primary bg-primary/10 shadow-lg shadow-primary/20"
-                            : "border-border/50 bg-muted/30 hover:border-primary/50 hover:bg-muted/50"
-                        )}
-                      >
-                        {/* Selection indicator */}
-                        {isSelected && (
-                          <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                        )}
-                        
-                        {/* Platform count badge */}
-                        <div className="absolute -top-2 -left-2 px-2 py-0.5 bg-blue-500 text-white text-[10px] font-bold rounded-full">
-                          {totalSupportedCount} {totalSupportedCount === 1 ? 'platform' : 'platforms'}
-                        </div>
-                        
-                        {/* Type label */}
-                        <div className="font-semibold text-base mt-2">{type.label}</div>
-                        
-                        {/* Description */}
-                        <div className="text-xs text-muted-foreground line-clamp-2 min-h-[2.5rem]">
-                          {type.description}
-                        </div>
-                        
-                        {/* Supported platforms badges */}
-                        {supportedPlatforms.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-auto pt-2 border-t border-border/30 w-full">
-                            {supportedPlatforms.map(platform => (
-                              <span 
-                                key={platform}
-                                className="text-[10px] px-2 py-0.5 bg-primary/20 text-primary rounded-full font-medium uppercase"
-                              >
-                                {platform}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-                
-                {/* Info message about platform filtering */}
-                {selectedPlatforms.length > 0 && (
-                  <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                    <p className="text-xs text-blue-400 flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4" />
-                      <span>
-                        When you select a post type, only compatible platforms will remain selected automatically.
-                      </span>
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* YouTube Metadata Fields */}
-          {selectedPlatforms.includes('youtube') && (postType === 'video' || postType === 'short') && (
-            <Card className="glass-card animate-fade-in" style={{ animationDelay: "75ms" }}>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Youtube className="w-5 h-5 text-red-500" />
-                  YouTube Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="youtube-description">Description (Optional)</Label>
-                  <Textarea
-                    id="youtube-description"
-                    placeholder="Video description..."
-                    value={youtubeDescription}
-                    onChange={(e) => setYoutubeDescription(e.target.value)}
-                    className="bg-muted/30 border-border/50 min-h-[100px]"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="youtube-tags">Tags (comma-separated)</Label>
-                  <Input
-                    id="youtube-tags"
-                    placeholder="e.g. technology, tutorial, review"
-                    value={youtubeTags}
-                    onChange={(e) => setYoutubeTags(e.target.value)}
-                    className="bg-muted/30 border-border/50"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="youtube-category">Category</Label>
-                    <Select value={youtubeCategory} onValueChange={setYoutubeCategory}>
-                      <SelectTrigger id="youtube-category" className="bg-muted/30 border-border/50">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">Film & Animation</SelectItem>
-                        <SelectItem value="2">Autos & Vehicles</SelectItem>
-                        <SelectItem value="10">Music</SelectItem>
-                        <SelectItem value="15">Pets & Animals</SelectItem>
-                        <SelectItem value="17">Sports</SelectItem>
-                        <SelectItem value="19">Travel & Events</SelectItem>
-                        <SelectItem value="20">Gaming</SelectItem>
-                        <SelectItem value="22">People & Blogs</SelectItem>
-                        <SelectItem value="23">Comedy</SelectItem>
-                        <SelectItem value="24">Entertainment</SelectItem>
-                        <SelectItem value="25">News & Politics</SelectItem>
-                        <SelectItem value="26">Howto & Style</SelectItem>
-                        <SelectItem value="27">Education</SelectItem>
-                        <SelectItem value="28">Science & Technology</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="youtube-privacy">Privacy</Label>
-                    <Select value={youtubePrivacy} onValueChange={setYoutubePrivacy}>
-                      <SelectTrigger id="youtube-privacy" className="bg-muted/30 border-border/50">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="public">Public</SelectItem>
-                        <SelectItem value="unlisted">Unlisted</SelectItem>
-                        <SelectItem value="private">Private</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* TikTok Metadata Fields */}
-          {selectedPlatforms.includes('tiktok') && postType === 'video' && (
-            <Card className="glass-card animate-fade-in" style={{ animationDelay: "75ms" }}>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Music2 className="w-5 h-5 text-cyan-400" />
-                  TikTok Settings
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tiktok-privacy">Privacy Level</Label>
-                  <Select value={tiktokPrivacy} onValueChange={setTiktokPrivacy}>
-                    <SelectTrigger id="tiktok-privacy" className="bg-muted/30 border-border/50">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public">Public</SelectItem>
-                      <SelectItem value="friends">Friends Only</SelectItem>
-                      <SelectItem value="private">Private</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-3">
-                  <Label>Video Permissions</Label>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="tiktok-comments" className="text-sm font-normal">
-                        Allow Comments
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Let viewers comment on your video
-                      </p>
-                    </div>
-                    <Switch
-                      id="tiktok-comments"
-                      checked={tiktokAllowComments}
-                      onCheckedChange={setTiktokAllowComments}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="tiktok-duet" className="text-sm font-normal">
-                        Allow Duet
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Let others create duets with your video
-                      </p>
-                    </div>
-                    <Switch
-                      id="tiktok-duet"
-                      checked={tiktokAllowDuet}
-                      onCheckedChange={setTiktokAllowDuet}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="tiktok-stitch" className="text-sm font-normal">
-                        Allow Stitch
-                      </Label>
-                      <p className="text-xs text-muted-foreground">
-                        Let others use parts of your video
-                      </p>
-                    </div>
-                    <Switch
-                      id="tiktok-stitch"
-                      checked={tiktokAllowStitch}
-                      onCheckedChange={setTiktokAllowStitch}
-                    />
-                  </div>
-                </div>
+                <MediaUploader 
+                  onMediaChange={setMedia}
+                  media={media}
+                />
               </CardContent>
             </Card>
           )}
@@ -693,64 +515,113 @@ export default function CreatePost() {
           )}
 
           {/* Content Editor */}
-          <Card className="glass-card animate-fade-in" style={{ animationDelay: "100ms" }}>
-            <CardHeader>
-              <CardTitle className="text-lg">Content</CardTitle>
+          <Card className="glass-card animate-fade-in border-2" style={{ animationDelay: "100ms" }}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold">
+                Content
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                Craft your message
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Input
-                placeholder="Post title (optional)"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="bg-muted/30 border-border/50"
-              />
+              <div className="space-y-1.5">
+                <Label htmlFor="post-title" className="text-xs font-medium text-foreground/80">
+                  Post Title <span className="text-muted-foreground font-normal">(Optional)</span>
+                </Label>
+                <Input
+                  id="post-title"
+                  placeholder="Add a catchy title..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="h-10 text-sm bg-muted/30 border-border/50 focus:border-primary/50 transition-colors"
+                />
+              </div>
               
               {/* AI Caption Generator */}
-              <CaptionGenerator
-                topic={title}
-                platforms={selectedPlatforms}
-                onGenerate={setContent}
-              />
+              <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 p-3">
+                <CaptionGenerator
+                  topic={title}
+                  platforms={selectedPlatforms}
+                  onGenerate={setContent}
+                />
+              </div>
 
-              <Textarea
-                placeholder="What do you want to share today?"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="min-h-[200px] bg-muted/30 border-border/50 resize-none"
-              />
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="post-content" className="text-xs font-medium text-foreground/80">
+                    Caption / Description
+                  </Label>
+                  <span className={cn(
+                    "text-[10px] font-medium transition-colors",
+                    content.length > 2000 ? "text-amber-500" : "text-muted-foreground"
+                  )}>
+                    {content.length}/2200
+                  </span>
+                </div>
+                <Textarea
+                  id="post-content"
+                  placeholder="What do you want to share today?..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="min-h-[200px] text-sm leading-relaxed bg-muted/30 border-border/50 focus:border-primary/50 resize-none transition-colors"
+                />
+              </div>
               
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2">
+              <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                <div className="flex gap-1.5">
                   <Dialog open={templateDialogOpen} onOpenChange={setTemplateDialogOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="ghost" size="sm" className="rounded-xl gap-1">
-                        <FileText className="w-4 h-4" />
-                        Templates
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 rounded-lg gap-1.5 text-xs border hover:border-primary/50 hover:bg-primary/10 transition-all"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">Templates</span>
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
-                        <DialogTitle>Apply Caption Template</DialogTitle>
+                        <DialogTitle className="text-xl font-bold">Apply Template</DialogTitle>
                       </DialogHeader>
                       <CaptionTemplateManager mode="select" onApply={handleApplyTemplate} />
                     </DialogContent>
                   </Dialog>
-                  <Button variant="ghost" size="icon" className="rounded-xl">
-                    <Hash className="w-5 h-5" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 rounded-lg border hover:border-primary/50 hover:bg-primary/10 transition-all"
+                  >
+                    <Hash className="w-3.5 h-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="rounded-xl">
-                    <Smile className="w-5 h-5" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 rounded-lg border hover:border-primary/50 hover:bg-primary/10 transition-all"
+                  >
+                    <Smile className="w-3.5 h-3.5" />
                   </Button>
                 </div>
-                <span className="text-sm text-muted-foreground">{content.length}/2200</span>
+                
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                  <div className="w-1 h-1 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="hidden sm:inline">Auto-saves</span>
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Hashtag Suggestions */}
-          <Card className="glass-card animate-fade-in" style={{ animationDelay: "200ms" }}>
-            <CardHeader>
-              <CardTitle className="text-lg">Hashtags</CardTitle>
+          <Card className="glass-card animate-fade-in border-2" style={{ animationDelay: "200ms" }}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                <Hash className="w-5 h-5 text-primary" />
+                Hashtags
+              </CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                AI-powered suggestions
+              </p>
             </CardHeader>
             <CardContent>
               <HashtagSuggestions
@@ -964,33 +835,24 @@ export default function CreatePost() {
                         ))}
                       </div>
                       
-                      {/* Add More Media Button - Always show when media exists */}
-                      <div className="pt-2">
-                        <MediaUploader 
-                          media={media} 
-                          onMediaChange={setMedia}
-                          maxFiles={postType === 'album' ? 10 : 10}
-                        />
-                        {postType === 'album' && selectedPlatforms.includes('facebook') && (
-                          <p className="text-xs text-muted-foreground mt-2">
-                            📸 Upload multiple photos for Facebook album (max 10)
-                          </p>
-                        )}
+                      {/* Info about media */}
+                      <div className="pt-3 border-t border-border/30 mt-3">
+                        <p className="text-xs text-muted-foreground flex items-center gap-2">
+                          <AlertCircle className="w-3.5 h-3.5" />
+                          {media.length} file{media.length !== 1 ? 's' : ''} uploaded
+                          {postType === 'album' && selectedPlatforms.includes('facebook') && ' • Facebook album supports up to 10 photos'}
+                        </p>
                       </div>
                     </>
                   ) : (
-                    <div className="text-center py-4">
-                      <p className="text-xs text-muted-foreground mb-3">No media uploaded</p>
-                      <MediaUploader 
-                        media={media} 
-                        onMediaChange={setMedia}
-                        maxFiles={postType === 'album' ? 10 : 10}
-                      />
-                      {postType === 'album' && selectedPlatforms.includes('facebook') && (
-                        <p className="text-xs text-muted-foreground mt-2">
-                          📸 Upload multiple photos for Facebook album (max 10)
-                        </p>
-                      )}
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted/50 flex items-center justify-center">
+                        <FileText className="w-8 h-8 text-muted-foreground" />
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-1">No media uploaded yet</p>
+                      <p className="text-xs text-muted-foreground/70">
+                        Upload media in the section above
+                      </p>
                     </div>
                   )}
                 </div>
@@ -1006,9 +868,9 @@ export default function CreatePost() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {results.map((result) => (
+                  {results.map((result, index) => (
                     <div
-                      key={result.channelId}
+                      key={`${result.platform}-${index}`}
                       className={cn(
                         "flex items-center gap-2 p-2 rounded-lg text-sm",
                         result.success ? "bg-neon-green/10 text-neon-green" : "bg-destructive/10 text-destructive"
@@ -1019,7 +881,7 @@ export default function CreatePost() {
                       ) : (
                         <AlertCircle className="w-4 h-4" />
                       )}
-                      <span>{result.channelName}</span>
+                      <span className="capitalize">{result.platform}</span>
                       {result.error && <span className="text-xs">({result.error})</span>}
                     </div>
                   ))}

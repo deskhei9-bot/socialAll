@@ -28,6 +28,28 @@ function decryptToken(encryptedToken: string): string {
   return decrypted;
 }
 
+/**
+ * Generate a smart title for platforms that require it (YouTube, Pinterest)
+ * Falls back to first line of content if no title provided
+ */
+function getSmartTitle(post: any, maxLength: number = 100): string {
+  // Use provided title if available
+  if (post.title && post.title.trim()) {
+    return post.title.trim().substring(0, maxLength);
+  }
+  
+  // Extract first line from content
+  if (post.content) {
+    const firstLine = post.content.split('\n')[0].trim();
+    if (firstLine) {
+      return firstLine.substring(0, maxLength);
+    }
+  }
+  
+  // Fallback to generic title
+  return 'Untitled Post';
+}
+
 async function publishPost(post: any): Promise<void> {
   const platforms = post.platforms || [];
   const mediaUrl = getMediaUrl(post);

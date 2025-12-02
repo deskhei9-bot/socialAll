@@ -21,6 +21,28 @@ function decryptToken(encryptedToken: string): string {
 }
 
 /**
+ * Generate a smart title for platforms that require it (YouTube, Pinterest)
+ * Falls back to first line of content if no title provided
+ */
+function getSmartTitle(post: any, maxLength: number = 100): string {
+  // Use provided title if available
+  if (post.title && post.title.trim()) {
+    return post.title.trim().substring(0, maxLength);
+  }
+  
+  // Extract first line from content
+  if (post.content) {
+    const firstLine = post.content.split('\n')[0].trim();
+    if (firstLine) {
+      return firstLine.substring(0, maxLength);
+    }
+  }
+  
+  // Fallback to generic title
+  return 'Untitled Post';
+}
+
+/**
  * POST /api/publish
  * Publish a post to selected platforms
  */
@@ -256,8 +278,8 @@ router.post('/', async (req: any, res) => {
                 publishResult = await YouTubeService.uploadVideo(
                   accessToken,
                   filePath,
-                  post.content || 'Untitled Video',
-                  post.metadata?.description || '',
+                  getSmartTitle(post, 100),  // ✅ Use smart title (max 100 chars)
+                  post.content || '',        // ✅ Full content as description
                   post.metadata?.tags || [],
                   post.metadata?.category_id || '22',
                   post.metadata?.privacy || 'public'
@@ -273,8 +295,8 @@ router.post('/', async (req: any, res) => {
                 publishResult = await YouTubeService.uploadShort(
                   accessToken,
                   filePath,
-                  post.content || 'Untitled Short',
-                  post.metadata?.description || ''
+                  getSmartTitle(post, 100),  // ✅ Use smart title (max 100 chars)
+                  post.content || ''         // ✅ Full content as description
                 );
               } else {
                 throw new Error('Short requires a video file');
