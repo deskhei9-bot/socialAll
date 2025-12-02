@@ -44,7 +44,7 @@ const Index = () => {
 
             {/* Subheading */}
             <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
-              ကိုယ့်ပိုင် server တွင် host လုပ်ထားသော အပြည့်အဝ လုံခြုံမှုရှိသော social media auto-publishing platform
+              A fully self-hosted, secure social media auto-publishing platform with complete control over your data
             </p>
 
             {/* CTA Buttons */}
@@ -54,7 +54,7 @@ const Index = () => {
                 className="text-lg px-8 py-6 group"
                 onClick={handleGetStarted}
               >
-                စတင်အသုံးပြုမယ်
+                Get Started Free
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
@@ -74,7 +74,7 @@ const Index = () => {
                 <div className="text-sm text-muted-foreground">Self-Hosted</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary">3+</div>
+                <div className="text-3xl font-bold text-primary">8+</div>
                 <div className="text-sm text-muted-foreground">Platforms</div>
               </div>
               <div className="text-center">
@@ -82,8 +82,8 @@ const Index = () => {
                 <div className="text-sm text-muted-foreground">Powered</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-primary">24/7</div>
-                <div className="text-sm text-muted-foreground">Uptime</div>
+                <div className="text-3xl font-bold text-primary">∞</div>
+                <div className="text-sm text-muted-foreground">Unlimited Posts</div>
               </div>
             </div>
           </div>
@@ -94,10 +94,10 @@ const Index = () => {
       <div className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            အင်္ဂါရပ်များ
+            Powerful Features
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Social media management အတွက် လိုအပ်သော အရာအားလုံးကို တစ်နေရာထဲတွင်
+            Everything you need to manage your social media presence in one place
           </p>
         </div>
 
@@ -110,7 +110,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">Multi-Platform Support</h3>
               <p className="text-muted-foreground">
-                Facebook, YouTube, TikTok စသော platform များတွင် တစ်ပြိုင်နက် post တင်နိုင်ပါသည်
+                Publish simultaneously to Facebook, Instagram, YouTube, TikTok, Twitter, LinkedIn, Telegram, and Pinterest
               </p>
             </CardContent>
           </Card>
@@ -122,7 +122,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">AI-Powered Content</h3>
               <p className="text-muted-foreground">
-                AI မှ အလိုအလျောက် caption နှင့် hashtag များ generate လုပ်ပေးပါသည်
+                Automatically generate engaging captions and relevant hashtags using advanced AI technology
               </p>
             </CardContent>
           </Card>
@@ -134,7 +134,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">Smart Scheduling</h3>
               <p className="text-muted-foreground">
-                အချိန်ကြိုတင်သတ်မှတ်ပြီး posts များကို အလိုအလျောက် တင်ပို့နိုင်ပါသည်
+                Schedule posts in advance and publish automatically at optimal times for maximum engagement
               </p>
             </CardContent>
           </Card>
@@ -146,7 +146,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">Analytics Dashboard</h3>
               <p className="text-muted-foreground">
-                Post များ၏ performance ကို real-time တွင် ခွဲခြမ်းစိတ်ဖြာနိုင်ပါသည်
+                Track post performance with real-time analytics and detailed insights across all platforms
               </p>
             </CardContent>
           </Card>
@@ -158,7 +158,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">100% Self-Hosted</h3>
               <p className="text-muted-foreground">
-                Cloud service အမှီအခိုမရှိဘဲ သင့် server တွင် အပြည့်အဝ ထိန်းချုပ်နိုင်ပါသည်
+                Complete control over your data with no dependency on cloud services. Host on your own server
               </p>
             </CardContent>
           </Card>
@@ -170,7 +170,7 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">Enterprise Security</h3>
               <p className="text-muted-foreground">
-                JWT authentication, encryption, နှင့် SSL/TLS ဖြင့် အပြည့်အဝ လုံခြုံပါသည်
+                Bank-level security with JWT authentication, end-to-end encryption, and SSL/TLS protection
               </p>
             </CardContent>
           </Card>
@@ -185,7 +185,7 @@ const Index = () => {
               Technology Stack
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              မျက်မှောက်ခေတ် နည်းပညာများဖြင့် တည်ဆောက်ထားပါသည်
+              Built with modern, cutting-edge technologies for reliability and performance
             </p>
           </div>
 
@@ -246,7 +246,7 @@ const Index = () => {
               Ready to Get Started?
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              သင့် social media content များကို ပိုမို efficient ဖြစ်အောင် စီမံခန့်ခွဲပါ
+              Take control of your social media strategy with our powerful, self-hosted platform
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
               <Button 
