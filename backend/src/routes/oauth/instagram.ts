@@ -55,13 +55,9 @@ router.get('/', (req: any, res) => {
   const FACEBOOK_APP_ID = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
   const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI || `${process.env.BACKEND_URL}/api/oauth/instagram/callback`;
   
-  const scopes = [
-    'instagram_basic',
-    'instagram_content_publish',
-    'instagram_manage_insights',
-    'pages_read_engagement',
-    'pages_manage_posts',
-  ].join(',');
+  // Use only public_profile permission (default for Facebook Login)
+  // This works in Development Mode without App Review
+  const scopes = ['public_profile'].join(',');
 
   const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
 
