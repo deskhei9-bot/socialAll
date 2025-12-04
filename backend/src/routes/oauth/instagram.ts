@@ -2,6 +2,7 @@ import express from 'express';
 import axios from 'axios';
 import crypto from 'crypto';
 import { pool } from '../../lib/database';
+import { authenticate } from '../../index';
 
 const router = express.Router();
 
@@ -16,16 +17,43 @@ function encryptToken(token: string): string {
 /**
  * GET /api/oauth/instagram
  * Redirect to Facebook OAuth (Instagram uses Facebook Graph API)
+ * PUBLIC: Auth token passed via query parameter
  */
 router.get('/', (req: any, res) => {
-  const userId = req.user?.id;
+  console.log('📍 Instagram OAuth GET / route hit');
+  console.log('Query params:', req.query);
+  console.log('Headers:', req.headers);
+  
+  // Get user ID from query parameter (passed from frontend)
+  const userIdFromQuery = req.query.userId;
+  
+  // Or try to get from auth header if available
+  let userId = userIdFromQuery;
   
   if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    // Try to authenticate from header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const { verifyToken } = require('../../lib/auth');
+        const payload = verifyToken(token);
+        userId = payload.userId;
+        console.log('✅ User ID from auth header:', userId);
+      } catch (error) {
+        console.log('⚠️ Auth header verification failed:', error);
+        // Silent fail, will error below
+      }
+    }
+  }
+  
+  if (!userId) {
+    console.log('❌ No userId found - returning 401');
+    return res.status(401).json({ error: 'Unauthorized: userId required in query or auth header' });
   }
 
   const FACEBOOK_APP_ID = process.env.INSTAGRAM_APP_ID || process.env.FACEBOOK_APP_ID;
-  const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI || `${process.env.BASE_URL}/api/oauth/instagram/callback`;
+  const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI || `${process.env.BACKEND_URL}/api/oauth/instagram/callback`;
   
   const scopes = [
     'instagram_basic',
@@ -37,30 +65,36 @@ router.get('/', (req: any, res) => {
 
   const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
 
-  const authUrl = `https://www.facebook.com/v18.0/dialog/oauth?` +
+  const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?` +
     `client_id=${FACEBOOK_APP_ID}&` +
     `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
     `scope=${encodeURIComponent(scopes)}&` +
     `state=${state}&` +
     `response_type=code`;
 
+  console.log(`🔐 Instagram OAuth initiated for user ${userId}`);
+  console.log(`📍 Redirect URI: ${REDIRECT_URI}`);
+  console.log(`🔑 App ID: ${FACEBOOK_APP_ID}`);
+  
   res.redirect(authUrl);
 });
 
 /**
  * GET /api/oauth/instagram/callback
  * Handle Instagram OAuth callback
+ * PUBLIC: No authentication required (user coming from Facebook)
  */
 router.get('/callback', async (req: any, res) => {
   const { code, state, error } = req.query;
 
   if (error) {
-    console.error('Instagram OAuth error:', error);
-    return res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=instagram_oauth_failed`);
+    console.error('❌ Instagram OAuth error from Facebook:', error);
+    return res.redirect(`${process.env.FRONTEND_URL}/channels?error=instagram_oauth_failed&message=${encodeURIComponent(error as string)}`);
   }
 
   if (!code || !state) {
-    return res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=missing_code_or_state`);
+    console.error('❌ Instagram OAuth: missing code or state');
+    return res.redirect(`${process.env.FRONTEND_URL}/channels?error=missing_code_or_state`);
   }
 
   try {
@@ -71,7 +105,11 @@ router.get('/callback', async (req: any, res) => {
     const FACEBOOK_APP_SECRET = process.env.INSTAGRAM_APP_SECRET || process.env.FACEBOOK_APP_SECRET;
     const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI || `${process.env.BASE_URL}/api/oauth/instagram/callback`;
 
-    const tokenResponse = await axios.get('https://graph.facebook.com/v18.0/oauth/access_token', {
+    console.log(`📥 OAuth callback received`);
+    console.log(`🔑 App ID: ${FACEBOOK_APP_ID}`);
+    console.log(`📍 Redirect URI: ${REDIRECT_URI}`);
+
+    const tokenResponse = await axios.get('https://graph.facebook.com/v19.0/oauth/access_token', {
       params: {
         client_id: FACEBOOK_APP_ID,
         client_secret: FACEBOOK_APP_SECRET,
@@ -94,8 +132,10 @@ router.get('/callback', async (req: any, res) => {
 
     const longLivedToken = longLivedResponse.data.access_token;
 
+    console.log(`✅ Long-lived token obtained`);
+
     // Step 3: Get Facebook Pages
-    const pagesResponse = await axios.get('https://graph.facebook.com/v18.0/me/accounts', {
+    const pagesResponse = await axios.get('https://graph.facebook.com/v19.0/me/accounts', {
       params: {
         access_token: longLivedToken,
       },
@@ -103,8 +143,11 @@ router.get('/callback', async (req: any, res) => {
 
     const pages = pagesResponse.data.data;
 
+    console.log(`📄 Found ${pages?.length || 0} Facebook Pages`);
+
     if (!pages || pages.length === 0) {
-      return res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=no_facebook_pages`);
+      console.log('❌ No Facebook Pages found. User needs to create a Facebook Page first.');
+      return res.redirect(`${process.env.FRONTEND_URL}/channels?error=no_facebook_pages&message=${encodeURIComponent('You need to create a Facebook Page first. Go to facebook.com/pages/create')}`);
     }
 
     // Step 4: Get Instagram Business Account for each page
@@ -112,8 +155,10 @@ router.get('/callback', async (req: any, res) => {
 
     for (const page of pages) {
       try {
+        console.log(`🔍 Checking page: ${page.name} (${page.id})`);
+        
         const igResponse = await axios.get(
-          `https://graph.facebook.com/v18.0/${page.id}?fields=instagram_business_account`,
+          `https://graph.facebook.com/v19.0/${page.id}?fields=instagram_business_account`,
           {
             params: {
               access_token: page.access_token,
@@ -124,9 +169,11 @@ router.get('/callback', async (req: any, res) => {
         const igAccount = igResponse.data.instagram_business_account;
 
         if (igAccount) {
+          console.log(`✅ Instagram Business Account found: ${igAccount.id}`);
+          
           // Get Instagram account details
           const igDetailsResponse = await axios.get(
-            `https://graph.facebook.com/v18.0/${igAccount.id}?fields=id,username,profile_picture_url`,
+            `https://graph.facebook.com/v19.0/${igAccount.id}?fields=id,username,profile_picture_url`,
             {
               params: {
                 access_token: page.access_token,
@@ -195,14 +242,17 @@ router.get('/callback', async (req: any, res) => {
     }
 
     if (instagramAccountFound) {
-      res.redirect(`${process.env.FRONTEND_URL}/dashboard?success=instagram_connected`);
+      console.log('✅ Instagram OAuth completed successfully');
+      res.redirect(`${process.env.FRONTEND_URL}/channels?success=instagram_connected`);
     } else {
-      res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=no_instagram_business_account`);
+      console.log('⚠️ No Instagram Business Account found on any Facebook Page');
+      res.redirect(`${process.env.FRONTEND_URL}/channels?error=no_instagram_business_account&message=${encodeURIComponent('Your Facebook Page needs an Instagram Business Account. Connect it in Page Settings → Instagram')}`);
     }
 
   } catch (error: any) {
-    console.error('Instagram OAuth callback error:', error.response?.data || error.message);
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=instagram_auth_failed`);
+    console.error('❌ Instagram OAuth callback error:', error.response?.data || error.message);
+    const errorMsg = error.response?.data?.error?.message || error.message || 'Unknown error';
+    res.redirect(`${process.env.FRONTEND_URL}/channels?error=instagram_auth_failed&message=${encodeURIComponent(errorMsg)}`);
   }
 });
 

@@ -25,6 +25,7 @@ import { useChannels } from "@/hooks/useChannels";
 import { useFacebookOAuth } from "@/hooks/useFacebookOAuth";
 import { useYouTubeOAuth } from "@/hooks/useYouTubeOAuth";
 import { useTikTokOAuth } from "@/hooks/useTikTokOAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -45,7 +46,7 @@ import {
 
 const availablePlatforms = [
   { id: "facebook", icon: Facebook, label: "Facebook Page", color: "bg-blue-500", oauth: true },
-  { id: "instagram", icon: Instagram, label: "Instagram Business", color: "bg-gradient-to-br from-purple-500 to-pink-500", oauth: false },
+  { id: "instagram", icon: Instagram, label: "Instagram Business", color: "bg-gradient-to-br from-purple-500 to-pink-500", oauth: true },
   { id: "youtube", icon: Youtube, label: "YouTube Channel", color: "bg-red-500", oauth: true },
   { id: "tiktok", icon: Music2, label: "TikTok Account", color: "bg-foreground", oauth: true },
   { id: "twitter", icon: Twitter, label: "Twitter / X", color: "bg-sky-500", oauth: false },
@@ -78,6 +79,7 @@ export default function Channels() {
   const { connectFacebook, handleCallback: handleFacebookCallback, loading: fbLoading } = useFacebookOAuth();
   const { connectYouTube, handleCallback: handleYouTubeCallback, loading: ytLoading } = useYouTubeOAuth();
   const { connectTikTok, handleCallback: handleTikTokCallback, loading: ttLoading } = useTikTokOAuth();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -95,14 +97,43 @@ export default function Channels() {
     chat_id: "",
   });
 
-  // Handle OAuth callbacks
+  // Handle OAuth callbacks and URL parameters
   useEffect(() => {
+    const success = searchParams.get('success');
+    const error = searchParams.get('error');
+    const message = searchParams.get('message');
+
+    if (success) {
+      toast({
+        title: "Success!",
+        description: message || `${success.replace('_', ' ')} successfully`,
+        variant: "default",
+      });
+      refetch();
+      navigate('/channels', { replace: true });
+    } else if (error) {
+      let errorMsg = message || error.replace(/_/g, ' ');
+      
+      // Custom error messages
+      if (error === 'no_facebook_pages') {
+        errorMsg = 'You need to create a Facebook Page first. Visit facebook.com/pages/create';
+      } else if (error === 'no_instagram_business_account') {
+        errorMsg = 'Your Facebook Page needs an Instagram Business Account. Connect it in Page Settings → Instagram';
+      }
+      
+      toast({
+        title: "Connection Failed",
+        description: errorMsg,
+        variant: "destructive",
+      });
+      navigate('/channels', { replace: true });
+    }
+
     const isFbCallback = searchParams.get('fb_callback') === 'true';
     const isYtCallback = searchParams.get('yt_callback') === 'true';
     const isTtCallback = searchParams.get('tt_callback') === 'true';
     const code = searchParams.get('code');
     const state = searchParams.get('state');
-    const error = searchParams.get('error');
 
     if ((isFbCallback || isYtCallback || isTtCallback) && !processingCallback) {
       if (error) {
@@ -116,14 +147,33 @@ export default function Channels() {
         const handleOAuth = async () => {
           if (isFbCallback) {
             const result = await handleFacebookCallback(code, state);
-            if (result.success) refetch();
+            if (result.error) {
+              toast({
+                title: "Connection Failed",
+                description: result.error,
+                variant: "destructive",
+              });
+            }
           } else if (isYtCallback) {
             const result = await handleYouTubeCallback(code, state);
-            if (result.success) refetch();
+            if (result.error) {
+              toast({
+                title: "Connection Failed",
+                description: result.error,
+                variant: "destructive",
+              });
+            }
           } else if (isTtCallback) {
             const result = await handleTikTokCallback(code, state);
-            if (result.success) refetch();
+            if (result.error) {
+              toast({
+                title: "Connection Failed",
+                description: result.error,
+                variant: "destructive",
+              });
+            }
           }
+          refetch();
           navigate('/channels', { replace: true });
           setProcessingCallback(false);
         };
@@ -131,7 +181,7 @@ export default function Channels() {
         handleOAuth();
       }
     }
-  }, [searchParams, handleFacebookCallback, handleYouTubeCallback, handleTikTokCallback, navigate, refetch, processingCallback]);
+  }, [searchParams, handleFacebookCallback, handleYouTubeCallback, handleTikTokCallback, navigate, refetch, processingCallback, toast]);
 
   const connectedPlatforms = channels.map(c => c.platform);
 
@@ -142,7 +192,8 @@ export default function Channels() {
       // Open Telegram setup dialog
       setIsTelegramDialogOpen(true);
     } else if (platform?.oauth) {
-      if (platformId === 'facebook') {
+      if (platformId === 'facebook' || platformId === 'instagram') {
+        // Both use same OAuth flow (Instagram Graph API via Facebook)
         connectFacebook();
       } else if (platformId === 'youtube') {
         connectYouTube();

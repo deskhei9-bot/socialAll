@@ -16,13 +16,54 @@ const PORT = process.env.PORT || 3001;
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
+
+// CORS configuration - allow multiple origins
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'https://socialautoupload.com',
+  'http://localhost',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  /^https:\/\/.*\.lovable\.app$/, // Allow all Lovable preview domains
+  /^https:\/\/.*\.lovableproject\.com$/, // Allow Lovable project domains
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost',
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin matches allowed patterns
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (typeof allowed === 'string') {
+        return origin === allowed;
+      } else if (allowed instanceof RegExp) {
+        return allowed.test(origin);
+      }
+      return false;
+    });
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log(`⚠️ CORS blocked: ${origin}`);
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Debug middleware to log all requests to /api/oauth
+app.use('/api/oauth', (req, res, next) => {
+  console.log(`🔍 OAuth Request: ${req.method} ${req.path}`);
+  console.log(`🔍 Query:`, req.query);
+  console.log(`🔍 Headers:`, req.headers.authorization ? 'Has Auth Header' : 'No Auth Header');
+  next();
+});
 
 // Serve uploaded media files
 app.use('/uploads', express.static('/opt/social-symphony/uploads'));
@@ -72,15 +113,21 @@ app.get('/api/health', async (req, res) => {
 import authRoutes from './routes/auth';
 app.use('/api/auth', authRoutes);
 
+// OAuth routes (MUST be before Pinterest routes to avoid middleware conflicts)
+import oauthRoutes from './routes/oauth';
+app.use('/api/oauth', oauthRoutes); // OAuth routes handle auth internally
+
+// Pinterest OAuth routes (has its own auth handling)
+import pinterestOAuthRoutes from './routes/pinterest-oauth';
+app.use('/api', pinterestOAuthRoutes); // Pinterest OAuth routes (includes auth middleware internally)
+
 // Protected routes
 import postsRoutes from './routes/posts';
 import channelsRoutes from './routes/channels';
 import usersRoutes from './routes/users';
 import uploadRoutes from './routes/upload';
 import uploadUrlRoutes from './routes/upload-url';
-import oauthRoutes from './routes/oauth';
 import aiRoutes from './routes/ai';
-import pinterestOAuthRoutes from './routes/pinterest-oauth';
 import publishingProfilesRoutes from './routes/publishing-profiles';
 
 app.use('/api/posts', authenticate, postsRoutes);
@@ -88,9 +135,7 @@ app.use('/api/channels', authenticate, channelsRoutes);
 app.use('/api/users', authenticate, usersRoutes);
 app.use('/api/upload', authenticate, uploadRoutes);
 app.use('/api/upload', authenticate, uploadUrlRoutes);
-app.use('/api/oauth', authenticate, oauthRoutes);
 app.use('/api/ai', authenticate, aiRoutes);
-app.use('/api', pinterestOAuthRoutes); // Pinterest OAuth routes (includes auth middleware internally)
 app.use('/api/publishing-profiles', authenticate, publishingProfilesRoutes);
 import publishRoutes from './routes/publish';
 app.use('/api/publish', authenticate, publishRoutes);

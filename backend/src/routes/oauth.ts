@@ -9,6 +9,14 @@ import crypto from 'crypto';
 
 const router = express.Router();
 
+console.log('✅ OAuth router loaded');
+
+// Debug middleware
+router.use((req, res, next) => {
+  console.log(`🔍 OAuth Router: ${req.method} ${req.path}`);
+  next();
+});
+
 // Register individual OAuth routes
 // Note: Facebook OAuth is handled through Instagram OAuth (same Graph API)
 router.use('/facebook', instagramOAuthRouter); // Facebook uses same OAuth as Instagram
@@ -18,7 +26,7 @@ router.use('/twitter', twitterOAuthRouter);
 router.use('/telegram', telegramOAuthRouter);
 router.use('/linkedin', linkedinOAuthRouter);
 
-// OAuth status endpoint
+// OAuth status endpoint (public - no auth required)
 router.get('/status', (req, res) => {
   res.json({
     facebook: !!process.env.FACEBOOK_APP_ID,
