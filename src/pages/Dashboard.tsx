@@ -137,7 +137,7 @@ export default function Dashboard() {
                   >
                     <div className="flex items-center gap-4">
                       <div className="flex -space-x-2">
-                        {post.platforms.map((p) => (
+                        {(post.platforms || []).map((p) => (
                           <div
                             key={p}
                             className="w-8 h-8 rounded-full bg-muted flex items-center justify-center border-2 border-card"
@@ -147,9 +147,9 @@ export default function Dashboard() {
                         ))}
                       </div>
                       <div>
-                        <p className="font-medium">{post.title || post.content.slice(0, 30)}...</p>
+                        <p className="font-medium">{post.title || (post.content || '').slice(0, 30)}...</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                          {post.created_at ? formatDistanceToNow(new Date(post.created_at), { addSuffix: true }) : 'Just now'}
                         </p>
                       </div>
                     </div>
@@ -188,7 +188,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{channel.account_name}</p>
-                      <p className="text-sm text-muted-foreground">{channel.followers_count.toLocaleString()} followers</p>
+                      <p className="text-sm text-muted-foreground">{(channel.followers_count || 0).toLocaleString()} followers</p>
                     </div>
                     <div className={`w-2 h-2 rounded-full ${channel.status === 'connected' ? 'bg-neon-green' : 'bg-destructive'} animate-pulse`} />
                   </div>
@@ -207,7 +207,7 @@ export default function Dashboard() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {['facebook', 'instagram', 'youtube', 'tiktok'].map((platform) => {
-              const platformPosts = posts.filter(p => p.platforms.includes(platform));
+              const platformPosts = posts.filter(p => (p.platforms || []).includes(platform));
               const publishedCount = platformPosts.filter(p => p.status === 'published').length;
               const progress = platformPosts.length > 0 ? (publishedCount / platformPosts.length) * 100 : 0;
               
