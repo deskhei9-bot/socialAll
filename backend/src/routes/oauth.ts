@@ -4,6 +4,8 @@ import youtubeOAuthRouter from './oauth/youtube';
 import twitterOAuthRouter from './oauth/twitter';
 import telegramOAuthRouter from './oauth/telegram';
 import linkedinOAuthRouter from './oauth/linkedin';
+import tiktokOAuthRouter from './oauth/tiktok';
+import pinterestOAuthRouter from './oauth/pinterest';
 import { pool } from '../lib/database';
 import crypto from 'crypto';
 
@@ -25,6 +27,8 @@ router.use('/youtube', youtubeOAuthRouter);
 router.use('/twitter', twitterOAuthRouter);
 router.use('/telegram', telegramOAuthRouter);
 router.use('/linkedin', linkedinOAuthRouter);
+router.use('/tiktok', tiktokOAuthRouter);
+router.use('/pinterest', pinterestOAuthRouter);
 
 // OAuth status endpoint (public - no auth required)
 router.get('/status', (req, res) => {
@@ -33,8 +37,10 @@ router.get('/status', (req, res) => {
     instagram: !!process.env.INSTAGRAM_APP_ID || !!process.env.FACEBOOK_APP_ID,
     youtube: !!process.env.YOUTUBE_CLIENT_ID,
     twitter: !!process.env.TWITTER_CLIENT_ID,
-    telegram: true, // Always available (bot token-based)
+    tiktok: !!process.env.TIKTOK_CLIENT_KEY,
     linkedin: !!process.env.LINKEDIN_CLIENT_ID,
+    pinterest: !!process.env.PINTEREST_CLIENT_ID,
+    telegram: true, // Always available (bot token-based)
   });
 });
 

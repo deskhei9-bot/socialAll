@@ -8,6 +8,7 @@ import {
   Twitter, 
   Linkedin,
   Send as TelegramIcon,
+  Pin,
   Plus,
   CheckCircle2,
   AlertCircle,
@@ -28,6 +29,9 @@ import { useChannels } from "@/hooks/useChannels";
 import { useFacebookOAuth } from "@/hooks/useFacebookOAuth";
 import { useYouTubeOAuth } from "@/hooks/useYouTubeOAuth";
 import { useTikTokOAuth } from "@/hooks/useTikTokOAuth";
+import { useTwitterOAuth } from "@/hooks/useTwitterOAuth";
+import { useLinkedInOAuth } from "@/hooks/useLinkedInOAuth";
+import { usePinterestOAuth } from "@/hooks/usePinterestOAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow, isPast, addDays } from "date-fns";
@@ -53,8 +57,9 @@ const availablePlatforms = [
   { id: "instagram", icon: Instagram, label: "Instagram Business", color: "bg-gradient-to-br from-purple-500 to-pink-500", oauth: true },
   { id: "youtube", icon: Youtube, label: "YouTube Channel", color: "bg-red-500", oauth: true },
   { id: "tiktok", icon: Music2, label: "TikTok Account", color: "bg-foreground", oauth: true },
-  { id: "twitter", icon: Twitter, label: "Twitter / X", color: "bg-sky-500", oauth: false },
-  { id: "linkedin", icon: Linkedin, label: "LinkedIn Page", color: "bg-blue-600", oauth: false },
+  { id: "twitter", icon: Twitter, label: "Twitter / X", color: "bg-sky-500", oauth: true },
+  { id: "linkedin", icon: Linkedin, label: "LinkedIn Profile", color: "bg-blue-600", oauth: true },
+  { id: "pinterest", icon: Pin, label: "Pinterest", color: "bg-red-600", oauth: true },
   { id: "telegram", icon: TelegramIcon, label: "Telegram Channel", color: "bg-blue-400", oauth: false },
 ];
 
@@ -65,6 +70,7 @@ const platformIcons: Record<string, React.ReactNode> = {
   tiktok: <Music2 className="w-5 h-5" />,
   twitter: <Twitter className="w-5 h-5" />,
   linkedin: <Linkedin className="w-5 h-5" />,
+  pinterest: <Pin className="w-5 h-5" />,
   telegram: <TelegramIcon className="w-5 h-5" />,
 };
 
@@ -75,6 +81,7 @@ const platformColors: Record<string, string> = {
   tiktok: "bg-foreground",
   twitter: "bg-sky-500",
   linkedin: "bg-blue-600",
+  pinterest: "bg-red-600",
   telegram: "bg-blue-400",
 };
 
@@ -83,6 +90,9 @@ export default function Channels() {
   const { connectFacebook, handleCallback: handleFacebookCallback, loading: fbLoading } = useFacebookOAuth();
   const { connectYouTube, handleCallback: handleYouTubeCallback, loading: ytLoading } = useYouTubeOAuth();
   const { connectTikTok, handleCallback: handleTikTokCallback, loading: ttLoading } = useTikTokOAuth();
+  const { connectTwitter, loading: twLoading } = useTwitterOAuth();
+  const { connectLinkedIn, loading: liLoading } = useLinkedInOAuth();
+  const { connectPinterest, loading: piLoading } = usePinterestOAuth();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -203,6 +213,12 @@ export default function Channels() {
         connectYouTube();
       } else if (platformId === 'tiktok') {
         connectTikTok();
+      } else if (platformId === 'twitter') {
+        connectTwitter();
+      } else if (platformId === 'linkedin') {
+        connectLinkedIn();
+      } else if (platformId === 'pinterest') {
+        connectPinterest();
       }
     } else {
       // Manual connection for non-OAuth platforms
@@ -259,7 +275,7 @@ export default function Channels() {
     await removeChannel(id);
   };
 
-  const isConnecting = fbLoading || ytLoading || ttLoading || processingCallback;
+  const isConnecting = fbLoading || ytLoading || ttLoading || twLoading || liLoading || piLoading || processingCallback;
 
   return (
     <div className="space-y-6">

@@ -16,23 +16,55 @@ function encryptToken(token: string): string {
 /**
  * GET /api/oauth/linkedin
  * Redirect to LinkedIn OAuth
+ * PUBLIC: Auth token passed via query parameter
  */
 router.get('/', (req: any, res) => {
-  const userId = req.user?.id;
+  console.log('📍 LinkedIn OAuth GET / route hit');
+  console.log('Query params:', req.query);
+  
+  // Get user ID from query parameter (passed from frontend)
+  const userIdFromQuery = req.query.userId;
+  
+  // Or try to get from auth header if available
+  let userId = userIdFromQuery;
   
   if (!userId) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    // Try to authenticate from header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const { verifyToken } = require('../../lib/auth');
+        const payload = verifyToken(token);
+        userId = payload.userId;
+        console.log('✅ User ID from auth header:', userId);
+      } catch (error) {
+        console.log('⚠️ Auth header verification failed:', error);
+      }
+    }
+  }
+  
+  if (!userId) {
+    console.log('❌ No userId found - returning 401');
+    return res.status(401).json({ error: 'Unauthorized: userId required in query or auth header' });
   }
 
   const CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
-  const REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI || `${process.env.BASE_URL}/api/oauth/linkedin/callback`;
+  const CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
+
+  if (!CLIENT_ID || !CLIENT_SECRET) {
+    console.log('❌ LinkedIn OAuth credentials not configured');
+    return res.redirect(`${process.env.FRONTEND_URL}/channels?error=linkedin_not_configured&message=${encodeURIComponent('LinkedIn OAuth is not configured. Please set LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET.')}`);
+  }
+
+  const REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI || `${process.env.BACKEND_URL}/api/oauth/linkedin/callback`;
   
+  // Updated scopes for LinkedIn API v2 (OpenID Connect)
   const scopes = [
-    'r_liteprofile',
-    'r_emailaddress',
+    'openid',
+    'profile',
+    'email',
     'w_member_social',
-    'r_organization_social',
-    'w_organization_social',
   ].join(' ');
 
   const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
@@ -44,31 +76,36 @@ router.get('/', (req: any, res) => {
     `scope=${encodeURIComponent(scopes)}&` +
     `state=${state}`;
 
+  console.log(`🔐 LinkedIn OAuth initiated for user ${userId}`);
+  console.log(`📍 Redirect URI: ${REDIRECT_URI}`);
+  
   res.redirect(authUrl);
 });
 
 /**
  * GET /api/oauth/linkedin/callback
  * Handle LinkedIn OAuth callback
+ * PUBLIC: No authentication required (user coming from LinkedIn)
  */
 router.get('/callback', async (req: any, res) => {
   const { code, state, error, error_description } = req.query;
 
   if (error) {
-    console.error('LinkedIn OAuth error:', error, error_description);
-    return res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=linkedin_oauth_failed`);
+    console.error('❌ LinkedIn OAuth error:', error, error_description);
+    return res.redirect(`${process.env.FRONTEND_URL}/channels?error=linkedin_oauth_failed&message=${encodeURIComponent(error_description || error)}`);
   }
 
   if (!code || !state) {
-    return res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=missing_code_or_state`);
+    return res.redirect(`${process.env.FRONTEND_URL}/channels?error=missing_code_or_state`);
   }
 
   try {
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString('utf8'));
+    console.log(`📥 LinkedIn OAuth callback received for user ${userId}`);
 
     const CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
     const CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
-    const REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI || `${process.env.BASE_URL}/api/oauth/linkedin/callback`;
+    const REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI || `${process.env.BACKEND_URL}/api/oauth/linkedin/callback`;
 
     // Step 1: Exchange code for access token
     const tokenResponse = await axios.post(
@@ -91,40 +128,25 @@ router.get('/callback', async (req: any, res) => {
     const accessToken = tokenResponse.data.access_token;
     const expiresIn = tokenResponse.data.expires_in;
 
-    // Step 2: Get user profile
-    const profileResponse = await axios.get('https://api.linkedin.com/v2/me', {
+    console.log(`✅ LinkedIn access token obtained`);
+
+    // Step 2: Get user profile using userinfo endpoint (OpenID Connect)
+    const profileResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
-        'LinkedIn-Version': '202304',
       },
     });
 
     const profile = profileResponse.data;
-    const personId = profile.id;
-    const firstName = profile.localizedFirstName || profile.firstName?.localized?.en_US || 'LinkedIn';
-    const lastName = profile.localizedLastName || profile.lastName?.localized?.en_US || 'User';
-    const fullName = `${firstName} ${lastName}`;
+    const personId = profile.sub;
+    const fullName = profile.name || `${profile.given_name || ''} ${profile.family_name || ''}`.trim() || 'LinkedIn User';
+    const profilePicture = profile.picture;
+    const email = profile.email;
 
-    // Get profile picture
-    let profilePicture = null;
-    try {
-      const pictureResponse = await axios.get(
-        'https://api.linkedin.com/v2/me?projection=(id,profilePicture(displayImage~:playableStreams))',
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'LinkedIn-Version': '202304',
-          },
-        }
-      );
-      
-      const displayImage = pictureResponse.data.profilePicture?.['displayImage~']?.elements;
-      if (displayImage && displayImage.length > 0) {
-        profilePicture = displayImage[0].identifiers?.[0]?.identifier;
-      }
-    } catch (error) {
-      console.log('Could not fetch profile picture');
-    }
+    console.log(`📱 LinkedIn user: ${fullName}`);
+
+    // Calculate token expiry
+    const tokenExpiresAt = new Date(Date.now() + expiresIn * 1000);
 
     // Check if already connected
     const existingChannel = await pool.query(
@@ -140,26 +162,28 @@ router.get('/callback', async (req: any, res) => {
              channel_name = $2, 
              is_active = true,
              metadata = $3,
+             token_expires_at = $4,
              updated_at = NOW()
-         WHERE id = $4`,
+         WHERE id = $5`,
         [
           encryptToken(accessToken),
           fullName,
           JSON.stringify({
             author_urn: `urn:li:person:${personId}`,
             profile_picture: profilePicture,
-            expires_in: expiresIn,
-            expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
+            email: email,
           }),
+          tokenExpiresAt,
           existingChannel.rows[0].id,
         ]
       );
+      console.log(`✅ LinkedIn account updated: ${fullName}`);
     } else {
       // Insert new
       await pool.query(
         `INSERT INTO connected_channels 
-         (user_id, platform, channel_id, channel_name, access_token, metadata) 
-         VALUES ($1, $2, $3, $4, $5, $6)`,
+         (user_id, platform, channel_id, channel_name, access_token, metadata, token_expires_at) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [
           userId,
           'linkedin',
@@ -169,19 +193,20 @@ router.get('/callback', async (req: any, res) => {
           JSON.stringify({
             author_urn: `urn:li:person:${personId}`,
             profile_picture: profilePicture,
-            expires_in: expiresIn,
-            expires_at: new Date(Date.now() + expiresIn * 1000).toISOString(),
+            email: email,
           }),
+          tokenExpiresAt,
         ]
       );
+      console.log(`✅ LinkedIn account connected: ${fullName}`);
     }
 
-    console.log(`✅ LinkedIn account connected: ${fullName}`);
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard?success=linkedin_connected`);
+    res.redirect(`${process.env.FRONTEND_URL}/channels?success=linkedin_connected`);
 
   } catch (error: any) {
-    console.error('LinkedIn OAuth callback error:', error.response?.data || error.message);
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard?error=linkedin_auth_failed`);
+    console.error('❌ LinkedIn OAuth callback error:', error.response?.data || error.message);
+    const errorMsg = error.response?.data?.error_description || error.message || 'Unknown error';
+    res.redirect(`${process.env.FRONTEND_URL}/channels?error=linkedin_auth_failed&message=${encodeURIComponent(errorMsg)}`);
   }
 });
 
