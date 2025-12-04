@@ -409,49 +409,81 @@ export default function Channels() {
       )}
 
       {/* Available Platforms */}
-      <Card className="glass-card animate-fade-in">
-        <CardHeader>
-          <CardTitle>Available Platforms</CardTitle>
+      <Card className="glass-card animate-fade-in overflow-hidden">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center gap-2">
+            <span>Connect Your Accounts</span>
+            <span className="text-xs font-normal text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+              {connectedPlatforms.length}/{availablePlatforms.length} connected
+            </span>
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
+        <CardContent className="p-0">
+          <div className="divide-y divide-border/30">
             {availablePlatforms.map((platform) => {
               const isConnected = connectedPlatforms.includes(platform.id);
               return (
                 <div
                   key={platform.id}
                   className={cn(
-                    "relative flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 rounded-xl border-2 transition-all cursor-pointer",
-                    isConnected
-                      ? "border-neon-green/30 bg-neon-green/5"
-                      : "border-border/50 bg-muted/30 hover:border-primary/50"
+                    "flex items-center gap-4 px-6 py-4 transition-all",
+                    isConnected 
+                      ? "bg-neon-green/5" 
+                      : "hover:bg-muted/30"
                   )}
                 >
-                  {isConnected && (
-                    <CheckCircle2 className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 text-neon-green" />
-                  )}
-                  <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white", platform.color)}>
-                    <platform.icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                  {/* Platform Icon */}
+                  <div className={cn(
+                    "w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg flex-shrink-0",
+                    platform.color
+                  )}>
+                    <platform.icon className="w-6 h-6" />
                   </div>
-                  <span className="text-xs sm:text-sm font-medium text-center leading-tight">{platform.label}</span>
-                  {platform.oauth && (
-                    <span className="text-[9px] sm:text-[10px] text-muted-foreground bg-muted/50 px-1.5 sm:px-2 py-0.5 rounded-full">OAuth</span>
-                  )}
-                  {!isConnected && (
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="text-xs h-7 sm:h-8 px-2 sm:px-3"
-                      disabled={isConnecting}
-                      onClick={() => handleConnectPlatform(platform.id)}
-                    >
-                      {isConnecting && platform.id === 'facebook' ? (
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                      ) : (
-                        'Connect'
+                  
+                  {/* Platform Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-foreground">{platform.label}</span>
+                      {platform.oauth && (
+                        <span className="text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded font-medium">
+                          OAuth
+                        </span>
                       )}
-                    </Button>
-                  )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {platform.id === 'facebook' && 'Pages & Groups posting'}
+                      {platform.id === 'instagram' && 'Business account required'}
+                      {platform.id === 'youtube' && 'Videos & Shorts'}
+                      {platform.id === 'tiktok' && 'Video content'}
+                      {platform.id === 'twitter' && 'Tweets & Media'}
+                      {platform.id === 'linkedin' && 'Professional posts'}
+                      {platform.id === 'telegram' && 'Channel & Group messages'}
+                    </p>
+                  </div>
+                  
+                  {/* Status & Action */}
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    {isConnected ? (
+                      <div className="flex items-center gap-2 text-neon-green">
+                        <CheckCircle2 className="w-5 h-5" />
+                        <span className="text-sm font-medium hidden sm:inline">Connected</span>
+                      </div>
+                    ) : (
+                      <Button 
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5"
+                        disabled={isConnecting}
+                        onClick={() => handleConnectPlatform(platform.id)}
+                      >
+                        {isConnecting && (platform.id === 'facebook' || platform.id === 'instagram') ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Plus className="w-4 h-4" />
+                        )}
+                        <span className="hidden sm:inline">Connect</span>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               );
             })}
