@@ -67,10 +67,23 @@ export function useCaptionTemplates() {
     return { error: null };
   };
 
+  const updateTemplate = async (id: string, updates: Partial<CaptionTemplate>) => {
+    if (!user) return { data: null, error: new Error('Not authenticated') };
+
+    const updated = templates.map(t => 
+      t.id === id ? { ...t, ...updates } : t
+    );
+    setTemplates(updated);
+    localStorage.setItem(`templates_${user.id}`, JSON.stringify(updated));
+
+    return { data: updated.find(t => t.id === id), error: null };
+  };
+
   return {
     templates,
     loading,
     createTemplate,
+    updateTemplate,
     deleteTemplate,
     refetch: fetchTemplates,
   };

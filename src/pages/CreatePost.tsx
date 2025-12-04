@@ -293,14 +293,14 @@ export default function CreatePost() {
   };
 
   const handleSaveProfile = async (profileData: any) => {
-    await createProfile(
-      profileData.name,
-      profileData.description,
-      profileData.channel_ids,
-      profileData.is_default,
-      profileData.color,
-      profileData.icon
-    );
+    await createProfile({
+      name: profileData.name,
+      description: profileData.description,
+      channel_ids: profileData.channel_ids,
+      is_default: profileData.is_default,
+      color: profileData.color,
+      icon: profileData.icon,
+    });
   };
 
   const availableChannels = getChannelsForPlatforms(selectedPlatforms);

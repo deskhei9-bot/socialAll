@@ -11,6 +11,8 @@ export interface Channel {
   account_handle: string;
   followers_count: number;
   is_active: boolean;
+  status?: string;
+  account_id?: string;
   access_token?: string;
   refresh_token?: string;
   token_expires_at?: string;

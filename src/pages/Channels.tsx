@@ -116,13 +116,13 @@ export default function Channels() {
         const handleOAuth = async () => {
           if (isFbCallback) {
             const result = await handleFacebookCallback(code, state);
-            if (result.success) refetch();
+            if (!result.error) refetch();
           } else if (isYtCallback) {
             const result = await handleYouTubeCallback(code, state);
-            if (result.success) refetch();
+            if (!result.error) refetch();
           } else if (isTtCallback) {
             const result = await handleTikTokCallback(code, state);
-            if (result.success) refetch();
+            if (!result.error) refetch();
           }
           navigate('/channels', { replace: true });
           setProcessingCallback(false);
