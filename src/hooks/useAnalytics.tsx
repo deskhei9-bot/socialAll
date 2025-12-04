@@ -21,6 +21,9 @@ export interface AnalyticsOverview {
   platformStats: any[];
   dailyPosts: any[];
   recentActivity: any[];
+  dailyTrends?: { date: string; reach: number; engagement: number }[];
+  postStatusDistribution?: { status: string; count: number }[];
+  platformBreakdown?: { platform: string; reach: number; engagement: number; posts: number }[];
 }
 
 export function useAnalytics(days: number = 30) {

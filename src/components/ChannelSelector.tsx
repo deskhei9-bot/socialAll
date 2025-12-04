@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Channel } from '@/hooks/useChannels';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,16 +7,45 @@ import { CheckCircle2, Circle, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ChannelSelectorProps {
-  channels: Channel[];
-  selectedIds: string[];
+  channels?: Channel[];
+  selectedIds?: string[];
+  selectedChannelIds?: string[];
   onSelectionChange: (ids: string[]) => void;
 }
 
 export function ChannelSelector({ 
-  channels, 
-  selectedIds, 
+  channels: propChannels, 
+  selectedIds,
+  selectedChannelIds,
   onSelectionChange 
 }: ChannelSelectorProps) {
+  // Support both prop patterns
+  const [internalChannels, setInternalChannels] = useState<Channel[]>([]);
+  const channels = propChannels || internalChannels;
+  const selected = selectedIds || selectedChannelIds || [];
+
+  // Fetch channels if not provided
+  useEffect(() => {
+    if (!propChannels) {
+      const fetchChannels = async () => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api'}/channels`, {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setInternalChannels(data || []);
+          }
+        } catch (error) {
+          console.error('Failed to fetch channels:', error);
+        }
+      };
+      fetchChannels();
+    }
+  }, [propChannels]);
+
   if (channels.length === 0) {
     return null;
   }
@@ -40,26 +70,26 @@ export function ChannelSelector({
   };
 
   const toggleChannel = (channelId: string) => {
-    if (selectedIds.includes(channelId)) {
-      onSelectionChange(selectedIds.filter(id => id !== channelId));
+    if (selected.includes(channelId)) {
+      onSelectionChange(selected.filter(id => id !== channelId));
     } else {
-      onSelectionChange([...selectedIds, channelId]);
+      onSelectionChange([...selected, channelId]);
     }
   };
 
   const toggleAllPlatform = (platformChannels: Channel[]) => {
     const platformChannelIds = platformChannels.map(ch => ch.id);
-    const allSelected = platformChannelIds.every(id => selectedIds.includes(id));
+    const allSelected = platformChannelIds.every(id => selected.includes(id));
     
     if (allSelected) {
       // Deselect all from this platform
       onSelectionChange(
-        selectedIds.filter(id => !platformChannelIds.includes(id))
+        selected.filter(id => !platformChannelIds.includes(id))
       );
     } else {
       // Select all from this platform
-      const newIds = platformChannelIds.filter(id => !selectedIds.includes(id));
-      onSelectionChange([...selectedIds, ...newIds]);
+      const newIds = platformChannelIds.filter(id => !selected.includes(id));
+      onSelectionChange([...selected, ...newIds]);
     }
   };
 
@@ -71,14 +101,14 @@ export function ChannelSelector({
           Select Channels to Publish
         </Label>
         <Badge variant="secondary" className="text-xs">
-          {selectedIds.length} selected
+          {selected.length} selected
         </Badge>
       </div>
 
       <div className="space-y-4">
         {Object.entries(channelsByPlatform).map(([platform, platformChannels]) => {
-          const allSelected = platformChannels.every(ch => selectedIds.includes(ch.id));
-          const someSelected = platformChannels.some(ch => selectedIds.includes(ch.id));
+          const allSelected = platformChannels.every(ch => selected.includes(ch.id));
+          const someSelected = platformChannels.some(ch => selected.includes(ch.id));
           
           return (
             <div key={platform} className="space-y-2">
@@ -103,7 +133,7 @@ export function ChannelSelector({
               {/* Channel List */}
               <div className="grid gap-2">
                 {platformChannels.map(channel => {
-                  const isSelected = selectedIds.includes(channel.id);
+                  const isSelected = selected.includes(channel.id);
                   
                   return (
                     <button
@@ -170,11 +200,11 @@ export function ChannelSelector({
       </div>
 
       {/* Summary */}
-      {selectedIds.length > 0 && (
+      {selected.length > 0 && (
         <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
           <p className="text-sm font-medium text-primary flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" />
-            Ready to publish to {selectedIds.length} channel{selectedIds.length !== 1 ? 's' : ''}
+            Ready to publish to {selected.length} channel{selected.length !== 1 ? 's' : ''}
           </p>
         </div>
       )}
