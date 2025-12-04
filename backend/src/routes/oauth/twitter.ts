@@ -68,8 +68,11 @@ router.get('/', async (req: any, res) => {
 
     const callbackUrl = process.env.TWITTER_REDIRECT_URI || `${process.env.BACKEND_URL}/api/oauth/twitter/callback`;
 
-    // Step 1: Get request token
-    const authLink = await client.generateAuthLink(callbackUrl, { linkMode: 'authorize' });
+    // Step 1: Get request token with force_login for multiple accounts
+    const authLink = await client.generateAuthLink(callbackUrl, { 
+      linkMode: 'authorize',
+      forceLogin: true, // Force account selection for connecting multiple accounts
+    });
 
     // Store oauth_token_secret temporarily (expires in 15 minutes)
     oauthTokens.set(authLink.oauth_token, {
