@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
+import { isPast, addDays } from 'date-fns';
 
 export interface Channel {
   id: string;
@@ -20,11 +21,16 @@ export interface Channel {
   updated_at: string;
 }
 
+const AUTO_REFRESH_INTERVAL = 5 * 60 * 1000; // Check every 5 minutes
+const TOKEN_EXPIRY_THRESHOLD_DAYS = 7; // Refresh tokens expiring within 7 days
+
 export function useChannels() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshingChannels, setRefreshingChannels] = useState<Set<string>>(new Set());
   const { user } = useAuth();
   const { toast } = useToast();
+  const autoRefreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchChannels = async () => {
     if (!user) {
@@ -51,9 +57,123 @@ export function useChannels() {
     setLoading(false);
   };
 
+  const refreshChannelToken = useCallback(async (channelId: string): Promise<{ success: boolean; error?: Error }> => {
+    if (!user) return { success: false, error: new Error('Not authenticated') };
+
+    setRefreshingChannels(prev => new Set(prev).add(channelId));
+
+    try {
+      const { data, error } = await apiClient.refreshChannelToken(channelId);
+
+      if (error) {
+        throw error;
+      }
+
+      await fetchChannels();
+
+      toast({
+        title: "Token refreshed",
+        description: "Channel connection has been renewed successfully.",
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      console.error('Error refreshing channel token:', error);
+      toast({
+        title: "Token refresh failed",
+        description: error.message || "Please reconnect the channel manually.",
+        variant: "destructive",
+      });
+      return { success: false, error };
+    } finally {
+      setRefreshingChannels(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(channelId);
+        return newSet;
+      });
+    }
+  }, [user, toast]);
+
+  const checkAndRefreshExpiredTokens = useCallback(async () => {
+    if (!user || channels.length === 0) return;
+
+    const now = new Date();
+    const thresholdDate = addDays(now, TOKEN_EXPIRY_THRESHOLD_DAYS);
+
+    const channelsNeedingRefresh = channels.filter(channel => {
+      if (!channel.token_expires_at || !channel.refresh_token) return false;
+      
+      const expiryDate = new Date(channel.token_expires_at);
+      // Refresh if expired or expiring within threshold
+      return isPast(expiryDate) || expiryDate < thresholdDate;
+    });
+
+    for (const channel of channelsNeedingRefresh) {
+      // Skip if already refreshing
+      if (refreshingChannels.has(channel.id)) continue;
+
+      console.log(`Auto-refreshing token for channel: ${channel.account_name} (${channel.platform})`);
+      await refreshChannelToken(channel.id);
+    }
+  }, [user, channels, refreshingChannels, refreshChannelToken]);
+
+  const refreshAllExpiredTokens = useCallback(async () => {
+    const expiredChannels = channels.filter(channel => {
+      if (!channel.token_expires_at) return false;
+      return isPast(new Date(channel.token_expires_at));
+    });
+
+    if (expiredChannels.length === 0) {
+      toast({
+        title: "All tokens valid",
+        description: "No expired tokens found.",
+      });
+      return;
+    }
+
+    toast({
+      title: "Refreshing tokens",
+      description: `Refreshing ${expiredChannels.length} expired token(s)...`,
+    });
+
+    let successCount = 0;
+    for (const channel of expiredChannels) {
+      const result = await refreshChannelToken(channel.id);
+      if (result.success) successCount++;
+    }
+
+    toast({
+      title: "Token refresh complete",
+      description: `Successfully refreshed ${successCount} of ${expiredChannels.length} token(s).`,
+    });
+  }, [channels, refreshChannelToken, toast]);
+
+  // Initial fetch
   useEffect(() => {
     fetchChannels();
   }, [user]);
+
+  // Auto-refresh interval
+  useEffect(() => {
+    if (!user) return;
+
+    // Initial check after channels load
+    const initialCheckTimeout = setTimeout(() => {
+      checkAndRefreshExpiredTokens();
+    }, 3000);
+
+    // Set up periodic checks
+    autoRefreshIntervalRef.current = setInterval(() => {
+      checkAndRefreshExpiredTokens();
+    }, AUTO_REFRESH_INTERVAL);
+
+    return () => {
+      clearTimeout(initialCheckTimeout);
+      if (autoRefreshIntervalRef.current) {
+        clearInterval(autoRefreshIntervalRef.current);
+      }
+    };
+  }, [user, checkAndRefreshExpiredTokens]);
 
   const addChannel = async (channel: {
     platform: string;
@@ -146,6 +266,8 @@ export function useChannels() {
     }
   };
 
+  const isChannelRefreshing = (channelId: string) => refreshingChannels.has(channelId);
+
   return {
     channels,
     loading,
@@ -153,5 +275,8 @@ export function useChannels() {
     removeChannel,
     updateChannel,
     refetch: fetchChannels,
+    refreshChannelToken,
+    refreshAllExpiredTokens,
+    isChannelRefreshing,
   };
 }

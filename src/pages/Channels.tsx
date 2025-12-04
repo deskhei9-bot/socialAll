@@ -79,7 +79,7 @@ const platformColors: Record<string, string> = {
 };
 
 export default function Channels() {
-  const { channels, loading, addChannel, removeChannel, refetch } = useChannels();
+  const { channels, loading, addChannel, removeChannel, refetch, refreshChannelToken, refreshAllExpiredTokens, isChannelRefreshing } = useChannels();
   const { connectFacebook, handleCallback: handleFacebookCallback, loading: fbLoading } = useFacebookOAuth();
   const { connectYouTube, handleCallback: handleYouTubeCallback, loading: ytLoading } = useYouTubeOAuth();
   const { connectTikTok, handleCallback: handleTikTokCallback, loading: ttLoading } = useTikTokOAuth();
@@ -501,10 +501,23 @@ export default function Channels() {
           <CardTitle className="flex items-center justify-between">
             <span>Connected Accounts</span>
             {channels.length > 0 && (
-              <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => refetch()}>
-                <RefreshCw className="w-3.5 h-3.5" />
-                Refresh All
-              </Button>
+              <div className="flex items-center gap-2">
+                {channels.some(c => c.token_expires_at && isPast(new Date(c.token_expires_at))) && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-1.5 text-xs border-destructive/50 text-destructive hover:bg-destructive/10"
+                    onClick={() => refreshAllExpiredTokens()}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Refresh Expired
+                  </Button>
+                )}
+                <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => refetch()}>
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Sync
+                </Button>
+              </div>
             )}
           </CardTitle>
         </CardHeader>
@@ -572,8 +585,18 @@ export default function Channels() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5 sm:gap-2 ml-auto sm:ml-0">
-                        <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8" title="Refresh">
-                          <RefreshCw className="w-4 h-4" />
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className={cn(
+                            "rounded-xl h-8 w-8",
+                            (isTokenExpired || isTokenExpiringSoon) && "text-yellow-500 hover:text-yellow-600"
+                          )}
+                          title={isTokenExpired ? "Refresh expired token" : "Refresh token"}
+                          onClick={() => refreshChannelToken(channel.id)}
+                          disabled={isChannelRefreshing(channel.id)}
+                        >
+                          <RefreshCw className={cn("w-4 h-4", isChannelRefreshing(channel.id) && "animate-spin")} />
                         </Button>
                         <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8" title="Open Platform">
                           <ExternalLink className="w-4 h-4" />
@@ -617,10 +640,14 @@ export default function Channels() {
                         </div>
                       )}
                       {isTokenExpired && (
-                        <div className="flex items-center gap-1 text-destructive">
+                        <button 
+                          className="flex items-center gap-1 text-destructive hover:underline"
+                          onClick={() => refreshChannelToken(channel.id)}
+                          disabled={isChannelRefreshing(channel.id)}
+                        >
                           <AlertCircle className="w-3 h-3" />
-                          <span>Token expired - reconnect required</span>
-                        </div>
+                          <span>{isChannelRefreshing(channel.id) ? 'Refreshing...' : 'Token expired - click to refresh'}</span>
+                        </button>
                       )}
                     </div>
                   </div>
