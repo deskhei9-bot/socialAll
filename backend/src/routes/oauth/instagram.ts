@@ -56,11 +56,10 @@ router.get('/', (req: any, res) => {
   const REDIRECT_URI = process.env.INSTAGRAM_REDIRECT_URI || `${process.env.BACKEND_URL}/api/oauth/instagram/callback`;
   
   const scopes = [
+    'pages_show_list',
+    'pages_manage_posts',
     'instagram_basic',
     'instagram_content_publish',
-    'instagram_manage_insights',
-    'pages_read_engagement',
-    'pages_manage_posts',
   ].join(',');
 
   const state = Buffer.from(JSON.stringify({ userId })).toString('base64');
