@@ -22,7 +22,7 @@ const Index = () => {
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/10 bg-[size:20px_20px] [mask-image:radial-gradient(white,transparent_85%)]" />
         
-        <div className="container mx-auto px-4 py-20 relative">
+        <div className="container mx-auto px-4 py-12 sm:py-20 relative">
           <div className="text-center space-y-8 max-w-4xl mx-auto">
             {/* Logo/Brand */}
             <div className="flex justify-center mb-8">
@@ -41,7 +41,7 @@ const Index = () => {
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
               Social Media Management
               <span className="block mt-2 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
                 Made Simple
@@ -49,7 +49,7 @@ const Index = () => {
             </h1>
 
             {/* Subheading */}
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto px-2">
               A fully self-hosted, secure social media auto-publishing platform with complete control over your data
             </p>
 
@@ -186,21 +186,21 @@ const Index = () => {
       {/* CTA Section */}
       <div className="container mx-auto px-4 py-20">
         <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-2 border-primary/20">
-          <CardContent className="p-12 text-center space-y-6">
-            <h2 className="text-3xl md:text-4xl font-bold">
+          <CardContent className="p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
               Ready to Get Started?
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               Take control of your social media strategy with our powerful, self-hosted platform
             </p>
-            <div className="flex justify-center pt-4">
+            <div className="flex justify-center pt-2 sm:pt-4">
               <Button 
                 size="lg" 
-                className="text-lg px-8 py-6 group"
+                className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group"
                 onClick={handleGetStarted}
               >
                 Start Free Now
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>
           </CardContent>

@@ -414,34 +414,34 @@ export default function Channels() {
           <CardTitle>Available Platforms</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4">
             {availablePlatforms.map((platform) => {
               const isConnected = connectedPlatforms.includes(platform.id);
               return (
                 <div
                   key={platform.id}
                   className={cn(
-                    "relative flex flex-col items-center gap-3 p-6 rounded-xl border-2 transition-all cursor-pointer",
+                    "relative flex flex-col items-center gap-2 sm:gap-3 p-4 sm:p-6 rounded-xl border-2 transition-all cursor-pointer",
                     isConnected
                       ? "border-neon-green/30 bg-neon-green/5"
                       : "border-border/50 bg-muted/30 hover:border-primary/50"
                   )}
                 >
                   {isConnected && (
-                    <CheckCircle2 className="absolute top-2 right-2 w-4 h-4 text-neon-green" />
+                    <CheckCircle2 className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 w-4 h-4 text-neon-green" />
                   )}
-                  <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center text-white", platform.color)}>
-                    <platform.icon className="w-6 h-6" />
+                  <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white", platform.color)}>
+                    <platform.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <span className="text-sm font-medium text-center">{platform.label}</span>
+                  <span className="text-xs sm:text-sm font-medium text-center leading-tight">{platform.label}</span>
                   {platform.oauth && (
-                    <span className="text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">OAuth</span>
+                    <span className="text-[9px] sm:text-[10px] text-muted-foreground bg-muted/50 px-1.5 sm:px-2 py-0.5 rounded-full">OAuth</span>
                   )}
                   {!isConnected && (
                     <Button 
                       size="sm" 
                       variant="outline" 
-                      className="text-xs"
+                      className="text-xs h-7 sm:h-8 px-2 sm:px-3"
                       disabled={isConnecting}
                       onClick={() => handleConnectPlatform(platform.id)}
                     >
@@ -476,50 +476,50 @@ export default function Channels() {
               <p>No channels connected yet. Click "Connect Channel" to get started.</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {channels.map((channel) => (
                 <div
                   key={channel.id}
-                  className="flex items-center justify-between p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 sm:p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div className={cn(
-                      "w-12 h-12 rounded-xl flex items-center justify-center text-white",
+                      "w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white flex-shrink-0",
                       platformColors[channel.platform]
                     )}>
                       {platformIcons[channel.platform]}
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium">{channel.account_name}</p>
+                        <p className="font-medium truncate">{channel.account_name}</p>
                         {channel.status === "connected" ? (
-                          <CheckCircle2 className="w-4 h-4 text-neon-green" />
+                          <CheckCircle2 className="w-4 h-4 text-neon-green flex-shrink-0" />
                         ) : (
-                          <AlertCircle className="w-4 h-4 text-yellow-500" />
+                          <AlertCircle className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                         )}
                       </div>
                       {channel.account_handle && (
-                        <p className="text-sm text-muted-foreground">{channel.account_handle}</p>
+                        <p className="text-sm text-muted-foreground truncate">{channel.account_handle}</p>
                       )}
-                      <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-2 sm:gap-4 mt-1 text-xs text-muted-foreground flex-wrap">
                         <span>{(channel.followers_count || 0).toLocaleString()} followers</span>
                         {channel.account_id && (
-                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">API Connected</span>
+                          <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full">API</span>
                         )}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="rounded-xl">
+                  <div className="flex items-center gap-1.5 sm:gap-2 ml-auto sm:ml-0">
+                    <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8">
                       <RefreshCw className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="rounded-xl">
+                    <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8">
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="rounded-xl text-destructive"
+                      className="rounded-xl text-destructive h-8 w-8"
                       onClick={() => handleRemoveChannel(channel.id)}
                     >
                       <Trash2 className="w-4 h-4" />
