@@ -74,7 +74,8 @@ router.get('/', (req: any, res) => {
     `client_id=${CLIENT_ID}&` +
     `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
     `scope=${encodeURIComponent(scopes)}&` +
-    `state=${state}`;
+    `state=${state}&` +
+    `prompt=login`; // Force login for connecting multiple accounts
 
   console.log(`🔐 LinkedIn OAuth initiated for user ${userId}`);
   console.log(`📍 Redirect URI: ${REDIRECT_URI}`);
