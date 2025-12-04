@@ -1,18 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { 
   ArrowRight, Zap, Shield, Globe, Sparkles, Clock, TrendingUp, Lock, 
   Check, Play, Upload, Calendar, BarChart3, Users, Star, 
-  Facebook, Youtube, Instagram, Twitter, Linkedin, MessageCircle
+  Facebook, Youtube, Instagram, Twitter, Linkedin, MessageCircle, Menu, X
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { AnimatedSection } from "@/hooks/useScrollAnimation";
+import { useState, useEffect } from "react";
 
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleGetStarted = () => {
     if (user) {
@@ -22,32 +34,154 @@ const Index = () => {
     }
   };
 
+  const navLinks = [
+    { label: "Features", href: "#features" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "FAQ", href: "#faq" },
+    { label: "Status", href: "/status" },
+  ];
+
+  const scrollToSection = (href: string) => {
+    if (href.startsWith('#')) {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate(href);
+    }
+    setMobileMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
+      {/* Sticky Navigation Header */}
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-background/95 backdrop-blur-md border-b shadow-sm' 
+            : 'bg-transparent'
+        }`}
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div 
+              className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            >
+              <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1 overflow-hidden shadow-sm">
+                <img 
+                  src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/master/8e616651-fa00-4358-9da7-2c76e7a78c6f.png" 
+                  alt="SocialFlow Logo" 
+                  className="w-full h-full object-contain rounded-md"
+                />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                SocialFlow
+              </span>
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-8">
+              {navLinks.map((link) => (
+                <button
+                  key={link.label}
+                  onClick={() => scrollToSection(link.href)}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative group"
+                >
+                  {link.label}
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
+                </button>
+              ))}
+            </nav>
+
+            {/* Desktop CTA Buttons */}
+            <div className="hidden md:flex items-center gap-3">
+              {user ? (
+                <Button onClick={() => navigate("/dashboard")} className="hover:scale-105 transition-transform">
+                  Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button variant="ghost" onClick={() => navigate("/auth")} className="hover:bg-muted/50">
+                    Sign In
+                  </Button>
+                  <Button onClick={() => navigate("/auth")} className="hover:scale-105 transition-transform">
+                    Get Started
+                  </Button>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Menu Button */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild className="md:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+                <div className="flex flex-col gap-6 mt-8">
+                  {/* Mobile Logo */}
+                  <div className="flex items-center gap-2 pb-4 border-b">
+                    <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1 overflow-hidden">
+                      <img 
+                        src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/master/8e616651-fa00-4358-9da7-2c76e7a78c6f.png" 
+                        alt="SocialFlow Logo" 
+                        className="w-full h-full object-contain rounded-md"
+                      />
+                    </div>
+                    <span className="text-xl font-bold">SocialFlow</span>
+                  </div>
+
+                  {/* Mobile Navigation Links */}
+                  <nav className="flex flex-col gap-4">
+                    {navLinks.map((link) => (
+                      <button
+                        key={link.label}
+                        onClick={() => scrollToSection(link.href)}
+                        className="text-left text-lg font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                      >
+                        {link.label}
+                      </button>
+                    ))}
+                  </nav>
+
+                  {/* Mobile CTA Buttons */}
+                  <div className="flex flex-col gap-3 pt-4 border-t">
+                    {user ? (
+                      <Button onClick={() => { navigate("/dashboard"); setMobileMenuOpen(false); }} className="w-full">
+                        Dashboard
+                      </Button>
+                    ) : (
+                      <>
+                        <Button variant="outline" onClick={() => { navigate("/auth"); setMobileMenuOpen(false); }} className="w-full">
+                          Sign In
+                        </Button>
+                        <Button onClick={() => { navigate("/auth"); setMobileMenuOpen(false); }} className="w-full">
+                          Get Started
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </header>
+
+      {/* Spacer for fixed header */}
+      <div className="h-16" />
+
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-grid-white/10 bg-[size:20px_20px] [mask-image:radial-gradient(white,transparent_85%)]" />
         
         <div className="container mx-auto px-4 py-12 sm:py-20 relative">
           <div className="text-center space-y-8 max-w-4xl mx-auto">
-            {/* Logo/Brand */}
-            <AnimatedSection animation="fade-up" delay={0}>
-              <div className="flex justify-center mb-8">
-                <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20 hover:bg-primary/20 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1 overflow-hidden">
-                  <img 
-                    src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/master/8e616651-fa00-4358-9da7-2c76e7a78c6f.png" 
-                    alt="SocialFlow Logo" 
-                    className="w-full h-full object-contain rounded-md"
-                  />
-                </div>
-                  <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                    SocialFlow
-                  </span>
-                </div>
-              </div>
-            </AnimatedSection>
-
+            {/* Logo/Brand - removed since we have it in header now */}
             {/* Main Heading */}
             <AnimatedSection animation="fade-up" delay={100}>
               <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
@@ -264,7 +398,7 @@ const Index = () => {
       </div>
 
       {/* Features Section */}
-      <div className="container mx-auto px-4 py-20">
+      <div id="features" className="container mx-auto px-4 py-20 scroll-mt-20">
         <AnimatedSection animation="fade-up">
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Features</Badge>
@@ -432,7 +566,7 @@ const Index = () => {
       </div>
 
       {/* Pricing Section */}
-      <div className="bg-muted/30 py-20">
+      <div id="pricing" className="bg-muted/30 py-20 scroll-mt-20">
         <div className="container mx-auto px-4">
           <AnimatedSection animation="fade-up">
             <div className="text-center mb-16">
@@ -658,7 +792,7 @@ const Index = () => {
       </div>
 
       {/* FAQ Section */}
-      <div className="bg-muted/30 py-20">
+      <div id="faq" className="bg-muted/30 py-20 scroll-mt-20">
         <div className="container mx-auto px-4">
           <AnimatedSection animation="fade-up">
             <div className="text-center mb-16">
