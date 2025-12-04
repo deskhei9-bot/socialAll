@@ -49,8 +49,8 @@ router.get('/', (req: any, res) => {
     return res.status(401).json({ error: 'Unauthorized: userId required in query or auth header' });
   }
 
-  const YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
-  const YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
+  const YOUTUBE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.YOUTUBE_CLIENT_ID;
+  const YOUTUBE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || process.env.YOUTUBE_CLIENT_SECRET;
   const REDIRECT_URI = process.env.YOUTUBE_REDIRECT_URI || `${process.env.BACKEND_URL}/api/oauth/youtube/callback`;
 
   if (!YOUTUBE_CLIENT_ID || !YOUTUBE_CLIENT_SECRET) {
@@ -108,8 +108,8 @@ router.get('/callback', async (req: any, res) => {
     const { userId } = JSON.parse(Buffer.from(state, 'base64').toString('utf8'));
     console.log(`📥 YouTube OAuth callback received for user ${userId}`);
 
-    const YOUTUBE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
-    const YOUTUBE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
+    const YOUTUBE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || process.env.YOUTUBE_CLIENT_ID;
+    const YOUTUBE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET || process.env.YOUTUBE_CLIENT_SECRET;
     const REDIRECT_URI = process.env.YOUTUBE_REDIRECT_URI || `${process.env.BACKEND_URL}/api/oauth/youtube/callback`;
 
     const oauth2Client = new google.auth.OAuth2(
