@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { AnimatedSection } from "@/hooks/useScrollAnimation";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -30,8 +31,9 @@ const Index = () => {
         <div className="container mx-auto px-4 py-12 sm:py-20 relative">
           <div className="text-center space-y-8 max-w-4xl mx-auto">
             {/* Logo/Brand */}
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20">
+            <AnimatedSection animation="fade-up" delay={0}>
+              <div className="flex justify-center mb-8">
+                <div className="inline-flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-full border border-primary/20 hover:bg-primary/20 transition-all duration-300 hover:scale-105 cursor-pointer">
                 <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1 overflow-hidden">
                   <img 
                     src="https://raw.githubusercontent.com/deskhei9-bot/socialAll/master/8e616651-fa00-4358-9da7-2c76e7a78c6f.png" 
@@ -39,220 +41,246 @@ const Index = () => {
                     className="w-full h-full object-contain rounded-md"
                   />
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                  SocialFlow
-                </span>
+                  <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    SocialFlow
+                  </span>
+                </div>
               </div>
-            </div>
+            </AnimatedSection>
 
             {/* Main Heading */}
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
+            <AnimatedSection animation="fade-up" delay={100}>
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
               Manage All Your Social Media
-              <span className="block mt-2 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                From One Place
-              </span>
-            </h1>
+                <span className="block mt-2 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse">
+                  From One Place
+                </span>
+              </h1>
+            </AnimatedSection>
 
             {/* Subheading */}
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto px-2">
-              Auto-publish to Facebook, YouTube, TikTok, Instagram, Twitter, and LinkedIn 
-              with a single click. A fully self-hosted, secure platform.
-            </p>
+            <AnimatedSection animation="fade-up" delay={200}>
+              <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto px-2">
+                Auto-publish to Facebook, YouTube, TikTok, Instagram, Twitter, and LinkedIn 
+                with a single click. A fully self-hosted, secure platform.
+              </p>
+            </AnimatedSection>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-6 group"
-                onClick={handleGetStarted}
-              >
-                Get Started Free
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="text-lg px-8 py-6"
-                onClick={() => navigate("/status")}
-              >
-                System Status
-              </Button>
-            </div>
+            <AnimatedSection animation="fade-up" delay={300}>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
+                <Button 
+                  size="lg" 
+                  className="text-lg px-8 py-6 group hover:scale-105 transition-all duration-300"
+                  onClick={handleGetStarted}
+                >
+                  Get Started Free
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="text-lg px-8 py-6 hover:scale-105 transition-all duration-300"
+                  onClick={() => navigate("/status")}
+                >
+                  System Status
+                </Button>
+              </div>
+            </AnimatedSection>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 max-w-3xl mx-auto">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">100%</div>
-                <div className="text-sm text-muted-foreground">Self-Hosted</div>
+            <AnimatedSection animation="fade-up" delay={400}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 max-w-3xl mx-auto">
+                <div className="text-center hover:scale-110 transition-transform duration-300 cursor-default">
+                  <div className="text-3xl font-bold text-primary">100%</div>
+                  <div className="text-sm text-muted-foreground">Self-Hosted</div>
+                </div>
+                <div className="text-center hover:scale-110 transition-transform duration-300 cursor-default">
+                  <div className="text-3xl font-bold text-primary">8+</div>
+                  <div className="text-sm text-muted-foreground">Platforms</div>
+                </div>
+                <div className="text-center hover:scale-110 transition-transform duration-300 cursor-default">
+                  <div className="text-3xl font-bold text-primary">AI</div>
+                  <div className="text-sm text-muted-foreground">Powered</div>
+                </div>
+                <div className="text-center hover:scale-110 transition-transform duration-300 cursor-default">
+                  <div className="text-3xl font-bold text-primary">∞</div>
+                  <div className="text-sm text-muted-foreground">Unlimited Posts</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">8+</div>
-                <div className="text-sm text-muted-foreground">Platforms</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">AI</div>
-                <div className="text-sm text-muted-foreground">Powered</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">∞</div>
-                <div className="text-sm text-muted-foreground">Unlimited Posts</div>
-              </div>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </div>
 
       {/* Supported Platforms Section */}
       <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Supported Platforms
-          </h2>
-          <p className="text-muted-foreground">
-            Connect all your favorite social media platforms in one place
-          </p>
-        </div>
+        <AnimatedSection animation="fade-up">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+              Supported Platforms
+            </h2>
+            <p className="text-muted-foreground">
+              Connect all your favorite social media platforms in one place
+            </p>
+          </div>
+        </AnimatedSection>
         
-        <div className="flex flex-wrap justify-center gap-6 md:gap-10">
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-colors">
+        <AnimatedSection animation="fade-up" delay={100}>
+          <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-all duration-300 hover:scale-110 cursor-pointer">
             <div className="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center">
               <Facebook className="w-8 h-8 text-blue-500" />
             </div>
-            <span className="text-sm font-medium">Facebook</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-colors">
-            <div className="w-16 h-16 bg-pink-500/10 rounded-xl flex items-center justify-center">
-              <Instagram className="w-8 h-8 text-pink-500" />
+              <span className="text-sm font-medium">Facebook</span>
             </div>
-            <span className="text-sm font-medium">Instagram</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-colors">
-            <div className="w-16 h-16 bg-red-500/10 rounded-xl flex items-center justify-center">
-              <Youtube className="w-8 h-8 text-red-500" />
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-all duration-300 hover:scale-110 cursor-pointer">
+              <div className="w-16 h-16 bg-pink-500/10 rounded-xl flex items-center justify-center">
+                <Instagram className="w-8 h-8 text-pink-500" />
+              </div>
+              <span className="text-sm font-medium">Instagram</span>
             </div>
-            <span className="text-sm font-medium">YouTube</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-colors">
-            <div className="w-16 h-16 bg-foreground/10 rounded-xl flex items-center justify-center">
-              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-              </svg>
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-all duration-300 hover:scale-110 cursor-pointer">
+              <div className="w-16 h-16 bg-red-500/10 rounded-xl flex items-center justify-center">
+                <Youtube className="w-8 h-8 text-red-500" />
+              </div>
+              <span className="text-sm font-medium">YouTube</span>
             </div>
-            <span className="text-sm font-medium">TikTok</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-colors">
-            <div className="w-16 h-16 bg-foreground/10 rounded-xl flex items-center justify-center">
-              <Twitter className="w-8 h-8" />
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-all duration-300 hover:scale-110 cursor-pointer">
+              <div className="w-16 h-16 bg-foreground/10 rounded-xl flex items-center justify-center">
+                <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                </svg>
+              </div>
+              <span className="text-sm font-medium">TikTok</span>
             </div>
-            <span className="text-sm font-medium">Twitter/X</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-colors">
-            <div className="w-16 h-16 bg-blue-600/10 rounded-xl flex items-center justify-center">
-              <Linkedin className="w-8 h-8 text-blue-600" />
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-all duration-300 hover:scale-110 cursor-pointer">
+              <div className="w-16 h-16 bg-foreground/10 rounded-xl flex items-center justify-center">
+                <Twitter className="w-8 h-8" />
+              </div>
+              <span className="text-sm font-medium">Twitter/X</span>
             </div>
-            <span className="text-sm font-medium">LinkedIn</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-colors">
-            <div className="w-16 h-16 bg-sky-500/10 rounded-xl flex items-center justify-center">
-              <MessageCircle className="w-8 h-8 text-sky-500" />
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-all duration-300 hover:scale-110 cursor-pointer">
+              <div className="w-16 h-16 bg-blue-600/10 rounded-xl flex items-center justify-center">
+                <Linkedin className="w-8 h-8 text-blue-600" />
+              </div>
+              <span className="text-sm font-medium">LinkedIn</span>
             </div>
-            <span className="text-sm font-medium">Telegram</span>
-          </div>
-          <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-colors">
-            <div className="w-16 h-16 bg-red-600/10 rounded-xl flex items-center justify-center">
-              <svg className="w-8 h-8 text-red-600" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0a12 12 0 0 0-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.4-5.94s-.36-.72-.36-1.78c0-1.67.97-2.92 2.17-2.92 1.02 0 1.52.77 1.52 1.7 0 1.03-.66 2.58-1 4.01-.28 1.2.6 2.18 1.78 2.18 2.14 0 3.78-2.25 3.78-5.5 0-2.88-2.07-4.89-5.02-4.89-3.42 0-5.43 2.57-5.43 5.22 0 1.03.4 2.14.9 2.74a.36.36 0 0 1 .08.35l-.33 1.36c-.05.22-.18.27-.42.16-1.56-.73-2.54-3-2.54-4.84 0-3.94 2.87-7.56 8.27-7.56 4.34 0 7.72 3.09 7.72 7.23 0 4.32-2.72 7.79-6.5 7.79-1.27 0-2.46-.66-2.87-1.44l-.78 2.97c-.28 1.09-1.04 2.45-1.55 3.28A12 12 0 1 0 12 0z"/>
-              </svg>
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-all duration-300 hover:scale-110 cursor-pointer">
+              <div className="w-16 h-16 bg-sky-500/10 rounded-xl flex items-center justify-center">
+                <MessageCircle className="w-8 h-8 text-sky-500" />
+              </div>
+              <span className="text-sm font-medium">Telegram</span>
             </div>
-            <span className="text-sm font-medium">Pinterest</span>
+            <div className="flex flex-col items-center gap-2 p-4 rounded-xl hover:bg-muted/50 transition-all duration-300 hover:scale-110 cursor-pointer">
+              <div className="w-16 h-16 bg-red-600/10 rounded-xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-red-600" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0a12 12 0 0 0-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.4-5.94s-.36-.72-.36-1.78c0-1.67.97-2.92 2.17-2.92 1.02 0 1.52.77 1.52 1.7 0 1.03-.66 2.58-1 4.01-.28 1.2.6 2.18 1.78 2.18 2.14 0 3.78-2.25 3.78-5.5 0-2.88-2.07-4.89-5.02-4.89-3.42 0-5.43 2.57-5.43 5.22 0 1.03.4 2.14.9 2.74a.36.36 0 0 1 .08.35l-.33 1.36c-.05.22-.18.27-.42.16-1.56-.73-2.54-3-2.54-4.84 0-3.94 2.87-7.56 8.27-7.56 4.34 0 7.72 3.09 7.72 7.23 0 4.32-2.72 7.79-6.5 7.79-1.27 0-2.46-.66-2.87-1.44l-.78 2.97c-.28 1.09-1.04 2.45-1.55 3.28A12 12 0 1 0 12 0z"/>
+                </svg>
+              </div>
+              <span className="text-sm font-medium">Pinterest</span>
+            </div>
           </div>
-        </div>
+        </AnimatedSection>
       </div>
 
       {/* How It Works Section */}
       <div className="bg-muted/30 py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4">How It Works</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Get Started in 4 Simple Steps
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Start managing your social media in minutes
-            </p>
-          </div>
+          <AnimatedSection animation="fade-up">
+            <div className="text-center mb-16">
+              <Badge variant="secondary" className="mb-4">How It Works</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Get Started in 4 Simple Steps
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Start managing your social media in minutes
+              </p>
+            </div>
+          </AnimatedSection>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="relative">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center relative">
+            <AnimatedSection animation="fade-up" delay={0}>
+              <div className="relative group">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center relative group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
                   <Users className="w-8 h-8 text-primary" />
-                  <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                    <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">Create Account</h3>
+                  <p className="text-muted-foreground">
+                    Sign up for free with your email and password. Takes only 30 seconds.
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold">Create Account</h3>
-                <p className="text-muted-foreground">
-                  Sign up for free with your email and password. Takes only 30 seconds.
-                </p>
               </div>
-            </div>
+            </AnimatedSection>
 
-            <div className="relative">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center relative">
-                  <Globe className="w-8 h-8 text-primary" />
-                  <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
+            <AnimatedSection animation="fade-up" delay={100}>
+              <div className="relative group">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center relative group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
+                    <Globe className="w-8 h-8 text-primary" />
+                    <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">Connect Channels</h3>
+                  <p className="text-muted-foreground">
+                    Securely connect Facebook, YouTube, TikTok and more via OAuth authentication.
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold">Connect Channels</h3>
-                <p className="text-muted-foreground">
-                  Securely connect Facebook, YouTube, TikTok and more via OAuth authentication.
-                </p>
               </div>
-            </div>
+            </AnimatedSection>
 
-            <div className="relative">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center relative">
-                  <Upload className="w-8 h-8 text-primary" />
-                  <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
+            <AnimatedSection animation="fade-up" delay={200}>
+              <div className="relative group">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center relative group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
+                    <Upload className="w-8 h-8 text-primary" />
+                    <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">Create Content</h3>
+                  <p className="text-muted-foreground">
+                    Upload photos/videos, generate AI captions, and get smart hashtag suggestions.
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold">Create Content</h3>
-                <p className="text-muted-foreground">
-                  Upload photos/videos, generate AI captions, and get smart hashtag suggestions.
-                </p>
               </div>
-            </div>
+            </AnimatedSection>
 
-            <div className="relative">
-              <div className="flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center relative">
-                  <Calendar className="w-8 h-8 text-primary" />
-                  <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
+            <AnimatedSection animation="fade-up" delay={300}>
+              <div className="relative group">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center relative group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
+                    <Calendar className="w-8 h-8 text-primary" />
+                    <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
+                  </div>
+                  <h3 className="text-xl font-semibold">Publish or Schedule</h3>
+                  <p className="text-muted-foreground">
+                    Publish instantly or schedule for later at your optimal posting times.
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold">Publish or Schedule</h3>
-                <p className="text-muted-foreground">
-                  Publish instantly or schedule for later at your optimal posting times.
-                </p>
               </div>
-            </div>
+            </AnimatedSection>
           </div>
         </div>
       </div>
 
       {/* Features Section */}
       <div className="container mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <Badge variant="secondary" className="mb-4">Features</Badge>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Powerful Features
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to manage your social media presence in one place
-          </p>
-        </div>
+        <AnimatedSection animation="fade-up">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">Features</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Powerful Features
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Everything you need to manage your social media presence in one place
+            </p>
+          </div>
+        </AnimatedSection>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Feature Cards */}
-          <Card className="border-2 hover:border-primary/50 transition-colors group">
+          <AnimatedSection animation="fade-up" delay={0}>
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 group hover:shadow-lg hover:-translate-y-1">
             <CardContent className="p-6 space-y-4">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <Globe className="w-6 h-6 text-primary" />
@@ -271,16 +299,18 @@ const Index = () => {
                   <Check className="w-4 h-4 text-green-500" />
                   Customize content per platform
                 </li>
-              </ul>
-            </CardContent>
-          </Card>
+                </ul>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors group">
-            <CardContent className="p-6 space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <Sparkles className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">AI-Powered Content</h3>
+          <AnimatedSection animation="fade-up" delay={100}>
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 group hover:shadow-lg hover:-translate-y-1">
+              <CardContent className="p-6 space-y-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">AI-Powered Content</h3>
               <p className="text-muted-foreground">
                 Generate engaging captions and relevant hashtags automatically 
                 using advanced OpenAI GPT technology.
@@ -294,16 +324,18 @@ const Index = () => {
                   <Check className="w-4 h-4 text-green-500" />
                   Smart Hashtag Suggestions
                 </li>
-              </ul>
-            </CardContent>
-          </Card>
+                </ul>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors group">
-            <CardContent className="p-6 space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <Clock className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Smart Scheduling</h3>
+          <AnimatedSection animation="fade-up" delay={200}>
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 group hover:shadow-lg hover:-translate-y-1">
+              <CardContent className="p-6 space-y-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Clock className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Smart Scheduling</h3>
               <p className="text-muted-foreground">
                 Schedule posts in advance and let them publish automatically 
                 at your specified optimal times.
@@ -317,16 +349,18 @@ const Index = () => {
                   <Check className="w-4 h-4 text-green-500" />
                   Timezone Support
                 </li>
-              </ul>
-            </CardContent>
-          </Card>
+                </ul>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors group">
-            <CardContent className="p-6 space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <TrendingUp className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Analytics Dashboard</h3>
+          <AnimatedSection animation="fade-up" delay={300}>
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 group hover:shadow-lg hover:-translate-y-1">
+              <CardContent className="p-6 space-y-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <TrendingUp className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Analytics Dashboard</h3>
               <p className="text-muted-foreground">
                 Track post performance, engagement rates, and reach 
                 with real-time analytics and insights.
@@ -340,16 +374,18 @@ const Index = () => {
                   <Check className="w-4 h-4 text-green-500" />
                   Per-platform Reports
                 </li>
-              </ul>
-            </CardContent>
-          </Card>
+                </ul>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors group">
-            <CardContent className="p-6 space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <Shield className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">100% Self-Hosted</h3>
+          <AnimatedSection animation="fade-up" delay={400}>
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 group hover:shadow-lg hover:-translate-y-1">
+              <CardContent className="p-6 space-y-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Shield className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">100% Self-Hosted</h3>
               <p className="text-muted-foreground">
                 Host on your own server with complete control over your data. 
                 No dependency on third-party cloud services.
@@ -363,16 +399,18 @@ const Index = () => {
                   <Check className="w-4 h-4 text-green-500" />
                   Full Data Ownership
                 </li>
-              </ul>
-            </CardContent>
-          </Card>
+                </ul>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
 
-          <Card className="border-2 hover:border-primary/50 transition-colors group">
-            <CardContent className="p-6 space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <Lock className="w-6 h-6 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Enterprise Security</h3>
+          <AnimatedSection animation="fade-up" delay={500}>
+            <Card className="border-2 hover:border-primary/50 transition-all duration-300 group hover:shadow-lg hover:-translate-y-1">
+              <CardContent className="p-6 space-y-4">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Lock className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold">Enterprise Security</h3>
               <p className="text-muted-foreground">
                 Bank-level security with JWT authentication, end-to-end encryption, 
                 and SSL/TLS protection.
@@ -386,309 +424,338 @@ const Index = () => {
                   <Check className="w-4 h-4 text-green-500" />
                   Token Auto-Refresh
                 </li>
-              </ul>
-            </CardContent>
-          </Card>
+                </ul>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
         </div>
       </div>
 
       {/* Pricing Section */}
       <div className="bg-muted/30 py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4">Pricing</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              As a self-hosted platform, you only pay for your server costs. No hidden fees.
-            </p>
-          </div>
+          <AnimatedSection animation="fade-up">
+            <div className="text-center mb-16">
+              <Badge variant="secondary" className="mb-4">Pricing</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Simple, Transparent Pricing
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                As a self-hosted platform, you only pay for your server costs. No hidden fees.
+              </p>
+            </div>
+          </AnimatedSection>
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Free Plan */}
-            <Card className="border-2 relative">
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-xl">Free</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">$0</span>
-                  <span className="text-muted-foreground">/forever</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Connect up to 3 platforms</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>50 posts per month</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Basic Analytics</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Email Support</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full mt-6" onClick={handleGetStarted}>
-                  Get Started Free
-                </Button>
-              </CardContent>
-            </Card>
+            <AnimatedSection animation="fade-up" delay={0}>
+              <Card className="border-2 relative hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+                <CardHeader className="text-center pb-8">
+                  <CardTitle className="text-xl">Free</CardTitle>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">$0</span>
+                    <span className="text-muted-foreground">/forever</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Connect up to 3 platforms</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>50 posts per month</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Basic Analytics</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Email Support</span>
+                    </li>
+                  </ul>
+                  <Button variant="outline" className="w-full mt-6 hover:scale-105 transition-transform" onClick={handleGetStarted}>
+                    Get Started Free
+                  </Button>
+                </CardContent>
+              </Card>
+            </AnimatedSection>
 
             {/* Pro Plan */}
-            <Card className="border-2 border-primary relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-primary">Most Popular</Badge>
-              </div>
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-xl">Pro</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">$9</span>
-                  <span className="text-muted-foreground">/month</span>
+            <AnimatedSection animation="fade-up" delay={100}>
+              <Card className="border-2 border-primary relative hover:shadow-xl transition-all duration-300 hover:-translate-y-2 h-full">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <Badge className="bg-primary animate-pulse">Most Popular</Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Unlimited platforms</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Unlimited posts</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>AI Caption Generator</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Advanced Analytics</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Priority Support</span>
-                  </li>
-                </ul>
-                <Button className="w-full mt-6" onClick={handleGetStarted}>
-                  Get Pro
-                </Button>
-              </CardContent>
-            </Card>
+                <CardHeader className="text-center pb-8">
+                  <CardTitle className="text-xl">Pro</CardTitle>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">$9</span>
+                    <span className="text-muted-foreground">/month</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Unlimited platforms</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Unlimited posts</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>AI Caption Generator</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Advanced Analytics</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Priority Support</span>
+                    </li>
+                  </ul>
+                  <Button className="w-full mt-6 hover:scale-105 transition-transform" onClick={handleGetStarted}>
+                    Get Pro
+                  </Button>
+                </CardContent>
+              </Card>
+            </AnimatedSection>
 
             {/* Enterprise Plan */}
-            <Card className="border-2 relative">
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-xl">Enterprise</CardTitle>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">Custom</span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Everything in Pro</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Custom Integration</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>Dedicated Server Setup</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>24/7 Phone Support</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <Check className="w-5 h-5 text-green-500" />
-                    <span>SLA Guarantee</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full mt-6" onClick={() => navigate("/contact.html")}>
-                  Contact Sales
-                </Button>
-              </CardContent>
-            </Card>
+            <AnimatedSection animation="fade-up" delay={200}>
+              <Card className="border-2 relative hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+                <CardHeader className="text-center pb-8">
+                  <CardTitle className="text-xl">Enterprise</CardTitle>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">Custom</span>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-3">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Everything in Pro</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Custom Integration</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>Dedicated Server Setup</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>24/7 Phone Support</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-5 h-5 text-green-500" />
+                      <span>SLA Guarantee</span>
+                    </li>
+                  </ul>
+                  <Button variant="outline" className="w-full mt-6 hover:scale-105 transition-transform" onClick={() => navigate("/contact.html")}>
+                    Contact Sales
+                  </Button>
+                </CardContent>
+              </Card>
+            </AnimatedSection>
           </div>
         </div>
       </div>
 
       {/* Testimonials Section */}
       <div className="container mx-auto px-4 py-20">
-        <div className="text-center mb-16">
-          <Badge variant="secondary" className="mb-4">Testimonials</Badge>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Trusted by Users Worldwide
-          </h2>
-        </div>
+        <AnimatedSection animation="fade-up">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">Testimonials</Badge>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              Trusted by Users Worldwide
+            </h2>
+          </div>
+        </AnimatedSection>
 
         <div className="grid md:grid-cols-3 gap-8">
-          <Card className="border-2">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <p className="text-muted-foreground italic">
-                "Managing all platforms from one place is incredibly convenient. 
-                It has saved me so much time every day."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="font-semibold text-primary">JD</span>
+          <AnimatedSection animation="fade-up" delay={0}>
+            <Card className="border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
                 </div>
-                <div>
-                  <p className="font-semibold">John Davis</p>
-                  <p className="text-sm text-muted-foreground">Digital Marketer</p>
+                <p className="text-muted-foreground italic">
+                  "Managing all platforms from one place is incredibly convenient. 
+                  It has saved me so much time every day."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                    <span className="font-semibold text-primary">JD</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold">John Davis</p>
+                    <p className="text-sm text-muted-foreground">Digital Marketer</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
 
-          <Card className="border-2">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <p className="text-muted-foreground italic">
-                "The AI Caption Generator is incredibly useful. 
-                It has reduced my content creation time by 50%."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="font-semibold text-primary">SM</span>
+          <AnimatedSection animation="fade-up" delay={100}>
+            <Card className="border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
                 </div>
-                <div>
-                  <p className="font-semibold">Sarah Miller</p>
-                  <p className="text-sm text-muted-foreground">Content Creator</p>
+                <p className="text-muted-foreground italic">
+                  "The AI Caption Generator is incredibly useful. 
+                  It has reduced my content creation time by 50%."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                    <span className="font-semibold text-primary">SM</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Sarah Miller</p>
+                    <p className="text-sm text-muted-foreground">Content Creator</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
 
-          <Card className="border-2">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <p className="text-muted-foreground italic">
-                "Being self-hosted gives me peace of mind about data security. 
-                Perfect for enterprise requirements."
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="font-semibold text-primary">MJ</span>
+          <AnimatedSection animation="fade-up" delay={200}>
+            <Card className="border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+              <CardContent className="p-6 space-y-4">
+                <div className="flex gap-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                  ))}
                 </div>
-                <div>
-                  <p className="font-semibold">Michael Johnson</p>
-                  <p className="text-sm text-muted-foreground">IT Manager</p>
+                <p className="text-muted-foreground italic">
+                  "Being self-hosted gives me peace of mind about data security. 
+                  Perfect for enterprise requirements."
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                    <span className="font-semibold text-primary">MJ</span>
+                  </div>
+                  <div>
+                    <p className="font-semibold">Michael Johnson</p>
+                    <p className="text-sm text-muted-foreground">IT Manager</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
         </div>
       </div>
 
       {/* FAQ Section */}
       <div className="bg-muted/30 py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4">FAQ</Badge>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Frequently Asked Questions
-            </h2>
-          </div>
+          <AnimatedSection animation="fade-up">
+            <div className="text-center mb-16">
+              <Badge variant="secondary" className="mb-4">FAQ</Badge>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                Frequently Asked Questions
+              </h2>
+            </div>
+          </AnimatedSection>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <Card className="border-2">
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">What does self-hosted mean?</h3>
-                <p className="text-muted-foreground text-sm">
-                  Self-hosted means you install and run the software on your own server. 
-                  You have complete control over your data without relying on third-party 
-                  cloud services.
-                </p>
-              </CardContent>
-            </Card>
+            <AnimatedSection animation="fade-up" delay={0}>
+              <Card className="border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-2">What does self-hosted mean?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Self-hosted means you install and run the software on your own server. 
+                    You have complete control over your data without relying on third-party 
+                    cloud services.
+                  </p>
+                </CardContent>
+              </Card>
+            </AnimatedSection>
 
-            <Card className="border-2">
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Which platforms are supported?</h3>
-                <p className="text-muted-foreground text-sm">
-                  We support 8 major platforms: Facebook, Instagram, YouTube, TikTok, 
-                  Twitter/X, LinkedIn, Telegram, and Pinterest.
-                </p>
-              </CardContent>
-            </Card>
+            <AnimatedSection animation="fade-up" delay={100}>
+              <Card className="border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-2">Which platforms are supported?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    We support 8 major platforms: Facebook, Instagram, YouTube, TikTok, 
+                    Twitter/X, LinkedIn, Telegram, and Pinterest.
+                  </p>
+                </CardContent>
+              </Card>
+            </AnimatedSection>
 
-            <Card className="border-2">
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Do I need API keys?</h3>
-                <p className="text-muted-foreground text-sm">
-                  Most platforms connect via OAuth authentication. You only need an 
-                  OpenAI API key if you want to use the AI caption generation features.
-                </p>
-              </CardContent>
-            </Card>
+            <AnimatedSection animation="fade-up" delay={200}>
+              <Card className="border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-2">Do I need API keys?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Most platforms connect via OAuth authentication. You only need an 
+                    OpenAI API key if you want to use the AI caption generation features.
+                  </p>
+                </CardContent>
+              </Card>
+            </AnimatedSection>
 
-            <Card className="border-2">
-              <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Is technical support available?</h3>
-                <p className="text-muted-foreground text-sm">
-                  Free email support is available for all users. Pro and Enterprise 
-                  plans include priority support and phone support options.
-                </p>
-              </CardContent>
-            </Card>
+            <AnimatedSection animation="fade-up" delay={300}>
+              <Card className="border-2 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 h-full">
+                <CardContent className="p-6">
+                  <h3 className="font-semibold mb-2">Is technical support available?</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Free email support is available for all users. Pro and Enterprise 
+                    plans include priority support and phone support options.
+                  </p>
+                </CardContent>
+              </Card>
+            </AnimatedSection>
           </div>
         </div>
       </div>
 
       {/* CTA Section */}
       <div className="container mx-auto px-4 py-20">
-        <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-2 border-primary/20">
-          <CardContent className="p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-              Get Started Today
-            </h2>
-            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Take control of your social media strategy with our powerful self-hosted platform. 
-              Create a free account and start exploring.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2 sm:pt-4">
-              <Button 
-                size="lg" 
-                className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group"
-                onClick={handleGetStarted}
-              >
-                Start Free Now
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6"
-                onClick={() => window.open('/help.html', '_blank')}
-              >
-                <Play className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
-                Watch Demo
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <AnimatedSection animation="scale">
+          <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-2 border-primary/20 hover:shadow-xl transition-all duration-500">
+            <CardContent className="p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
+                Get Started Today
+              </h2>
+              <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+                Take control of your social media strategy with our powerful self-hosted platform. 
+                Create a free account and start exploring.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2 sm:pt-4">
+                <Button 
+                  size="lg" 
+                  className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group hover:scale-105 transition-all duration-300"
+                  onClick={handleGetStarted}
+                >
+                  Start Free Now
+                  <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                </Button>
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 hover:scale-105 transition-all duration-300"
+                  onClick={() => window.open('/help.html', '_blank')}
+                >
+                  <Play className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
+                  Watch Demo
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </AnimatedSection>
       </div>
 
       {/* Footer */}
