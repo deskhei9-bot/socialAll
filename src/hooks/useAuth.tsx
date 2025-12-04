@@ -7,6 +7,10 @@ interface User {
   fullName?: string;
   role: string;
   createdAt?: string;
+  user_metadata?: {
+    full_name?: string;
+    [key: string]: any;
+  };
 }
 
 interface AuthContextType {
