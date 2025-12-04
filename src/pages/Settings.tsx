@@ -54,28 +54,35 @@ export default function Settings() {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="bg-muted/30 p-1">
-          <TabsTrigger value="profile" className="gap-2">
-            <User className="w-4 h-4" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="team" className="gap-2">
-            <Users className="w-4 h-4" />
-            Team
-          </TabsTrigger>
-          <TabsTrigger value="billing" className="gap-2">
-            <CreditCard className="w-4 h-4" />
-            Billing
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
-            <Bell className="w-4 h-4" />
-            Notifications
-          </TabsTrigger>
-          <TabsTrigger value="api-keys" className="gap-2">
-            <Settings2 className="w-4 h-4" />
-            API Keys
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+          <TabsList className="bg-muted/30 p-1 inline-flex min-w-max sm:w-auto">
+            <TabsTrigger value="profile" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2.5 sm:px-3">
+              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Profile</span>
+              <span className="sm:hidden">Profile</span>
+            </TabsTrigger>
+            <TabsTrigger value="team" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2.5 sm:px-3">
+              <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Team</span>
+              <span className="sm:hidden">Team</span>
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2.5 sm:px-3">
+              <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Billing</span>
+              <span className="sm:hidden">Bill</span>
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2.5 sm:px-3">
+              <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Notifications</span>
+              <span className="sm:hidden">Notify</span>
+            </TabsTrigger>
+            <TabsTrigger value="api-keys" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2.5 sm:px-3">
+              <Settings2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">API Keys</span>
+              <span className="sm:hidden">API</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6 animate-fade-in">
@@ -151,12 +158,12 @@ export default function Settings() {
         {/* Team Tab */}
         <TabsContent value="team" className="space-y-6 animate-fade-in">
           <Card className="glass-card">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle>Team Members</CardTitle>
                 <CardDescription>Manage your team and their permissions.</CardDescription>
               </div>
-              <Button className="gap-2 bg-neon-gradient hover:opacity-90">
+              <Button className="gap-2 bg-neon-gradient hover:opacity-90 w-full sm:w-auto">
                 <Plus className="w-4 h-4" />
                 Invite Member
               </Button>
@@ -166,36 +173,36 @@ export default function Settings() {
                 {teamMembers.map((member, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/50 to-secondary/50 flex items-center justify-center font-medium">
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/50 to-secondary/50 flex items-center justify-center font-medium flex-shrink-0">
                         {member.avatar}
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-medium">{member.name}</p>
+                          <p className="font-medium truncate">{member.name}</p>
                           {member.role === "Owner" && (
-                            <Crown className="w-4 h-4 text-yellow-500" />
+                            <Crown className="w-4 h-4 text-yellow-500 flex-shrink-0" />
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                        <p className="text-sm text-muted-foreground truncate">{member.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 ml-auto sm:ml-0">
                       <span className={cn(
-                        "px-3 py-1 rounded-full text-xs font-medium",
+                        "px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium",
                         member.role === "Owner" ? "bg-yellow-500/20 text-yellow-500" :
                         member.role === "Admin" ? "bg-primary/20 text-primary" :
                         "bg-muted text-muted-foreground"
                       )}>
                         {member.role}
                       </span>
-                      <Button variant="ghost" size="icon" className="rounded-xl">
+                      <Button variant="ghost" size="icon" className="rounded-xl h-8 w-8">
                         <Edit2 className="w-4 h-4" />
                       </Button>
                       {member.role !== "Owner" && (
-                        <Button variant="ghost" size="icon" className="rounded-xl text-destructive">
+                        <Button variant="ghost" size="icon" className="rounded-xl text-destructive h-8 w-8">
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       )}
