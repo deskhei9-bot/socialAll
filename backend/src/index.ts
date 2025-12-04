@@ -113,13 +113,9 @@ app.get('/api/health', async (req, res) => {
 import authRoutes from './routes/auth';
 app.use('/api/auth', authRoutes);
 
-// OAuth routes (MUST be before Pinterest routes to avoid middleware conflicts)
+// OAuth routes (handles all platform OAuth including Pinterest)
 import oauthRoutes from './routes/oauth';
 app.use('/api/oauth', oauthRoutes); // OAuth routes handle auth internally
-
-// Pinterest OAuth routes (has its own auth handling)
-import pinterestOAuthRoutes from './routes/pinterest-oauth';
-app.use('/api', pinterestOAuthRoutes); // Pinterest OAuth routes (includes auth middleware internally)
 
 // Protected routes
 import postsRoutes from './routes/posts';
