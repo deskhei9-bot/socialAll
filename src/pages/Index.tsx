@@ -47,16 +47,16 @@ const Index = () => {
 
             {/* Main Heading */}
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
-              Social Media အားလုံးကို
+              Manage All Your Social Media
               <span className="block mt-2 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-                တစ်နေရာတည်းမှ စီမံပါ
+                From One Place
               </span>
             </h1>
 
             {/* Subheading */}
             <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto px-2">
-              Facebook, YouTube, TikTok, Instagram, Twitter, LinkedIn တို့ကို တစ်ချက်နှိပ်ရုံဖြင့် 
-              အလိုအလျောက် Post တင်နိုင်သော Self-Hosted Platform
+              Auto-publish to Facebook, YouTube, TikTok, Instagram, Twitter, and LinkedIn 
+              with a single click. A fully self-hosted, secure platform.
             </p>
 
             {/* CTA Buttons */}
@@ -66,7 +66,7 @@ const Index = () => {
                 className="text-lg px-8 py-6 group"
                 onClick={handleGetStarted}
               >
-                အခမဲ့ စတင်မည်
+                Get Started Free
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
@@ -106,10 +106,10 @@ const Index = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            ပံ့ပိုးထားသော Platform များ
+            Supported Platforms
           </h2>
           <p className="text-muted-foreground">
-            လူကြိုက်များသော Social Media Platform အားလုံးကို ချိတ်ဆက်နိုင်ပါသည်
+            Connect all your favorite social media platforms in one place
           </p>
         </div>
         
@@ -173,12 +173,12 @@ const Index = () => {
       <div className="bg-muted/30 py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <Badge variant="secondary" className="mb-4">အလုပ်လုပ်ပုံ</Badge>
+            <Badge variant="secondary" className="mb-4">How It Works</Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              ရိုးရှင်းသော အဆင့် ၄ ဆင့်ဖြင့်
+              Get Started in 4 Simple Steps
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              မိနစ်ပိုင်းအတွင်း သင့် Social Media များကို စီမံနိုင်ပါပြီ
+              Start managing your social media in minutes
             </p>
           </div>
 
@@ -189,9 +189,9 @@ const Index = () => {
                   <Users className="w-8 h-8 text-primary" />
                   <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">1</span>
                 </div>
-                <h3 className="text-xl font-semibold">Account ဖွင့်ပါ</h3>
+                <h3 className="text-xl font-semibold">Create Account</h3>
                 <p className="text-muted-foreground">
-                  Email နှင့် Password ဖြင့် အခမဲ့ Account ဖွင့်ပါ။ ၃၀ စက္ကန့်သာ ကြာပါသည်။
+                  Sign up for free with your email and password. Takes only 30 seconds.
                 </p>
               </div>
             </div>
@@ -202,9 +202,9 @@ const Index = () => {
                   <Globe className="w-8 h-8 text-primary" />
                   <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">2</span>
                 </div>
-                <h3 className="text-xl font-semibold">Channel ချိတ်ဆက်ပါ</h3>
+                <h3 className="text-xl font-semibold">Connect Channels</h3>
                 <p className="text-muted-foreground">
-                  Facebook, YouTube, TikTok စသည့် Platform များကို OAuth ဖြင့် လုံခြုံစွာ ချိတ်ဆက်ပါ။
+                  Securely connect Facebook, YouTube, TikTok and more via OAuth authentication.
                 </p>
               </div>
             </div>
@@ -215,9 +215,9 @@ const Index = () => {
                   <Upload className="w-8 h-8 text-primary" />
                   <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">3</span>
                 </div>
-                <h3 className="text-xl font-semibold">Content ဖန်တီးပါ</h3>
+                <h3 className="text-xl font-semibold">Create Content</h3>
                 <p className="text-muted-foreground">
-                  Photo/Video တင်ပါ၊ AI ဖြင့် Caption ရေးခိုင်းပါ၊ Hashtag အကြံပြုချက်များ ရယူပါ။
+                  Upload photos/videos, generate AI captions, and get smart hashtag suggestions.
                 </p>
               </div>
             </div>
@@ -228,9 +228,9 @@ const Index = () => {
                   <Calendar className="w-8 h-8 text-primary" />
                   <span className="absolute -top-2 -right-2 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-bold">4</span>
                 </div>
-                <h3 className="text-xl font-semibold">Publish / Schedule</h3>
+                <h3 className="text-xl font-semibold">Publish or Schedule</h3>
                 <p className="text-muted-foreground">
-                  ချက်ချင်း Publish လုပ်ပါ သို့မဟုတ် အချိန်သတ်မှတ်ပြီး Schedule လုပ်ထားပါ။
+                  Publish instantly or schedule for later at your optimal posting times.
                 </p>
               </div>
             </div>
@@ -243,10 +243,10 @@ const Index = () => {
         <div className="text-center mb-16">
           <Badge variant="secondary" className="mb-4">Features</Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            အစွမ်းထက် Features များ
+            Powerful Features
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Social Media Management အတွက် လိုအပ်သမျှ အားလုံးကို တစ်နေရာတည်းမှ ရရှိပါမည်
+            Everything you need to manage your social media presence in one place
           </p>
         </div>
 
@@ -259,17 +259,17 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">Multi-Platform Publishing</h3>
               <p className="text-muted-foreground">
-                Facebook, Instagram, YouTube, TikTok, Twitter, LinkedIn, Telegram, Pinterest တို့သို့ 
-                တစ်ချက်နှိပ်ရုံဖြင့် တစ်ပြိုင်နက် Post တင်နိုင်ပါသည်။
+                Publish to Facebook, Instagram, YouTube, TikTok, Twitter, LinkedIn, Telegram, 
+                and Pinterest simultaneously with a single click.
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
-                  Platform ၈ ခုအထိ ပံ့ပိုး
+                  Support for 8+ platforms
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
-                  Platform အလိုက် Content ပြောင်းလဲနိုင်
+                  Customize content per platform
                 </li>
               </ul>
             </CardContent>
@@ -282,8 +282,8 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">AI-Powered Content</h3>
               <p className="text-muted-foreground">
-                OpenAI GPT နည်းပညာဖြင့် ဆွဲဆောင်မှုရှိသော Caption များနှင့် 
-                သင့်လျော်သော Hashtag များကို အလိုအလျောက် ဖန်တီးပေးပါသည်။
+                Generate engaging captions and relevant hashtags automatically 
+                using advanced OpenAI GPT technology.
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
@@ -305,8 +305,8 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">Smart Scheduling</h3>
               <p className="text-muted-foreground">
-                Post များကို ကြိုတင် Schedule လုပ်ထားပြီး သတ်မှတ်ထားသော အချိန်တွင် 
-                အလိုအလျောက် Publish ဖြစ်စေပါသည်။
+                Schedule posts in advance and let them publish automatically 
+                at your specified optimal times.
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
@@ -328,8 +328,8 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">Analytics Dashboard</h3>
               <p className="text-muted-foreground">
-                Post Performance, Engagement Rate, Reach စသည်တို့ကို 
-                Real-time တွင် ခြေရာခံ ကြည့်ရှုနိုင်ပါသည်။
+                Track post performance, engagement rates, and reach 
+                with real-time analytics and insights.
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
@@ -338,7 +338,7 @@ const Index = () => {
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
-                  Platform အလိုက် Report
+                  Per-platform Reports
                 </li>
               </ul>
             </CardContent>
@@ -351,13 +351,13 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">100% Self-Hosted</h3>
               <p className="text-muted-foreground">
-                သင့် Server ပေါ်တွင် ကိုယ်တိုင် Host လုပ်နိုင်ပြီး 
-                Data အားလုံးကို ကိုယ်တိုင် ထိန်းချုပ်နိုင်ပါသည်။
+                Host on your own server with complete control over your data. 
+                No dependency on third-party cloud services.
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
-                  Cloud Service မလိုအပ်
+                  No Cloud Service Required
                 </li>
                 <li className="flex items-center gap-2">
                   <Check className="w-4 h-4 text-green-500" />
@@ -374,8 +374,8 @@ const Index = () => {
               </div>
               <h3 className="text-xl font-semibold">Enterprise Security</h3>
               <p className="text-muted-foreground">
-                JWT Authentication, End-to-End Encryption, SSL/TLS Protection 
-                တို့ဖြင့် Bank-level Security ပေးစွမ်းပါသည်။
+                Bank-level security with JWT authentication, end-to-end encryption, 
+                and SSL/TLS protection.
               </p>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-center gap-2">
@@ -398,10 +398,10 @@ const Index = () => {
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">Pricing</Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              ရိုးရှင်းသော စျေးနှုန်း
+              Simple, Transparent Pricing
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Self-Hosted Platform ဖြစ်သောကြောင့် Monthly Fee မရှိပါ။ သင့် Server Cost သာ ကျသင့်ပါသည်။
+              As a self-hosted platform, you only pay for your server costs. No hidden fees.
             </p>
           </div>
 
@@ -419,11 +419,11 @@ const Index = () => {
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2">
                     <Check className="w-5 h-5 text-green-500" />
-                    <span>Platform ၃ ခုအထိ ချိတ်ဆက်နိုင်</span>
+                    <span>Connect up to 3 platforms</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-5 h-5 text-green-500" />
-                    <span>Post ၅၀ / လ</span>
+                    <span>50 posts per month</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-5 h-5 text-green-500" />
@@ -435,7 +435,7 @@ const Index = () => {
                   </li>
                 </ul>
                 <Button variant="outline" className="w-full mt-6" onClick={handleGetStarted}>
-                  အခမဲ့ စတင်မည်
+                  Get Started Free
                 </Button>
               </CardContent>
             </Card>
@@ -443,7 +443,7 @@ const Index = () => {
             {/* Pro Plan */}
             <Card className="border-2 border-primary relative">
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-primary">လူကြိုက်အများဆုံး</Badge>
+                <Badge className="bg-primary">Most Popular</Badge>
               </div>
               <CardHeader className="text-center pb-8">
                 <CardTitle className="text-xl">Pro</CardTitle>
@@ -456,11 +456,11 @@ const Index = () => {
                 <ul className="space-y-3">
                   <li className="flex items-center gap-2">
                     <Check className="w-5 h-5 text-green-500" />
-                    <span>Platform အကန့်အသတ်မရှိ</span>
+                    <span>Unlimited platforms</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-5 h-5 text-green-500" />
-                    <span>Post အကန့်အသတ်မရှိ</span>
+                    <span>Unlimited posts</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-5 h-5 text-green-500" />
@@ -476,7 +476,7 @@ const Index = () => {
                   </li>
                 </ul>
                 <Button className="w-full mt-6" onClick={handleGetStarted}>
-                  Pro ရယူမည်
+                  Get Pro
                 </Button>
               </CardContent>
             </Card>
@@ -513,7 +513,7 @@ const Index = () => {
                   </li>
                 </ul>
                 <Button variant="outline" className="w-full mt-6" onClick={() => navigate("/contact.html")}>
-                  ဆက်သွယ်မေးမြန်းမည်
+                  Contact Sales
                 </Button>
               </CardContent>
             </Card>
@@ -524,9 +524,9 @@ const Index = () => {
       {/* Testimonials Section */}
       <div className="container mx-auto px-4 py-20">
         <div className="text-center mb-16">
-          <Badge variant="secondary" className="mb-4">အသုံးပြုသူများ၏ အမြင်</Badge>
+          <Badge variant="secondary" className="mb-4">Testimonials</Badge>
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            ကျွန်ုပ်တို့ကို ယုံကြည်သူများ
+            Trusted by Users Worldwide
           </h2>
         </div>
 
@@ -539,15 +539,15 @@ const Index = () => {
                 ))}
               </div>
               <p className="text-muted-foreground italic">
-                "Platform အားလုံးကို တစ်နေရာတည်းမှ စီမံနိုင်တာ အရမ်းအဆင်ပြေပါတယ်။ 
-                အချိန်အများကြီး သက်သာသွားပါတယ်။"
+                "Managing all platforms from one place is incredibly convenient. 
+                It has saved me so much time every day."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="font-semibold text-primary">KZ</span>
+                  <span className="font-semibold text-primary">JD</span>
                 </div>
                 <div>
-                  <p className="font-semibold">Ko Zaw</p>
+                  <p className="font-semibold">John Davis</p>
                   <p className="text-sm text-muted-foreground">Digital Marketer</p>
                 </div>
               </div>
@@ -562,15 +562,15 @@ const Index = () => {
                 ))}
               </div>
               <p className="text-muted-foreground italic">
-                "AI Caption Generator က တကယ်ကို အသုံးဝင်ပါတယ်။ 
-                Content Creation Time ကို ၅၀% လျှော့ချပေးပါတယ်။"
+                "The AI Caption Generator is incredibly useful. 
+                It has reduced my content creation time by 50%."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="font-semibold text-primary">MT</span>
+                  <span className="font-semibold text-primary">SM</span>
                 </div>
                 <div>
-                  <p className="font-semibold">Ma Thiri</p>
+                  <p className="font-semibold">Sarah Miller</p>
                   <p className="text-sm text-muted-foreground">Content Creator</p>
                 </div>
               </div>
@@ -585,15 +585,15 @@ const Index = () => {
                 ))}
               </div>
               <p className="text-muted-foreground italic">
-                "Self-hosted ဖြစ်တဲ့အတွက် Data Security အတွက် စိတ်ချရပါတယ်။ 
-                Enterprise အတွက် သင့်တော်ပါတယ်။"
+                "Being self-hosted gives me peace of mind about data security. 
+                Perfect for enterprise requirements."
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="font-semibold text-primary">UA</span>
+                  <span className="font-semibold text-primary">MJ</span>
                 </div>
                 <div>
-                  <p className="font-semibold">U Aung</p>
+                  <p className="font-semibold">Michael Johnson</p>
                   <p className="text-sm text-muted-foreground">IT Manager</p>
                 </div>
               </div>
@@ -608,48 +608,48 @@ const Index = () => {
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">FAQ</Badge>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              မေးလေ့ရှိသော မေးခွန်းများ
+              Frequently Asked Questions
             </h2>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <Card className="border-2">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Self-hosted ဆိုတာ ဘာလဲ?</h3>
+                <h3 className="font-semibold mb-2">What does self-hosted mean?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Self-hosted ဆိုတာ သင့်ကိုယ်ပိုင် Server ပေါ်မှာ Software ကို Install လုပ်ပြီး 
-                  Run တာပါ။ Third-party Cloud Service မလိုအပ်ပဲ Data အားလုံးကို 
-                  ကိုယ်တိုင် ထိန်းချုပ်နိုင်ပါတယ်။
+                  Self-hosted means you install and run the software on your own server. 
+                  You have complete control over your data without relying on third-party 
+                  cloud services.
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-2">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">ဘယ် Platform တွေကို Support လုပ်သလဲ?</h3>
+                <h3 className="font-semibold mb-2">Which platforms are supported?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Facebook, Instagram, YouTube, TikTok, Twitter/X, LinkedIn, 
-                  Telegram, Pinterest စသည့် Platform ၈ ခုကို ပံ့ပိုးထားပါတယ်။
+                  We support 8 major platforms: Facebook, Instagram, YouTube, TikTok, 
+                  Twitter/X, LinkedIn, Telegram, and Pinterest.
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-2">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">API Key လိုအပ်သလား?</h3>
+                <h3 className="font-semibold mb-2">Do I need API keys?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Platform အများစုအတွက် OAuth ဖြင့် ချိတ်ဆက်နိုင်ပါတယ်။ 
-                  AI Feature အတွက်သာ OpenAI API Key လိုအပ်ပါတယ်။
+                  Most platforms connect via OAuth authentication. You only need an 
+                  OpenAI API key if you want to use the AI caption generation features.
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-2">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Technical Support ရနိုင်သလား?</h3>
+                <h3 className="font-semibold mb-2">Is technical support available?</h3>
                 <p className="text-muted-foreground text-sm">
-                  Email Support အတွက် အခမဲ့ ပေးပါတယ်။ Pro နှင့် Enterprise Plan 
-                  အတွက် Priority Support နှင့် Phone Support ရနိုင်ပါတယ်။
+                  Free email support is available for all users. Pro and Enterprise 
+                  plans include priority support and phone support options.
                 </p>
               </CardContent>
             </Card>
@@ -662,11 +662,11 @@ const Index = () => {
         <Card className="bg-gradient-to-r from-primary/10 via-purple-500/10 to-pink-500/10 border-2 border-primary/20">
           <CardContent className="p-6 sm:p-8 md:p-12 text-center space-y-4 sm:space-y-6">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-              ယနေ့ပင် စတင်လိုက်ပါ
+              Get Started Today
             </h2>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              သင့် Social Media Strategy ကို ကျွန်ုပ်တို့၏ အစွမ်းထက် Self-Hosted Platform ဖြင့် 
-              ထိန်းချုပ်လိုက်ပါ။ အခမဲ့ Account ဖွင့်ပြီး စမ်းသုံးကြည့်ပါ။
+              Take control of your social media strategy with our powerful self-hosted platform. 
+              Create a free account and start exploring.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2 sm:pt-4">
               <Button 
@@ -674,7 +674,7 @@ const Index = () => {
                 className="text-base sm:text-lg px-6 sm:px-8 py-5 sm:py-6 group"
                 onClick={handleGetStarted}
               >
-                အခမဲ့ စတင်မည်
+                Start Free Now
                 <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
@@ -684,7 +684,7 @@ const Index = () => {
                 onClick={() => window.open('/help.html', '_blank')}
               >
                 <Play className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
-                Demo ကြည့်မည်
+                Watch Demo
               </Button>
             </div>
           </CardContent>
