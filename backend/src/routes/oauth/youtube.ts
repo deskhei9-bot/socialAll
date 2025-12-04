@@ -77,7 +77,7 @@ router.get('/', (req: any, res) => {
     access_type: 'offline',
     scope: scopes,
     state: state,
-    prompt: 'consent', // Force to get refresh token
+    prompt: 'consent select_account', // Force account selection + consent for refresh token
   });
 
   console.log(`🔐 YouTube OAuth initiated for user ${userId}`);

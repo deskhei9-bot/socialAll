@@ -441,7 +441,8 @@ export default function Channels() {
         <CardContent className="p-0">
           <div className="divide-y divide-border/30">
             {availablePlatforms.map((platform) => {
-              const isConnected = connectedPlatforms.includes(platform.id);
+              const connectedCount = channels.filter(c => c.platform === platform.id).length;
+              const isConnected = connectedCount > 0;
               return (
                 <div
                   key={platform.id}
@@ -469,6 +470,11 @@ export default function Channels() {
                           OAuth
                         </span>
                       )}
+                      {connectedCount > 0 && (
+                        <span className="text-[10px] text-neon-green bg-neon-green/10 px-1.5 py-0.5 rounded font-medium">
+                          {connectedCount} connected
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {platform.id === 'facebook' && 'Pages & Groups posting'}
@@ -477,32 +483,35 @@ export default function Channels() {
                       {platform.id === 'tiktok' && 'Video content'}
                       {platform.id === 'twitter' && 'Tweets & Media'}
                       {platform.id === 'linkedin' && 'Professional posts'}
+                      {platform.id === 'pinterest' && 'Image pins'}
                       {platform.id === 'telegram' && 'Channel & Group messages'}
                     </p>
                   </div>
                   
                   {/* Status & Action */}
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    {isConnected ? (
-                      <div className="flex items-center gap-2 text-neon-green">
+                    {isConnected && (
+                      <div className="flex items-center gap-2 text-neon-green mr-2">
                         <CheckCircle2 className="w-5 h-5" />
-                        <span className="text-sm font-medium hidden sm:inline">Connected</span>
                       </div>
-                    ) : (
-                      <Button 
-                        size="sm"
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5"
-                        disabled={isConnecting}
-                        onClick={() => handleConnectPlatform(platform.id)}
-                      >
-                        {isConnecting && (platform.id === 'facebook' || platform.id === 'instagram') ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Plus className="w-4 h-4" />
-                        )}
-                        <span className="hidden sm:inline">Connect</span>
-                      </Button>
                     )}
+                    <Button 
+                      size="sm"
+                      variant={isConnected ? "outline" : "default"}
+                      className={cn(
+                        "gap-1.5",
+                        !isConnected && "bg-primary hover:bg-primary/90 text-primary-foreground"
+                      )}
+                      disabled={isConnecting}
+                      onClick={() => handleConnectPlatform(platform.id)}
+                    >
+                      {isConnecting && (platform.id === 'facebook' || platform.id === 'instagram') ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Plus className="w-4 h-4" />
+                      )}
+                      <span className="hidden sm:inline">{isConnected ? 'Add Another' : 'Connect'}</span>
+                    </Button>
                   </div>
                 </div>
               );
