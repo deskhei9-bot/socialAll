@@ -335,7 +335,7 @@ export default function CreatePost() {
       title: title || undefined,
       content,
       platforms: selectedPlatforms,
-      status: status === 'published' && selectedChannelIds.length > 0 ? 'publishing' : status,
+      status: status, // Use the status as-is (draft/scheduled/published)
       scheduled_at: scheduledAt,
       media_urls: mediaUrls,
       metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
