@@ -483,26 +483,31 @@ export default function Channels() {
                   
                   {/* Status & Action */}
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    {isConnected ? (
+                    {isConnected && (
                       <div className="flex items-center gap-2 text-neon-green">
                         <CheckCircle2 className="w-5 h-5" />
-                        <span className="text-sm font-medium hidden sm:inline">Connected</span>
+                        <span className="text-sm font-medium hidden sm:inline">
+                          {channels.filter(c => c.platform === platform.id).length} Connected
+                        </span>
                       </div>
-                    ) : (
-                      <Button 
-                        size="sm"
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5"
-                        disabled={isConnecting}
-                        onClick={() => handleConnectPlatform(platform.id)}
-                      >
-                        {isConnecting && (platform.id === 'facebook' || platform.id === 'instagram') ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Plus className="w-4 h-4" />
-                        )}
-                        <span className="hidden sm:inline">Connect</span>
-                      </Button>
                     )}
+                    <Button 
+                      size="sm"
+                      variant={isConnected ? "outline" : "default"}
+                      className={isConnected 
+                        ? "gap-1.5 border-primary/50 text-primary hover:bg-primary/10" 
+                        : "bg-primary hover:bg-primary/90 text-primary-foreground gap-1.5"
+                      }
+                      disabled={isConnecting}
+                      onClick={() => handleConnectPlatform(platform.id)}
+                    >
+                      {isConnecting && (platform.id === 'facebook' || platform.id === 'instagram' || platform.id === 'youtube') ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Plus className="w-4 h-4" />
+                      )}
+                      <span className="hidden sm:inline">{isConnected ? 'Add Another' : 'Connect'}</span>
+                    </Button>
                   </div>
                 </div>
               );
