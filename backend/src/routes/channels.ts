@@ -3,6 +3,25 @@ import { pool } from '../lib/database';
 
 const router = express.Router();
 
+// Map database fields to frontend expected fields
+const mapChannelToFrontend = (row: any) => ({
+  id: row.id,
+  user_id: row.user_id,
+  platform: row.platform,
+  account_name: row.channel_name || row.account_name,
+  account_handle: row.account_handle || '',
+  account_id: row.channel_id || row.account_id,
+  followers_count: row.followers_count || 0,
+  is_active: row.is_active,
+  status: row.is_active ? 'connected' : 'disconnected',
+  access_token: row.access_token,
+  refresh_token: row.refresh_token,
+  token_expires_at: row.token_expires_at,
+  created_at: row.created_at,
+  updated_at: row.updated_at,
+  metadata: row.metadata,
+});
+
 // Get all channels for current user
 router.get('/', async (req: any, res) => {
   try {
@@ -15,7 +34,8 @@ router.get('/', async (req: any, res) => {
       [userId]
     );
     
-    res.json(result.rows);
+    const channels = result.rows.map(mapChannelToFrontend);
+    res.json(channels);
   } catch (error: any) {
     console.error('Error fetching channels:', error);
     res.status(500).json({ error: error.message });
@@ -29,7 +49,11 @@ router.post('/', async (req: any, res) => {
     const { 
       platform, 
       channel_name,
+      account_name,
       channel_id,
+      account_id,
+      account_handle,
+      followers_count,
       access_token,
       refresh_token,
       token_expires_at,
@@ -39,15 +63,16 @@ router.post('/', async (req: any, res) => {
     
     const result = await pool.query(
       `INSERT INTO connected_channels 
-        (user_id, platform, channel_name, channel_id, access_token, refresh_token, 
-         token_expires_at, is_active, metadata)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        (user_id, platform, channel_name, channel_id, account_handle, followers_count, 
+         access_token, refresh_token, token_expires_at, is_active, metadata)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
        RETURNING *`,
-      [userId, platform, channel_name, channel_id, access_token, refresh_token, 
+      [userId, platform, channel_name || account_name, channel_id || account_id, 
+       account_handle || '', followers_count || 0, access_token, refresh_token, 
        token_expires_at, is_active !== false, metadata || {}]
     );
     
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(mapChannelToFrontend(result.rows[0]));
   } catch (error: any) {
     console.error('Error adding channel:', error);
     res.status(500).json({ error: error.message });
@@ -61,7 +86,11 @@ router.put('/:id', async (req: any, res) => {
     const userId = req.user.id;
     const { 
       channel_name,
+      account_name,
       channel_id,
+      account_id,
+      account_handle,
+      followers_count,
       is_active,
       access_token,
       refresh_token,
@@ -73,15 +102,18 @@ router.put('/:id', async (req: any, res) => {
       `UPDATE connected_channels 
        SET channel_name = COALESCE($1, channel_name),
            channel_id = COALESCE($2, channel_id),
-           is_active = COALESCE($3, is_active),
-           access_token = COALESCE($4, access_token),
-           refresh_token = COALESCE($5, refresh_token),
-           token_expires_at = COALESCE($6, token_expires_at),
-           metadata = COALESCE($7, metadata),
+           account_handle = COALESCE($3, account_handle),
+           followers_count = COALESCE($4, followers_count),
+           is_active = COALESCE($5, is_active),
+           access_token = COALESCE($6, access_token),
+           refresh_token = COALESCE($7, refresh_token),
+           token_expires_at = COALESCE($8, token_expires_at),
+           metadata = COALESCE($9, metadata),
            updated_at = NOW()
-       WHERE id = $8 AND user_id = $9
+       WHERE id = $10 AND user_id = $11
        RETURNING *`,
-      [channel_name, channel_id, is_active, access_token, refresh_token, 
+      [channel_name || account_name, channel_id || account_id, account_handle, 
+       followers_count, is_active, access_token, refresh_token, 
        token_expires_at, metadata, id, userId]
     );
     
@@ -89,7 +121,7 @@ router.put('/:id', async (req: any, res) => {
       return res.status(404).json({ error: 'Channel not found' });
     }
     
-    res.json(result.rows[0]);
+    res.json(mapChannelToFrontend(result.rows[0]));
   } catch (error: any) {
     console.error('Error updating channel:', error);
     res.status(500).json({ error: error.message });
@@ -137,7 +169,7 @@ router.post('/:id/refresh', async (req: any, res) => {
     
     // TODO: Implement token refresh logic for each platform
     // For now, just return current channel
-    res.json({ message: 'Token refresh not yet implemented', channel });
+    res.json({ message: 'Token refresh not yet implemented', channel: mapChannelToFrontend(channel) });
   } catch (error: any) {
     console.error('Error refreshing token:', error);
     res.status(500).json({ error: error.message });
