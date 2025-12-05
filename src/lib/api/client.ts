@@ -67,8 +67,10 @@ export const endpoints = {
   channels: '/channels',
   
   // AI
-  generateCaption: '/ai/caption',
-  suggestHashtags: '/ai/hashtags',
+  aiProviders: '/ai/providers',
+  generateCaption: '/ai/generate-caption',
+  suggestHashtags: '/ai/suggest-hashtags',
+  improveCaption: '/ai/improve-caption',
   testApiKey: '/ai/test-key',
   
   // OAuth
