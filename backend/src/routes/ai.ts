@@ -665,4 +665,129 @@ Return ONLY valid JSON in this exact format:
   }
 });
 
+// Get trending hashtags by platform and category
+router.post('/trending-hashtags', async (req: Request, res: Response) => {
+  try {
+    const { category = 'general', platform = 'all', platforms = [] } = req.body;
+
+    // Determine which provider to use
+    let useProvider = 'gemini';
+    if (!process.env.GEMINI_API_KEY && process.env.OPENAI_API_KEY) {
+      useProvider = 'openai';
+    }
+
+    if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
+      return res.status(400).json({ 
+        error: 'No AI provider configured. Please set GEMINI_API_KEY or OPENAI_API_KEY.' 
+      });
+    }
+
+    const platformContext = platform !== 'all' ? platform : (platforms.length > 0 ? platforms.join(', ') : 'all social media platforms');
+    
+    const prompt = `Generate 15 trending and popular hashtags for ${platformContext} in the "${category}" category.
+
+PLATFORM-SPECIFIC GUIDELINES:
+- Instagram: Mix of popular and niche hashtags, avoid banned hashtags
+- TikTok: Focus on trending sounds and challenges related hashtags
+- Twitter/X: Short, punchy hashtags, trending topics
+- YouTube: Searchable keywords as hashtags
+- LinkedIn: Professional, industry-specific hashtags
+- Pinterest: Descriptive, searchable terms
+- Facebook: Broad reach hashtags, community focused
+
+REQUIREMENTS:
+1. Return ONLY current, trending hashtags that are actively used
+2. Mix high-volume (millions of posts) and medium-volume hashtags for best reach
+3. Ensure all hashtags comply with platform policies
+4. No offensive, banned, or shadowbanned hashtags
+5. Format: Return as JSON array of strings without # symbol
+
+Example response format:
+{"hashtags": ["trending", "viral", "fyp", "explore", "instagood"]}
+
+Category: ${category}
+Platform: ${platformContext}
+
+Return ONLY valid JSON with hashtags array.`;
+
+    let hashtags: string[] = [];
+
+    if (useProvider === 'gemini') {
+      const modelConfig = AI_MODELS.gemini['gemini-2.0-flash'];
+      const response = await axios.post(
+        `${modelConfig.endpoint}?key=${process.env.GEMINI_API_KEY}`,
+        {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.8,
+            maxOutputTokens: 500,
+          }
+        }
+      );
+
+      const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      try {
+        const jsonMatch = text.match(/\{[\s\S]*"hashtags"[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          hashtags = parsed.hashtags || [];
+        }
+      } catch (e) {
+        console.error('[AI] Failed to parse Gemini trending response:', e);
+        // Fallback: extract hashtags from text
+        const hashtagMatches = text.match(/["']([a-zA-Z0-9_]+)["']/g);
+        if (hashtagMatches) {
+          hashtags = hashtagMatches.map((h: string) => h.replace(/["']/g, '')).slice(0, 15);
+        }
+      }
+    } else {
+      const response = await axios.post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: 'You are a social media expert. Return only valid JSON.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.8,
+          max_tokens: 500,
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      const text = response.data?.choices?.[0]?.message?.content || '';
+      try {
+        const jsonMatch = text.match(/\{[\s\S]*"hashtags"[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          hashtags = parsed.hashtags || [];
+        }
+      } catch (e) {
+        console.error('[AI] Failed to parse OpenAI trending response:', e);
+      }
+    }
+
+    // Clean hashtags - remove # if present and filter empty
+    hashtags = hashtags
+      .map((h: string) => h.replace(/^#/, '').trim())
+      .filter((h: string) => h.length > 0)
+      .slice(0, 15);
+
+    console.log(`[AI] Generated ${hashtags.length} trending hashtags for ${category}/${platform}`);
+
+    res.json({ hashtags });
+  } catch (error: any) {
+    console.error('[AI] Trending hashtags error:', error.response?.data || error.message);
+    res.status(500).json({ 
+      error: 'Failed to fetch trending hashtags',
+      details: error.response?.data?.error?.message || error.message
+    });
+  }
+});
+
 export default router;

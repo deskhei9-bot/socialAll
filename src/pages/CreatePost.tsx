@@ -46,6 +46,7 @@ import { UploadedMedia } from "@/hooks/useMediaUpload";
 import { CaptionTemplateManager } from "@/components/CaptionTemplateManager";
 import { CaptionTemplate } from "@/hooks/useCaptionTemplates";
 import { HashtagSuggestions } from "@/components/HashtagSuggestions";
+import { TrendingHashtags } from "@/components/TrendingHashtags";
 import { CaptionGenerator } from "@/components/CaptionGenerator";
 import { ChannelSelector } from "@/components/ChannelSelector";
 import { ProfileSelector } from "@/components/ProfileSelector";
@@ -676,11 +677,17 @@ export default function CreatePost() {
 
               {/* Hashtags Section - Integrated */}
               <div className="pt-3 border-t border-border/30 space-y-3">
-                <HashtagSuggestions
-                  content={content}
-                  platforms={selectedPlatforms}
-                  onAdd={handleAddHashtags}
-                />
+                <div className="flex items-center justify-between">
+                  <HashtagSuggestions
+                    content={content}
+                    platforms={selectedPlatforms}
+                    onAdd={handleAddHashtags}
+                  />
+                  <TrendingHashtags
+                    platforms={selectedPlatforms}
+                    onAdd={handleAddHashtags}
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
