@@ -397,72 +397,99 @@ export default function CreatePost() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
         {/* Main Editor */}
         <div className="xl:col-span-2 space-y-6">
-          {/* Platform Selection */}
-          <Card className="glass-card animate-fade-in border-2">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold">Select Platforms</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">Choose where to publish</p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2.5 sm:gap-3">
-                {platforms.map((platform) => {
-                  // Check if current post type supports this platform
-                  const currentType = UNIVERSAL_POST_TYPES.find(t => t.value === postType);
-                  const isSupported = currentType?.platforms.includes(platform.id) ?? true;
-                  const isSelected = selectedPlatforms.includes(platform.id);
-                  
-                  return (
-                    <button
-                      key={platform.id}
-                      onClick={() => togglePlatform(platform.id)}
-                      disabled={!isSupported}
-                      className={cn(
-                        "relative flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-xl border-2 transition-all duration-300 group",
-                        !isSupported && "opacity-40 cursor-not-allowed grayscale",
-                        isSupported && isSelected
-                          ? "border-primary bg-primary/15 shadow-md shadow-primary/20 scale-[1.02]"
-                          : "border-border/60 bg-card/50 hover:border-primary/60 hover:bg-primary/5 hover:scale-[1.02]",
-                      )}
-                      title={!isSupported ? `${currentType?.label || 'This post type'} is not supported on ${platform.label}` : platform.label}
-                    >
-                      {/* Selection Checkmark */}
-                      {isSelected && isSupported && (
-                        <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-md shadow-primary/40 z-10">
-                          <svg className="w-3.5 h-3.5 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                      )}
-                      
-                      {/* API Support Indicator */}
-                      {platform.apiSupported && isSupported && (
-                        <div className="absolute top-1 left-1 w-2 h-2 bg-green-500 rounded-full shadow-sm shadow-green-500/50 animate-pulse" title="Direct API Publishing" />
-                      )}
-                      
-                      {/* Platform Icon */}
-                      <div className={cn(
-                        "transition-transform duration-300",
-                        isSelected && "scale-105",
-                        !isSelected && "group-hover:scale-105"
-                      )}>
-                        <platform.icon className="w-8 h-8 sm:w-9 sm:h-9" />
-                      </div>
-                      
-                      {/* Platform Label */}
-                      <span className={cn(
-                        "text-xs sm:text-sm font-semibold text-center transition-colors",
-                        isSelected ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-                      )}>
-                        {platform.label}
-                      </span>
-                    </button>
-                  );
-                })}
+          {/* Platform Selection - Compact */}
+          <Card className="glass-card animate-fade-in">
+            <CardContent className="p-4 space-y-4">
+              {/* Platforms Row */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-medium text-muted-foreground">Platforms</Label>
+                  <span className="text-[10px] text-muted-foreground">
+                    {selectedPlatforms.length} selected
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {platforms.map((platform) => {
+                    const currentType = UNIVERSAL_POST_TYPES.find(t => t.value === postType);
+                    const isSupported = currentType?.platforms.includes(platform.id) ?? true;
+                    const isSelected = selectedPlatforms.includes(platform.id);
+                    
+                    return (
+                      <button
+                        key={platform.id}
+                        onClick={() => togglePlatform(platform.id)}
+                        disabled={!isSupported}
+                        className={cn(
+                          "relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border transition-all duration-200 text-xs font-medium",
+                          !isSupported && "opacity-30 cursor-not-allowed",
+                          isSupported && isSelected
+                            ? "border-primary bg-primary/15 text-primary shadow-sm"
+                            : "border-border/50 bg-muted/30 text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-foreground",
+                        )}
+                        title={!isSupported ? `Not supported for ${currentType?.label}` : platform.label}
+                      >
+                        <platform.icon className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">{platform.label}</span>
+                        {isSelected && (
+                          <CheckCircle2 className="w-3 h-3 text-primary" />
+                        )}
+                        {platform.apiSupported && isSupported && !isSelected && (
+                          <div className="w-1.5 h-1.5 bg-green-500 rounded-full" title="API Ready" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              
-              {/* Profile Selection - NEW */}
+
+              {/* Post Type - Inline */}
               {selectedPlatforms.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-border/50">
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-border/30">
+                  <Label className="text-xs font-medium text-muted-foreground">Type:</Label>
+                  {availablePostTypes.slice(0, 5).map(type => {
+                    const isSelected = postType === type.value;
+                    const supportedPlatforms = type.platforms.filter(p => selectedPlatforms.includes(p));
+                    const isCompatible = supportedPlatforms.length > 0;
+                    
+                    return (
+                      <button
+                        key={type.value}
+                        onClick={() => setPostType(type.value)}
+                        disabled={!isCompatible}
+                        className={cn(
+                          "px-2 py-1 rounded-md text-[11px] font-medium transition-all",
+                          "disabled:opacity-30 disabled:cursor-not-allowed",
+                          isSelected
+                            ? "bg-primary text-primary-foreground"
+                            : isCompatible
+                              ? "bg-muted/50 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                              : "bg-muted/20 text-muted-foreground/50"
+                        )}
+                      >
+                        {type.label}
+                      </button>
+                    );
+                  })}
+                  {availablePostTypes.length > 5 && (
+                    <Select value={postType} onValueChange={setPostType}>
+                      <SelectTrigger className="h-7 w-auto px-2 text-[11px]">
+                        <span>More...</span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availablePostTypes.slice(5).map(type => (
+                          <SelectItem key={type.value} value={type.value} className="text-xs">
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+              )}
+
+              {/* Profile & Channels - Collapsed */}
+              {selectedPlatforms.length > 0 && (
+                <div className="space-y-3 pt-2 border-t border-border/30">
                   <ProfileSelector
                     profiles={profiles}
                     selectedProfileId={selectedProfileId}
@@ -470,16 +497,11 @@ export default function CreatePost() {
                     onCreateProfile={() => setProfileManagerOpen(true)}
                     channelCount={selectedChannelIds.length}
                   />
-                </div>
-              )}
-              
-              {/* Channel Selection - NEW */}
-              {selectedPlatforms.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-border/50">
+                  
                   {channelsLoading ? (
-                    <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
-                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                      <p className="text-xs text-muted-foreground">Loading connected channels...</p>
+                    <div className="flex items-center gap-2 p-2 bg-muted/20 rounded-md">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+                      <p className="text-[11px] text-muted-foreground">Loading channels...</p>
                     </div>
                   ) : availableChannels.length > 0 ? (
                     <ChannelSelector
@@ -488,62 +510,13 @@ export default function CreatePost() {
                       onSelectionChange={handleChannelSelectionChange}
                     />
                   ) : (
-                    <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                      <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-600 dark:text-amber-400">
-                        No connected channels for selected platforms. <a href="/channels" className="underline font-medium">Connect now</a>
+                    <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded-md">
+                      <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
+                      <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                        No channels connected. <a href="/channels" className="underline">Connect</a>
                       </p>
                     </div>
                   )}
-                </div>
-              )}
-
-              {/* Compact Post Type Selection */}
-              {selectedPlatforms.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-border/50">
-                  <Label className="text-xs font-medium text-muted-foreground mb-2 block">
-                    Post Type:
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    {availablePostTypes.map(type => {
-                      const isSelected = postType === type.value;
-                      const supportedPlatforms = type.platforms.filter(p => selectedPlatforms.includes(p));
-                      const isCompatible = supportedPlatforms.length > 0;
-                      
-                      return (
-                        <button
-                          key={type.value}
-                          onClick={() => setPostType(type.value)}
-                          disabled={!isCompatible}
-                          className={cn(
-                            "relative px-3 py-1.5 rounded-lg border-2 text-xs font-semibold transition-all duration-200",
-                            "disabled:opacity-40 disabled:cursor-not-allowed",
-                            isSelected
-                              ? "border-primary bg-primary/20 text-primary shadow-sm shadow-primary/20"
-                              : isCompatible
-                                ? "border-border/50 bg-card/50 hover:border-primary/50 hover:bg-primary/10 hover:text-primary"
-                                : "border-border/30 bg-muted/20 text-muted-foreground"
-                          )}
-                        >
-                          {isSelected && (
-                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center shadow-sm">
-                              <CheckCircle2 className="w-2.5 h-2.5 text-primary-foreground" />
-                            </div>
-                          )}
-                          <span>{type.label}</span>
-                          {isCompatible && (
-                            <span className="ml-1 opacity-60">
-                              ({supportedPlatforms.length})
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mt-2 flex items-center gap-1.5">
-                    <AlertCircle className="w-3 h-3" />
-                    Numbers show compatible platforms
-                  </p>
                 </div>
               )}
             </CardContent>
