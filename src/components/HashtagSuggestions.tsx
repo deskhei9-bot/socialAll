@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Hash, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { getAIProviders, suggestHashtags } from '@/lib/api/ai';
 
 interface HashtagSuggestionsProps {
   content: string;
@@ -23,11 +24,52 @@ interface HashtagSuggestionsProps {
   platforms?: string[];
 }
 
+const PROVIDER_MODELS = {
+  gemini: [
+    { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash' },
+    { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+    { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
+  ],
+  openai: [
+    { value: 'gpt-4o', label: 'GPT-4o' },
+    { value: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+    { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+  ],
+};
+
 export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggestionsProps) => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [generating, setGenerating] = useState(false);
   const [count, setCount] = useState<string>("10");
+  const [provider, setProvider] = useState<string>("auto");
+  const [model, setModel] = useState<string>("");
+  const [availableProviders, setAvailableProviders] = useState<string[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchProviders = async () => {
+      try {
+        const { data } = await getAIProviders();
+        const available: string[] = [];
+        if (data?.providers?.gemini?.configured) available.push('gemini');
+        if (data?.providers?.openai?.configured) available.push('openai');
+        setAvailableProviders(available);
+      } catch (error) {
+        console.error('Failed to fetch AI providers:', error);
+      }
+    };
+    fetchProviders();
+  }, []);
+
+  useEffect(() => {
+    if (provider === 'gemini') {
+      setModel('gemini-2.0-flash');
+    } else if (provider === 'openai') {
+      setModel('gpt-4o-mini');
+    } else {
+      setModel('');
+    }
+  }, [provider]);
 
   const handleSuggest = async () => {
     if (!content.trim()) {
@@ -41,34 +83,19 @@ export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggest
 
     setGenerating(true);
     try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        throw new Error('Not authenticated');
-      }
-
-      const response = await fetch('https://socialautoupload.com/api/ai/suggest-hashtags', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          content: content,
-          platforms: platforms,
-          count: parseInt(count),
-        }),
+      const { data } = await suggestHashtags({
+        content,
+        platforms,
+        count: parseInt(count),
+        provider: provider !== 'auto' ? provider as 'gemini' | 'openai' : undefined,
+        model: model || undefined,
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate hashtags');
-      }
-
-      const data = await response.json();
-      setSuggestions(data.hashtags || []);
+      
+      setSuggestions(data?.hashtags || []);
       
       toast({
         title: "Hashtags Generated",
-        description: `Generated ${data.hashtags?.length || 0} hashtags`,
+        description: `Generated ${data?.hashtags?.length || 0} hashtags`,
       });
     } catch (error) {
       console.error('Error generating hashtags:', error);
@@ -86,6 +113,9 @@ export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggest
     onAdd(suggestions);
     setSuggestions([]);
   };
+
+  const currentModels = provider === 'gemini' ? PROVIDER_MODELS.gemini : 
+                        provider === 'openai' ? PROVIDER_MODELS.openai : [];
 
   return (
     <div className="space-y-2.5">
@@ -123,6 +153,42 @@ export const HashtagSuggestions = ({ content, onAdd, platforms }: HashtagSuggest
                   Generate relevant hashtags
                 </p>
               </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="hashtag-provider" className="text-xs">AI Provider</Label>
+                <Select value={provider} onValueChange={setProvider}>
+                  <SelectTrigger id="hashtag-provider" className="h-9 text-sm">
+                    <SelectValue placeholder="Select provider" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Auto (Best Available)</SelectItem>
+                    {availableProviders.includes('gemini') && (
+                      <SelectItem value="gemini">Google Gemini</SelectItem>
+                    )}
+                    {availableProviders.includes('openai') && (
+                      <SelectItem value="openai">OpenAI GPT</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {provider !== 'auto' && currentModels.length > 0 && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="hashtag-model" className="text-xs">Model</Label>
+                  <Select value={model} onValueChange={setModel}>
+                    <SelectTrigger id="hashtag-model" className="h-9 text-sm">
+                      <SelectValue placeholder="Select model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currentModels.map((m) => (
+                        <SelectItem key={m.value} value={m.value}>
+                          {m.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               
               <div className="space-y-1.5">
                 <Label htmlFor="count" className="text-xs">Count</Label>
