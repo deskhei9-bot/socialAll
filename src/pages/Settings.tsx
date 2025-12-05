@@ -12,9 +12,11 @@ import {
   Trash2,
   Crown,
   Edit2,
-  Settings2
+  Settings2,
+  Sparkles
 } from "lucide-react";
 import { ApiKeySettings } from "@/components/ApiKeySettings";
+import { AISettings } from "@/components/AISettings";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +82,11 @@ export default function Settings() {
               <Settings2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">API Keys</span>
               <span className="sm:hidden">API</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="gap-1.5 sm:gap-2 text-xs sm:text-sm px-2.5 sm:px-3">
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">AI</span>
+              <span className="sm:hidden">AI</span>
             </TabsTrigger>
           </TabsList>
         </div>
@@ -348,6 +355,11 @@ export default function Settings() {
         {/* API Keys Tab */}
         <TabsContent value="api-keys" className="space-y-6 animate-fade-in">
           <ApiKeySettings />
+        </TabsContent>
+
+        {/* AI Tab */}
+        <TabsContent value="ai" className="space-y-6 animate-fade-in">
+          <AISettings />
         </TabsContent>
       </Tabs>
     </div>
