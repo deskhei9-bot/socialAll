@@ -641,6 +641,7 @@ export default function CreatePost() {
                   <CaptionGenerator
                     topic={title}
                     platforms={selectedPlatforms}
+                    currentCaption={content}
                     onGenerate={setContent}
                   />
                   
