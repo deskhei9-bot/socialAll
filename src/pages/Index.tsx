@@ -175,18 +175,22 @@ const Index = () => {
       {/* Spacer for fixed header */}
       <div className="h-16" />
 
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-grid-white/10 bg-[size:20px_20px] [mask-image:radial-gradient(white,transparent_85%)]" />
+      {/* Hero Section with Dark Gradient Background */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-primary/90 to-slate-900 py-16 sm:py-24">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-30" />
         
-        <div className="container mx-auto px-4 py-12 sm:py-20 relative">
+        {/* Glowing orbs */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/30 rounded-full filter blur-3xl opacity-50" />
+        <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/20 rounded-full filter blur-3xl opacity-40" />
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="text-center space-y-8 max-w-4xl mx-auto">
-            {/* Logo/Brand - removed since we have it in header now */}
             {/* Main Heading */}
             <AnimatedSection animation="fade-up" delay={100}>
-              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight">
-              Manage All Your Social Media
-                <span className="block mt-2 bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent animate-pulse">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight text-white">
+                Manage All Your Social Media
+                <span className="block mt-2 bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
                   From One Place
                 </span>
               </h1>
@@ -194,7 +198,7 @@ const Index = () => {
 
             {/* Subheading */}
             <AnimatedSection animation="fade-up" delay={200}>
-              <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto px-2">
+              <p className="text-lg sm:text-xl md:text-2xl text-slate-200 max-w-2xl mx-auto px-2">
                 Auto-publish to Facebook, YouTube, TikTok, Instagram, Twitter, and LinkedIn 
                 with a single click. A fully self-hosted, secure platform.
               </p>
@@ -205,7 +209,7 @@ const Index = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
                 <Button 
                   size="lg" 
-                  className="text-lg px-8 py-6 group hover:scale-105 transition-all duration-300"
+                  className="text-lg px-8 py-6 group hover:scale-105 transition-all duration-300 bg-white text-slate-900 hover:bg-slate-100"
                   onClick={handleGetStarted}
                 >
                   Get Started Free
@@ -213,8 +217,8 @@ const Index = () => {
                 </Button>
                 <Button 
                   size="lg" 
-                  variant="outline" 
-                  className="text-lg px-8 py-6 hover:scale-105 transition-all duration-300"
+                  variant="ghost" 
+                  className="text-lg px-8 py-6 hover:scale-105 transition-all duration-300 border-2 border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white"
                   onClick={() => navigate("/status")}
                 >
                   System Status
@@ -226,20 +230,20 @@ const Index = () => {
             <AnimatedSection animation="fade-up" delay={400}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-8 pt-12 max-w-3xl mx-auto">
                 <div className="text-center hover:scale-110 transition-transform duration-300 cursor-default">
-                  <div className="text-3xl font-bold text-primary">100%</div>
-                  <div className="text-sm text-muted-foreground">Self-Hosted</div>
+                  <div className="text-3xl font-bold text-cyan-400">100%</div>
+                  <div className="text-sm text-slate-300">Self-Hosted</div>
                 </div>
                 <div className="text-center hover:scale-110 transition-transform duration-300 cursor-default">
-                  <div className="text-3xl font-bold text-primary">8+</div>
-                  <div className="text-sm text-muted-foreground">Platforms</div>
+                  <div className="text-3xl font-bold text-cyan-400">8+</div>
+                  <div className="text-sm text-slate-300">Platforms</div>
                 </div>
                 <div className="text-center hover:scale-110 transition-transform duration-300 cursor-default">
-                  <div className="text-3xl font-bold text-primary">AI</div>
-                  <div className="text-sm text-muted-foreground">Powered</div>
+                  <div className="text-3xl font-bold text-cyan-400">AI</div>
+                  <div className="text-sm text-slate-300">Powered</div>
                 </div>
                 <div className="text-center hover:scale-110 transition-transform duration-300 cursor-default">
-                  <div className="text-3xl font-bold text-primary">∞</div>
-                  <div className="text-sm text-muted-foreground">Unlimited Posts</div>
+                  <div className="text-3xl font-bold text-cyan-400">∞</div>
+                  <div className="text-sm text-slate-300">Unlimited Posts</div>
                 </div>
               </div>
             </AnimatedSection>
