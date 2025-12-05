@@ -19,7 +19,8 @@ import {
   AlertCircle,
   FileText,
   X,
-  Maximize2
+  Maximize2,
+  Eye
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ import { CaptionGenerator } from "@/components/CaptionGenerator";
 import { ChannelSelector } from "@/components/ChannelSelector";
 import { ProfileSelector } from "@/components/ProfileSelector";
 import { ProfileManager } from "@/components/ProfileManager";
+import { PostPreview } from "@/components/PostPreview";
 
 const platforms = [
   { id: "facebook", icon: Facebook, label: "Facebook", color: "hover:border-blue-500 hover:bg-blue-500/10", apiSupported: true },
@@ -915,6 +917,18 @@ export default function CreatePost() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Post Preview */}
+          {content.trim() && selectedPlatforms.length > 0 && (
+            <PostPreview
+              content={content}
+              title={title}
+              media={media}
+              platforms={selectedPlatforms}
+              scheduledAt={scheduleMode && scheduledDate && scheduledTime ? `${scheduledDate}T${scheduledTime}` : undefined}
+              postType={postType}
+            />
+          )}
 
           {/* Publishing Results */}
           {results.length > 0 && (
