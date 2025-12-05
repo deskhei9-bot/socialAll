@@ -6,19 +6,12 @@ import { TikTokService } from './tiktok';
 import { TwitterService } from './twitter';
 import { TelegramService } from './telegram';
 import { LinkedInService } from './linkedin';
+import { PinterestService } from './pinterest';
 import { MediaCleanupService } from './media-cleanup';
 import crypto from 'crypto';
 
 let isRunning = false;
 let intervalId: NodeJS.Timeout | null = null;
-
-// Helper to get media URL from array
-function getMediaUrl(post: any, index: number = 0): string | null {
-  if (post.media_urls && Array.isArray(post.media_urls) && post.media_urls.length > index) {
-    return post.media_urls[index];
-  }
-  return null;
-}
 
 function decryptToken(encryptedToken: string): string {
   const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
@@ -28,67 +21,378 @@ function decryptToken(encryptedToken: string): string {
   return decrypted;
 }
 
-/**
- * Generate a smart title for platforms that require it (YouTube, Pinterest)
- * Falls back to first line of content if no title provided
- */
 function getSmartTitle(post: any, maxLength: number = 100): string {
-  // Use provided title if available
   if (post.title && post.title.trim()) {
     return post.title.trim().substring(0, maxLength);
   }
-  
-  // Extract first line from content
   if (post.content) {
     const firstLine = post.content.split('\n')[0].trim();
     if (firstLine) {
       return firstLine.substring(0, maxLength);
     }
   }
-  
-  // Fallback to generic title
   return 'Untitled Post';
 }
 
-async function publishPost(post: any): Promise<void> {
-  const platforms = post.platforms || [];
-  const mediaUrl = getMediaUrl(post);
+function getMediaPath(mediaUrl: string): string {
+  return mediaUrl.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
+}
 
-  for (const platform of platforms) {
-    try {
+async function publishToChannel(post: any, channel: any): Promise<{ success: boolean; result?: any; error?: string }> {
+  const platform = channel.platform;
+  const accessToken = decryptToken(channel.access_token);
+  const channelId = channel.channel_id;
+  const postType = post.post_type || 'text';
+
+  try {
+    let publishResult: any;
+
+    switch (platform) {
+      case 'facebook':
+        switch (postType) {
+          case 'reel':
+            if (post.media_url?.includes('/videos/')) {
+              publishResult = await FacebookService.publishReel(accessToken, channelId, getMediaPath(post.media_url), post.content);
+            } else {
+              throw new Error('Reel requires a video file');
+            }
+            break;
+          case 'album':
+            const albumUrls = post.metadata?.media_urls || [];
+            if (albumUrls.length > 0) {
+              publishResult = await FacebookService.publishPhotoAlbum(accessToken, channelId, albumUrls, post.content);
+            } else {
+              throw new Error('Album requires multiple photos');
+            }
+            break;
+          case 'link':
+            const linkUrl = post.metadata?.link_url || post.media_url;
+            if (linkUrl) {
+              publishResult = await FacebookService.publishLink(accessToken, channelId, linkUrl, post.content);
+            } else {
+              throw new Error('Link post requires a URL');
+            }
+            break;
+          case 'video':
+            if (post.media_url?.includes('/videos/')) {
+              publishResult = await FacebookService.publishVideoPost(accessToken, channelId, getMediaPath(post.media_url), post.content);
+            } else {
+              throw new Error('Video post requires a video file');
+            }
+            break;
+          case 'photo':
+            if (post.media_url?.includes('/images/')) {
+              publishResult = await FacebookService.publishPhotoPost(accessToken, channelId, post.media_url, post.content);
+            } else {
+              throw new Error('Photo post requires an image');
+            }
+            break;
+          default:
+            publishResult = await FacebookService.publishTextPost(accessToken, channelId, post.content);
+        }
+        break;
+
+      case 'instagram':
+        const pageId = channel.metadata?.facebook_page_id;
+        if (!pageId) throw new Error('Facebook Page ID required for Instagram');
+        const igAccountId = await InstagramService.getInstagramAccountId(accessToken, pageId);
+        
+        switch (postType) {
+          case 'photo':
+            if (post.media_url) {
+              publishResult = await InstagramService.publishPhoto(accessToken, igAccountId, post.media_url, post.content);
+            } else {
+              throw new Error('Photo post requires an image');
+            }
+            break;
+          case 'carousel':
+            const carouselUrls = post.metadata?.media_urls || [];
+            if (carouselUrls.length >= 2) {
+              publishResult = await InstagramService.publishCarousel(accessToken, igAccountId, carouselUrls, post.content);
+            } else {
+              throw new Error('Carousel requires at least 2 images');
+            }
+            break;
+          case 'video':
+            if (post.media_url) {
+              publishResult = await InstagramService.publishVideo(accessToken, igAccountId, post.media_url, post.content);
+            } else {
+              throw new Error('Video post requires a video file');
+            }
+            break;
+          case 'reel':
+            if (post.media_url) {
+              publishResult = await InstagramService.publishReel(accessToken, igAccountId, post.media_url, post.content, post.metadata?.cover_url);
+            } else {
+              throw new Error('Reel requires a video file');
+            }
+            break;
+          case 'story':
+            if (post.media_url) {
+              const mediaType = post.media_url.includes('/videos/') ? 'VIDEO' : 'IMAGE';
+              publishResult = await InstagramService.publishStory(accessToken, igAccountId, post.media_url, mediaType);
+            } else {
+              throw new Error('Story requires a photo or video');
+            }
+            break;
+          default:
+            throw new Error(`Unsupported Instagram post type: ${postType}`);
+        }
+        break;
+
+      case 'youtube':
+        const refreshToken = channel.metadata?.refresh_token;
+        if (!refreshToken) throw new Error('Refresh token required for YouTube');
+        
+        if (postType === 'video' && post.media_url) {
+          publishResult = await YouTubeService.uploadVideo(
+            accessToken,
+            getMediaPath(post.media_url),
+            getSmartTitle(post, 100),
+            post.content || '',
+            post.metadata?.tags || [],
+            post.metadata?.category_id || '22',
+            post.metadata?.privacy || 'public'
+          );
+        } else if (postType === 'short' && post.media_url) {
+          publishResult = await YouTubeService.uploadShort(
+            accessToken,
+            getMediaPath(post.media_url),
+            getSmartTitle(post, 100),
+            post.content || ''
+          );
+        } else {
+          throw new Error('YouTube only supports video and short posts');
+        }
+        break;
+
+      case 'tiktok':
+        if (postType === 'video' && post.media_url) {
+          publishResult = await TikTokService.uploadVideo(
+            accessToken,
+            getMediaPath(post.media_url),
+            post.content || '',
+            post.metadata?.privacy_level || 'PUBLIC_TO_EVERYONE',
+            {
+              disableComment: post.metadata?.disable_comment === true,
+              disableDuet: post.metadata?.disable_duet === true,
+              disableStitch: post.metadata?.disable_stitch === true,
+            }
+          );
+        } else {
+          throw new Error('TikTok only supports video posts');
+        }
+        break;
+
+      case 'twitter':
+        const accessSecret = channel.metadata?.access_secret;
+        if (!accessSecret) throw new Error('Access secret required for Twitter');
+        
+        switch (postType) {
+          case 'text':
+            publishResult = await TwitterService.postTweet(accessToken, accessSecret, post.content);
+            break;
+          case 'media':
+          case 'photo':
+          case 'video':
+            if (post.media_url) {
+              const mediaType = post.media_url.includes('/videos/') ? 'video' : 'photo';
+              publishResult = await TwitterService.postTweetWithMedia(accessToken, accessSecret, post.content, post.media_url, mediaType);
+            } else {
+              throw new Error('Media post requires a file');
+            }
+            break;
+          case 'thread':
+            const threadTexts = post.metadata?.thread_texts || [post.content];
+            publishResult = await TwitterService.postThread(accessToken, accessSecret, threadTexts);
+            break;
+          default:
+            publishResult = await TwitterService.postTweet(accessToken, accessSecret, post.content);
+        }
+        break;
+
+      case 'linkedin':
+        const linkedinId = channel.metadata?.linkedin_id || channelId;
+        const authorUrn = `urn:li:person:${linkedinId}`;
+        
+        switch (postType) {
+          case 'text':
+            publishResult = await LinkedInService.postToProfile(accessToken, linkedinId, post.content, 'PUBLIC');
+            break;
+          case 'photo':
+            if (post.media_url) {
+              publishResult = await LinkedInService.postWithImage(accessToken, authorUrn, post.content, post.media_url, 'PUBLIC');
+            } else {
+              throw new Error('Photo post requires an image');
+            }
+            break;
+          case 'video':
+            if (post.media_url) {
+              publishResult = await LinkedInService.postWithVideo(accessToken, authorUrn, post.content, post.media_url, 'PUBLIC');
+            } else {
+              throw new Error('Video post requires a video file');
+            }
+            break;
+          case 'article':
+            const articleUrl = post.metadata?.article_url || post.media_url;
+            if (articleUrl) {
+              publishResult = await LinkedInService.postArticle(accessToken, authorUrn, getSmartTitle(post), post.content, articleUrl, 'PUBLIC');
+            } else {
+              throw new Error('Article post requires a URL');
+            }
+            break;
+          default:
+            publishResult = await LinkedInService.postToProfile(accessToken, linkedinId, post.content, 'PUBLIC');
+        }
+        break;
+
+      case 'pinterest':
+        const boardId = channel.metadata?.board_id || post.metadata?.board_id;
+        if (!boardId) throw new Error('Board ID required for Pinterest');
+        
+        if (post.media_url) {
+          const pinResult = await PinterestService.createPin({
+            accessToken,
+            boardId,
+            title: getSmartTitle(post, 100),
+            description: post.content,
+            imageUrl: post.media_url,
+            link: post.metadata?.link_url,
+          });
+          if (pinResult.success) {
+            publishResult = { pinId: pinResult.pinId, url: pinResult.pinUrl };
+          } else {
+            throw new Error(pinResult.error || 'Pinterest publish failed');
+          }
+        } else {
+          throw new Error('Pinterest requires an image');
+        }
+        break;
+
+      case 'telegram':
+        const chatId = channel.channel_id;
+        const botToken = decryptToken(channel.metadata?.bot_token || channel.access_token);
+        
+        switch (postType) {
+          case 'photo':
+            if (post.media_url) {
+              publishResult = await TelegramService.sendPhoto(botToken, chatId, post.media_url, post.content);
+            } else {
+              throw new Error('Photo post requires an image');
+            }
+            break;
+          case 'video':
+            if (post.media_url) {
+              publishResult = await TelegramService.sendVideo(botToken, chatId, post.media_url, post.content);
+            } else {
+              throw new Error('Video post requires a video file');
+            }
+            break;
+          default:
+            publishResult = await TelegramService.sendMessage(botToken, chatId, post.content);
+        }
+        break;
+
+      default:
+        throw new Error(`Unsupported platform: ${platform}`);
+    }
+
+    return { success: true, result: publishResult };
+  } catch (error: any) {
+    console.error(`[Scheduler] ${platform} publish error:`, error.message);
+    return { success: false, error: error.message };
+  }
+}
+
+async function publishPost(post: any): Promise<void> {
+  const selectedChannelIds = post.selected_channel_ids || [];
+  const platforms = post.platforms || [];
+  const results: any[] = [];
+  
+  let channelsToPublish: any[] = [];
+  
+  // Get channels to publish to
+  if (selectedChannelIds.length > 0) {
+    const channelResult = await pool.query(
+      'SELECT * FROM connected_channels WHERE id = ANY($1) AND user_id = $2 AND is_active = true',
+      [selectedChannelIds, post.user_id]
+    );
+    channelsToPublish = channelResult.rows;
+  } else if (platforms.length > 0) {
+    for (const platform of platforms) {
       const channelResult = await pool.query(
         'SELECT * FROM connected_channels WHERE user_id = $1 AND platform = $2 AND is_active = true LIMIT 1',
         [post.user_id, platform]
       );
-
-      if (channelResult.rows.length === 0) {
-        console.log(`[Scheduler] No ${platform} channel connected for user ${post.user_id}`);
-        continue;
+      if (channelResult.rows.length > 0) {
+        channelsToPublish.push(channelResult.rows[0]);
       }
-
-      const channel = channelResult.rows[0];
-      console.log(`[Scheduler] Publishing to ${platform}...`);
-      
-      // Simple text post for now
-      await pool.query(
-        `INSERT INTO post_results (post_id, channel_id, platform, status, published_at)
-         VALUES ($1, $2, $3, $4, NOW())`,
-        [post.id, channel.id, platform, 'success']
-      );
-
-      console.log(`[Scheduler] Published to ${platform} successfully`);
-    } catch (error: any) {
-      console.error(`[Scheduler] Failed to publish to ${platform}:`, error.message);
     }
+  }
+
+  if (channelsToPublish.length === 0) {
+    console.log(`[Scheduler] No channels found for post ${post.id}`);
+    await pool.query(
+      'UPDATE posts SET status = $1, updated_at = NOW() WHERE id = $2',
+      ['failed', post.id]
+    );
+    return;
+  }
+
+  // Publish to each channel
+  let hasSuccess = false;
+  let hasFailure = false;
+
+  for (const channel of channelsToPublish) {
+    console.log(`[Scheduler] Publishing to ${channel.platform} (${channel.account_name || channel.channel_name})...`);
+    
+    const { success, result, error } = await publishToChannel(post, channel);
+    
+    // Save result to database
+    await pool.query(
+      `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, published_at, error_message, metadata)
+       VALUES ($1, $2, $3, $4, $5, NOW(), $6, $7)`,
+      [
+        post.id,
+        channel.id,
+        channel.platform,
+        success ? (result?.postId || result?.videoId || result?.tweetId || result?.mediaId || result?.publishId || result?.pinId || result?.id) : null,
+        success ? 'success' : 'failed',
+        success ? null : error,
+        success ? JSON.stringify({ url: result?.url || result?.permalink, post_type: post.post_type }) : null,
+      ]
+    );
+
+    if (success) {
+      hasSuccess = true;
+      console.log(`[Scheduler] ✅ ${channel.platform} published successfully`);
+    } else {
+      hasFailure = true;
+      console.log(`[Scheduler] ❌ ${channel.platform} failed: ${error}`);
+    }
+    
+    results.push({ platform: channel.platform, success, result, error });
+  }
+
+  // Update post status
+  let finalStatus = 'published';
+  if (!hasSuccess) {
+    finalStatus = 'failed';
+  } else if (hasFailure) {
+    finalStatus = 'partial'; // Some platforms succeeded, some failed
   }
 
   await pool.query(
     'UPDATE posts SET status = $1, published_at = NOW(), updated_at = NOW() WHERE id = $2',
-    ['published', post.id]
+    [finalStatus, post.id]
   );
 
-  // ✅ Auto-cleanup media after successful scheduled post (5 minutes delay)
-  MediaCleanupService.cleanupPostMedia(post.id, { delay: 5 * 60 * 1000 });
+  // Auto-cleanup media after successful scheduled post (5 minutes delay)
+  if (hasSuccess) {
+    MediaCleanupService.cleanupPostMedia(post.id, { delay: 5 * 60 * 1000 });
+  }
+
+  console.log(`[Scheduler] Post ${post.id} finished with status: ${finalStatus}`);
 }
 
 async function processScheduledPosts(): Promise<void> {
@@ -113,7 +417,7 @@ async function processScheduledPosts(): Promise<void> {
 
       for (const post of result.rows) {
         try {
-          console.log(`[Scheduler] Publishing post ${post.id}...`);
+          console.log(`[Scheduler] Processing post ${post.id}...`);
           await publishPost(post);
         } catch (error: any) {
           console.error(`[Scheduler] Error publishing post ${post.id}:`, error.message);
