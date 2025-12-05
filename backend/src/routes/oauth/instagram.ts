@@ -66,8 +66,7 @@ router.get('/', (req: any, res) => {
     `redirect_uri=${encodeURIComponent(REDIRECT_URI)}&` +
     `scope=${encodeURIComponent(scopes)}&` +
     `state=${state}&` +
-    `response_type=code&` +
-    `auth_type=rerequest`; // Force account selection for multiple accounts
+    `response_type=code`;
 
   console.log(`🔐 Instagram OAuth initiated for user ${userId}`);
   console.log(`📍 Redirect URI: ${REDIRECT_URI}`);

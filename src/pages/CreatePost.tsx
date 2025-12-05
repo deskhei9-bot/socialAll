@@ -86,7 +86,6 @@ export default function CreatePost() {
     publishToSelectedChannels, 
     publishing, 
     results, 
-    channelsLoading,
     getChannelsForPlatforms // NEW: Get ALL channels for platforms
   } = usePublishPost();
   const { 
@@ -471,27 +470,25 @@ export default function CreatePost() {
               )}
               
               {/* Channel Selection - NEW */}
-              {selectedPlatforms.length > 0 && (
+              {selectedPlatforms.length > 0 && availableChannels.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-border/50">
-                  {channelsLoading ? (
-                    <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
-                      <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                      <p className="text-xs text-muted-foreground">Loading connected channels...</p>
-                    </div>
-                  ) : availableChannels.length > 0 ? (
-                    <ChannelSelector
-                      channels={availableChannels}
-                      selectedIds={selectedChannelIds}
-                      onSelectionChange={handleChannelSelectionChange}
-                    />
-                  ) : (
-                    <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                      <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-600 dark:text-amber-400">
-                        No connected channels for selected platforms. <a href="/channels" className="underline font-medium">Connect now</a>
-                      </p>
-                    </div>
-                  )}
+                  <ChannelSelector
+                    channels={availableChannels}
+                    selectedIds={selectedChannelIds}
+                    onSelectionChange={handleChannelSelectionChange}
+                  />
+                </div>
+              )}
+
+              {/* No Channels Warning */}
+              {selectedPlatforms.length > 0 && availableChannels.length === 0 && (
+                <div className="mt-4 pt-4 border-t border-border/50">
+                  <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                    <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      No connected channels for selected platforms. <a href="/channels" className="underline font-medium">Connect now</a>
+                    </p>
+                  </div>
                 </div>
               )}
 

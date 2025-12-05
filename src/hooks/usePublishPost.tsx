@@ -14,7 +14,7 @@ export interface PublishResult {
 export function usePublishPost() {
   const [publishing, setPublishing] = useState(false);
   const [results, setResults] = useState<PublishResult[]>([]);
-  const { channels, loading: channelsLoading } = useChannels();
+  const { channels } = useChannels();
   const { toast } = useToast();
 
   /**
@@ -146,7 +146,6 @@ export function usePublishPost() {
     publishToSelectedChannels, // NEW
     publishing,
     results,
-    channelsLoading, // NEW: Expose loading state
     getConnectedChannelsForPlatforms, // Legacy
     getChannelsForPlatforms, // NEW
   };
