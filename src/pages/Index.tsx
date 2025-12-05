@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { AnimatedSection } from "@/hooks/useScrollAnimation";
 import { useState, useEffect } from "react";
+import DashboardMockup from "@/components/DashboardMockup";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -248,6 +249,11 @@ const Index = () => {
               </div>
             </AnimatedSection>
           </div>
+          
+          {/* Dashboard Preview Mockup */}
+          <AnimatedSection animation="fade-up" delay={500} className="mt-16 px-4">
+            <DashboardMockup />
+          </AnimatedSection>
         </div>
       </div>
 
