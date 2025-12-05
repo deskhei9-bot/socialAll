@@ -247,19 +247,22 @@ export default function CreatePost() {
     }
   }, [postType]);
 
-  // Auto-select channels when platforms change
+  // Auto-select channels when platforms change OR when channels load
   useEffect(() => {
     // If a profile is selected, don't auto-select channels
     if (selectedProfileId) return;
     
     if (selectedPlatforms.length > 0) {
       const availableChannels = getChannelsForPlatforms(selectedPlatforms);
+      console.log('Auto-selecting channels:', availableChannels);
       // Auto-select all available channels
-      setSelectedChannelIds(availableChannels.map(ch => ch.id));
+      if (availableChannels.length > 0) {
+        setSelectedChannelIds(availableChannels.map(ch => ch.id));
+      }
     } else {
       setSelectedChannelIds([]);
     }
-  }, [selectedPlatforms, selectedProfileId]);
+  }, [selectedPlatforms, selectedProfileId, getChannelsForPlatforms]);
 
   // Auto-load default profile on mount
   useEffect(() => {
