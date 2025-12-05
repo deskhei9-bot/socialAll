@@ -18,7 +18,9 @@ import {
   Loader2,
   Clock,
   Shield,
-  AlertTriangle
+  AlertTriangle,
+  Search,
+  X
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -110,6 +112,7 @@ export default function Channels() {
     bot_token: "",
     chat_id: "",
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Handle OAuth callbacks and URL parameters
   useEffect(() => {
@@ -518,7 +521,7 @@ export default function Channels() {
 
       {/* Connected Accounts */}
       <Card className="glass-card animate-fade-in" style={{ animationDelay: "100ms" }}>
-        <CardHeader>
+        <CardHeader className="space-y-4">
           <CardTitle className="flex items-center justify-between">
             <span>Connected Accounts</span>
             {channels.length > 0 && (
@@ -541,6 +544,26 @@ export default function Channels() {
               </div>
             )}
           </CardTitle>
+          {/* Search Input */}
+          {channels.length > 0 && (
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search channels by name or handle..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-9 bg-background/50"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -554,12 +577,37 @@ export default function Channels() {
               <p>No channels connected yet. Click "Connect Channel" to get started.</p>
             </div>
           ) : (
-            <div className="space-y-6">
+            (() => {
+              // Filter channels based on search query
+              const filteredChannels = channels.filter(ch => 
+                !searchQuery || 
+                ch.account_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                ch.account_handle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                ch.platform?.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+              
+              if (filteredChannels.length === 0) {
+                return (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p>No channels match "{searchQuery}"</p>
+                    <button 
+                      onClick={() => setSearchQuery("")}
+                      className="text-primary text-sm hover:underline mt-2"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                );
+              }
+              
+              return (
+                <div className="space-y-6">
               {/* Group channels by platform */}
               {availablePlatforms
-                .filter(platform => channels.some(ch => ch.platform === platform.id))
+                .filter(platform => filteredChannels.some(ch => ch.platform === platform.id))
                 .map(platform => {
-                  const platformChannels = channels.filter(ch => ch.platform === platform.id);
+                  const platformChannels = filteredChannels.filter(ch => ch.platform === platform.id);
                   
                   return (
                     <div key={platform.id} className="space-y-3">
@@ -709,6 +757,8 @@ export default function Channels() {
                   );
                 })}
             </div>
+              );
+            })()
           )}
         </CardContent>
       </Card>
