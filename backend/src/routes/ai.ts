@@ -428,4 +428,241 @@ router.post('/test-key', async (req: Request, res: Response) => {
   }
 });
 
+// Test configured provider connection
+router.post('/test-provider', async (req: Request, res: Response) => {
+  try {
+    const { provider } = req.body;
+
+    if (provider === 'gemini') {
+      if (!process.env.GEMINI_API_KEY) {
+        return res.json({ success: false, error: 'Gemini API key not configured' });
+      }
+      
+      const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
+        {
+          contents: [{ parts: [{ text: 'Say "connected" in one word.' }] }],
+        }
+      );
+      
+      if (response.data.candidates) {
+        return res.json({ success: true });
+      }
+    } else if (provider === 'openai') {
+      if (!process.env.OPENAI_API_KEY) {
+        return res.json({ success: false, error: 'OpenAI API key not configured' });
+      }
+      
+      const response = await axios.post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: 'Say "connected"' }],
+          max_tokens: 10,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      if (response.data.choices) {
+        return res.json({ success: true });
+      }
+    }
+
+    res.json({ success: false, error: 'Unknown provider' });
+  } catch (error: any) {
+    console.error('[AI] Provider test error:', error.response?.data || error);
+    res.json({ success: false, error: error.response?.data?.error?.message || 'Connection failed' });
+  }
+});
+
+// Generate caption template with platform policy compliance
+router.post('/generate-template', async (req: Request, res: Response) => {
+  try {
+    const { 
+      topic,
+      tone = 'engaging',
+      category,
+      platforms = ['general'],
+      provider = 'auto',
+      model
+    } = req.body;
+
+    let useProvider = provider;
+    if (provider === 'auto') {
+      if (process.env.GEMINI_API_KEY) {
+        useProvider = 'gemini';
+      } else if (process.env.OPENAI_API_KEY) {
+        useProvider = 'openai';
+      }
+    }
+
+    if (!process.env.GEMINI_API_KEY && !process.env.OPENAI_API_KEY) {
+      return res.status(500).json({ error: 'No AI API key configured' });
+    }
+
+    const platformPolicies = `
+CRITICAL - Follow ALL Social Media Platform Policies:
+
+Facebook/Meta:
+- No misleading content, clickbait, or sensationalized language
+- No hate speech, discrimination, or harassment
+- No false health claims or misinformation
+- No adult content or excessive violence references
+- Respect intellectual property rights
+
+Instagram:
+- No spam or artificially collected likes/followers mentions
+- No false advertising or deceptive practices
+- No content promoting dangerous activities
+- Authentic and transparent content only
+- No excessive use of hashtags in caption body
+
+YouTube:
+- No misleading metadata or thumbnails references
+- No content promoting violence or dangerous activities
+- No harassment or cyberbullying
+- Family-friendly by default unless specified
+- Respect copyright and fair use
+
+TikTok:
+- No dangerous challenges or harmful activities
+- No harassment, hate speech, or bullying
+- No misleading information or scams
+- Age-appropriate content
+- No promotion of illegal activities
+
+Twitter/X:
+- No abusive behavior or harassment
+- No misleading information
+- No spam or platform manipulation
+- Respect others' privacy
+- No promotion of violence
+
+LinkedIn:
+- Professional tone required
+- No spam or irrelevant content
+- No false information about career/business
+- No harassment or discrimination
+- Authentic professional representation
+
+Pinterest:
+- No spam or misleading pins
+- No adult content
+- Respect intellectual property
+- No harmful misinformation
+- Authentic and helpful content
+`;
+
+    const prompt = `Generate a reusable caption template for the following:
+
+Topic/Theme: ${topic}
+Category: ${category || 'General'}
+Tone: ${tone}
+Target Platforms: ${platforms.join(', ')}
+
+${platformPolicies}
+
+Requirements:
+1. Create a versatile template that can be reused with different products/content
+2. Use placeholders like {title}, {product}, {brand}, {link} where appropriate
+3. Make it ${tone} and authentic
+4. Ensure it's suitable for ALL selected platforms
+5. Follow ALL platform community guidelines and advertising policies
+6. NO misleading claims, clickbait, or sensationalized language
+7. Include appropriate call-to-action
+8. Generate 5-8 relevant, policy-compliant hashtags
+
+Return ONLY valid JSON in this exact format:
+{
+  "name": "Short template name",
+  "content": "The caption template with {placeholders}",
+  "hashtags": ["hashtag1", "hashtag2", "hashtag3"]
+}`;
+
+    let result: { name: string; content: string; hashtags: string[] } = {
+      name: `${topic} Template`,
+      content: '',
+      hashtags: []
+    };
+
+    if (useProvider === 'gemini' && process.env.GEMINI_API_KEY) {
+      const selectedModel = model || 'gemini-2.0-flash';
+      const modelConfig = AI_MODELS.gemini[selectedModel as keyof typeof AI_MODELS.gemini];
+      const endpoint = modelConfig?.endpoint || AI_MODELS.gemini['gemini-2.0-flash'].endpoint;
+      
+      const response = await axios.post(
+        `${endpoint}?key=${process.env.GEMINI_API_KEY}`,
+        {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 1024,
+          }
+        }
+      );
+      
+      const text = response.data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      try {
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          result = JSON.parse(jsonMatch[0]);
+        }
+      } catch (e) {
+        console.error('[AI] Failed to parse Gemini response:', e);
+      }
+    } else if (useProvider === 'openai' && process.env.OPENAI_API_KEY) {
+      const selectedModel = model || 'gpt-4o-mini';
+      const modelConfig = AI_MODELS.openai[selectedModel as keyof typeof AI_MODELS.openai];
+      const modelId = modelConfig?.model || 'gpt-4o-mini';
+      
+      const response = await axios.post(
+        'https://api.openai.com/v1/chat/completions',
+        {
+          model: modelId,
+          messages: [
+            { 
+              role: 'system', 
+              content: 'You are a professional social media content strategist who creates policy-compliant templates. Always return valid JSON.' 
+            },
+            { role: 'user', content: prompt },
+          ],
+          max_tokens: 1024,
+          temperature: 0.7,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      const text = response.data.choices?.[0]?.message?.content || '';
+      try {
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          result = JSON.parse(jsonMatch[0]);
+        }
+      } catch (e) {
+        console.error('[AI] Failed to parse OpenAI response:', e);
+      }
+    }
+
+    console.log(`[AI] Template generated for topic: ${topic}`);
+
+    res.json(result);
+  } catch (error: any) {
+    console.error('[AI] Template generation error:', error.response?.data || error.message);
+    res.status(500).json({ 
+      error: 'Failed to generate template',
+      details: error.response?.data?.error?.message || error.message
+    });
+  }
+});
+
 export default router;

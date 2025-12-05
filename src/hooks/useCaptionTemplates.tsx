@@ -8,6 +8,8 @@ export interface CaptionTemplate {
   content: string;
   hashtags: string[];
   category: string | null;
+  tone: string | null;
+  platforms: string[];
   created_at: string;
 }
 
@@ -37,6 +39,8 @@ export function useCaptionTemplates() {
     content: string;
     hashtags?: string[];
     category?: string;
+    tone?: string;
+    platforms?: string[];
   }) => {
     if (!user) return { data: null, error: new Error('Not authenticated') };
 
@@ -47,6 +51,8 @@ export function useCaptionTemplates() {
       content: template.content,
       hashtags: template.hashtags || [],
       category: template.category || null,
+      tone: template.tone || null,
+      platforms: template.platforms || [],
       created_at: new Date().toISOString(),
     };
 
