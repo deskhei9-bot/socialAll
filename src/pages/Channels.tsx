@@ -113,6 +113,7 @@ export default function Channels() {
     chat_id: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [platformFilter, setPlatformFilter] = useState<string>("all");
 
   // Handle OAuth callbacks and URL parameters
   useEffect(() => {
@@ -544,24 +545,44 @@ export default function Channels() {
               </div>
             )}
           </CardTitle>
-          {/* Search Input */}
+          {/* Search and Filter */}
           {channels.length > 0 && (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search channels by name or handle..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-9 bg-background/50"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search channels by name or handle..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-9 bg-background/50"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+              <Select value={platformFilter} onValueChange={setPlatformFilter}>
+                <SelectTrigger className="w-full sm:w-[180px] bg-background/50">
+                  <SelectValue placeholder="All Platforms" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Platforms</SelectItem>
+                  {availablePlatforms
+                    .filter(p => channels.some(ch => ch.platform === p.id))
+                    .map(platform => (
+                      <SelectItem key={platform.id} value={platform.id}>
+                        <div className="flex items-center gap-2">
+                          <platform.icon className="w-4 h-4" />
+                          <span>{platform.label}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
         </CardHeader>
@@ -578,13 +599,15 @@ export default function Channels() {
             </div>
           ) : (
             (() => {
-              // Filter channels based on search query
-              const filteredChannels = channels.filter(ch => 
-                !searchQuery || 
-                ch.account_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                ch.account_handle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                ch.platform?.toLowerCase().includes(searchQuery.toLowerCase())
-              );
+              // Filter channels based on search query and platform filter
+              const filteredChannels = channels.filter(ch => {
+                const matchesSearch = !searchQuery || 
+                  ch.account_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  ch.account_handle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  ch.platform?.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesPlatform = platformFilter === "all" || ch.platform === platformFilter;
+                return matchesSearch && matchesPlatform;
+              });
               
               if (filteredChannels.length === 0) {
                 return (
