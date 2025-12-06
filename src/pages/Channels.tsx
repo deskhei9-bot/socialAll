@@ -601,6 +601,74 @@ export default function Channels() {
         </CardContent>
       </Card>
 
+      {/* Channel Statistics Summary */}
+      {channels.length > 0 && (
+        <Card className="glass-card animate-fade-in" style={{ animationDelay: "75ms" }}>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Channel Statistics</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {/* Total Channels */}
+              <div className="text-center p-4 rounded-xl bg-muted/30 border border-border/30">
+                <p className="text-3xl font-bold text-primary">{channels.length}</p>
+                <p className="text-sm text-muted-foreground">Total Channels</p>
+              </div>
+              {/* Total Followers */}
+              <div className="text-center p-4 rounded-xl bg-muted/30 border border-border/30">
+                <p className="text-3xl font-bold text-primary">
+                  {channels.reduce((sum, ch) => sum + (ch.followers_count || 0), 0).toLocaleString()}
+                </p>
+                <p className="text-sm text-muted-foreground">Total Followers</p>
+              </div>
+              {/* Platforms Connected */}
+              <div className="text-center p-4 rounded-xl bg-muted/30 border border-border/30">
+                <p className="text-3xl font-bold text-primary">
+                  {new Set(channels.map(ch => ch.platform)).size}
+                </p>
+                <p className="text-sm text-muted-foreground">Platforms</p>
+              </div>
+              {/* Active Connections */}
+              <div className="text-center p-4 rounded-xl bg-muted/30 border border-border/30">
+                <p className="text-3xl font-bold text-neon-green">
+                  {channels.filter(ch => !ch.token_expires_at || !isPast(new Date(ch.token_expires_at))).length}
+                </p>
+                <p className="text-sm text-muted-foreground">Active</p>
+              </div>
+            </div>
+            {/* Platform Breakdown */}
+            <div className="mt-4 pt-4 border-t border-border/30">
+              <p className="text-sm font-medium mb-3 text-muted-foreground">Followers by Platform</p>
+              <div className="flex flex-wrap gap-3">
+                {availablePlatforms
+                  .filter(p => channels.some(ch => ch.platform === p.id))
+                  .map(platform => {
+                    const platformChannels = channels.filter(ch => ch.platform === platform.id);
+                    const totalFollowers = platformChannels.reduce((sum, ch) => sum + (ch.followers_count || 0), 0);
+                    return (
+                      <div 
+                        key={platform.id} 
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background/50 border border-border/30"
+                      >
+                        <div className={cn(
+                          "w-6 h-6 rounded flex items-center justify-center text-white",
+                          platform.color
+                        )}>
+                          <platform.icon className="w-3.5 h-3.5" />
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-semibold">{totalFollowers.toLocaleString()}</span>
+                          <span className="text-muted-foreground ml-1">({platformChannels.length})</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Connected Accounts */}
       <Card className="glass-card animate-fade-in" style={{ animationDelay: "100ms" }}>
         <CardHeader className="space-y-4">
