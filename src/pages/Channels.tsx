@@ -20,12 +20,15 @@ import {
   Shield,
   AlertTriangle,
   Search,
-  X
+  X,
+  CheckSquare,
+  Square
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { useChannels } from "@/hooks/useChannels";
 import { useFacebookOAuth } from "@/hooks/useFacebookOAuth";
@@ -114,6 +117,9 @@ export default function Channels() {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [platformFilter, setPlatformFilter] = useState<string>("all");
+  const [selectedChannels, setSelectedChannels] = useState<Set<string>>(new Set());
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [isBulkRefreshing, setIsBulkRefreshing] = useState(false);
 
   // Handle OAuth callbacks and URL parameters
   useEffect(() => {
@@ -277,6 +283,81 @@ export default function Channels() {
 
   const handleRemoveChannel = async (id: string) => {
     await removeChannel(id);
+    setSelectedChannels(prev => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const toggleChannelSelection = (id: string) => {
+    setSelectedChannels(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const selectAllChannels = (channelIds: string[]) => {
+    setSelectedChannels(new Set(channelIds));
+  };
+
+  const clearSelection = () => {
+    setSelectedChannels(new Set());
+  };
+
+  const handleBulkDisconnect = async () => {
+    if (selectedChannels.size === 0) return;
+    
+    const confirmed = window.confirm(`Are you sure you want to disconnect ${selectedChannels.size} channel(s)?`);
+    if (!confirmed) return;
+    
+    setIsBulkDeleting(true);
+    try {
+      for (const id of selectedChannels) {
+        await removeChannel(id);
+      }
+      toast({
+        title: "Success",
+        description: `Disconnected ${selectedChannels.size} channel(s)`,
+      });
+      setSelectedChannels(new Set());
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to disconnect some channels",
+        variant: "destructive",
+      });
+    } finally {
+      setIsBulkDeleting(false);
+    }
+  };
+
+  const handleBulkRefresh = async () => {
+    if (selectedChannels.size === 0) return;
+    
+    setIsBulkRefreshing(true);
+    try {
+      for (const id of selectedChannels) {
+        await refreshChannelToken(id);
+      }
+      toast({
+        title: "Success",
+        description: `Refreshed tokens for ${selectedChannels.size} channel(s)`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh some tokens",
+        variant: "destructive",
+      });
+    } finally {
+      setIsBulkRefreshing(false);
+    }
   };
 
   const isConnecting = fbLoading || ytLoading || ttLoading || twLoading || liLoading || piLoading || processingCallback;
@@ -585,6 +666,50 @@ export default function Channels() {
               </Select>
             </div>
           )}
+          {/* Bulk Actions Bar */}
+          {selectedChannels.size > 0 && (
+            <div className="flex flex-wrap items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+              <span className="text-sm font-medium">
+                {selectedChannels.size} selected
+              </span>
+              <div className="flex-1" />
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5"
+                onClick={handleBulkRefresh}
+                disabled={isBulkRefreshing}
+              >
+                {isBulkRefreshing ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-3.5 h-3.5" />
+                )}
+                Refresh Tokens
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="gap-1.5"
+                onClick={handleBulkDisconnect}
+                disabled={isBulkDeleting}
+              >
+                {isBulkDeleting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+                Disconnect
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearSelection}
+              >
+                <X className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -636,6 +761,25 @@ export default function Channels() {
                     <div key={platform.id} className="space-y-3">
                       {/* Platform Header */}
                       <div className="flex items-center gap-3 px-1">
+                        <Checkbox
+                          checked={platformChannels.every(ch => selectedChannels.has(ch.id))}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setSelectedChannels(prev => {
+                                const next = new Set(prev);
+                                platformChannels.forEach(ch => next.add(ch.id));
+                                return next;
+                              });
+                            } else {
+                              setSelectedChannels(prev => {
+                                const next = new Set(prev);
+                                platformChannels.forEach(ch => next.delete(ch.id));
+                                return next;
+                              });
+                            }
+                          }}
+                          className="data-[state=checked]:bg-primary"
+                        />
                         <div className={cn(
                           "w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm",
                           platform.color
@@ -690,6 +834,11 @@ export default function Channels() {
                               {/* Main Row */}
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-card/50">
                                 <div className="flex items-center gap-3 sm:gap-4">
+                                  <Checkbox
+                                    checked={selectedChannels.has(channel.id)}
+                                    onCheckedChange={() => toggleChannelSelection(channel.id)}
+                                    className="data-[state=checked]:bg-primary"
+                                  />
                                   <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <p className="font-semibold truncate">{channel.account_name}</p>
