@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { 
   Facebook, 
@@ -22,7 +22,10 @@ import {
   Search,
   X,
   CheckSquare,
-  Square
+  Square,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -120,6 +123,39 @@ export default function Channels() {
   const [selectedChannels, setSelectedChannels] = useState<Set<string>>(new Set());
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [isBulkRefreshing, setIsBulkRefreshing] = useState(false);
+  const [sortBy, setSortBy] = useState<'name' | 'platform' | 'date' | 'followers'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const toggleSortOrder = () => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+
+  const sortedAndFilteredChannels = useMemo(() => {
+    let filtered = channels.filter(channel => {
+      const matchesSearch = !searchQuery || 
+        channel.account_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        channel.account_handle?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesPlatform = platformFilter === 'all' || channel.platform === platformFilter;
+      return matchesSearch && matchesPlatform;
+    });
+
+    return filtered.sort((a, b) => {
+      let comparison = 0;
+      switch (sortBy) {
+        case 'name':
+          comparison = (a.account_name || '').localeCompare(b.account_name || '');
+          break;
+        case 'platform':
+          comparison = a.platform.localeCompare(b.platform);
+          break;
+        case 'date':
+          comparison = new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+          break;
+        case 'followers':
+          comparison = (a.followers_count || 0) - (b.followers_count || 0);
+          break;
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  }, [channels, searchQuery, platformFilter, sortBy, sortOrder]);
 
   // Handle OAuth callbacks and URL parameters
   useEffect(() => {
@@ -732,6 +768,26 @@ export default function Channels() {
                     ))}
                 </SelectContent>
               </Select>
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as 'name' | 'platform' | 'date' | 'followers')}>
+                <SelectTrigger className="w-full sm:w-[150px] bg-background/50">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="name">Name</SelectItem>
+                  <SelectItem value="platform">Platform</SelectItem>
+                  <SelectItem value="date">Connection Date</SelectItem>
+                  <SelectItem value="followers">Followers</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleSortOrder}
+                className="shrink-0"
+                title={sortOrder === 'asc' ? 'Ascending' : 'Descending'}
+              >
+                {sortOrder === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+              </Button>
             </div>
           )}
           {/* Bulk Actions Bar */}
@@ -792,17 +848,7 @@ export default function Channels() {
             </div>
           ) : (
             (() => {
-              // Filter channels based on search query and platform filter
-              const filteredChannels = channels.filter(ch => {
-                const matchesSearch = !searchQuery || 
-                  ch.account_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  ch.account_handle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  ch.platform?.toLowerCase().includes(searchQuery.toLowerCase());
-                const matchesPlatform = platformFilter === "all" || ch.platform === platformFilter;
-                return matchesSearch && matchesPlatform;
-              });
-              
-              if (filteredChannels.length === 0) {
+              if (sortedAndFilteredChannels.length === 0) {
                 return (
                   <div className="text-center py-8 text-muted-foreground">
                     <Search className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -821,9 +867,9 @@ export default function Channels() {
                 <div className="space-y-6">
               {/* Group channels by platform */}
               {availablePlatforms
-                .filter(platform => filteredChannels.some(ch => ch.platform === platform.id))
+                .filter(platform => sortedAndFilteredChannels.some(ch => ch.platform === platform.id))
                 .map(platform => {
-                  const platformChannels = filteredChannels.filter(ch => ch.platform === platform.id);
+                  const platformChannels = sortedAndFilteredChannels.filter(ch => ch.platform === platform.id);
                   
                   return (
                     <div key={platform.id} className="space-y-3">
