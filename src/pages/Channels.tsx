@@ -708,28 +708,39 @@ export default function Channels() {
       {/* Connected Accounts */}
       <Card className="glass-card animate-fade-in" style={{ animationDelay: "100ms" }}>
         <CardHeader className="space-y-4">
-          <CardTitle className="flex items-center justify-between">
-            <span>Connected Accounts</span>
-            {channels.length > 0 && (
-              <div className="flex items-center gap-2">
-                {channels.some(c => c.token_expires_at && isPast(new Date(c.token_expires_at))) && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="gap-1.5 text-xs border-destructive/50 text-destructive hover:bg-destructive/10"
-                    onClick={() => refreshAllExpiredTokens()}
-                  >
+          <div className="flex flex-col gap-2">
+            <CardTitle className="flex items-center justify-between">
+              <span>Connected Accounts</span>
+              {channels.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {channels.some(c => c.token_expires_at && isPast(new Date(c.token_expires_at))) && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-1.5 text-xs border-destructive/50 text-destructive hover:bg-destructive/10"
+                      onClick={() => refreshAllExpiredTokens()}
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      Refresh Expired
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => refetch()}>
                     <RefreshCw className="w-3.5 h-3.5" />
-                    Refresh Expired
+                    Sync
                   </Button>
-                )}
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => refetch()}>
-                  <RefreshCw className="w-3.5 h-3.5" />
-                  Sync
-                </Button>
+                </div>
+              )}
+            </CardTitle>
+            {/* Auto-refresh indicator */}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-neon-green animate-pulse" />
+                <span>Auto-refresh enabled</span>
               </div>
-            )}
-          </CardTitle>
+              <span className="text-muted-foreground/50">•</span>
+              <span>Tokens refresh automatically 3 days before expiry</span>
+            </div>
+          </div>
           {/* Search and Filter */}
           {channels.length > 0 && (
             <div className="flex flex-col sm:flex-row gap-3">
