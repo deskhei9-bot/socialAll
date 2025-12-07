@@ -121,6 +121,7 @@ Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, Linke
 - ✅ **Instagram** - Photo, Video, Reel posts
 - ✅ **Twitter** - Text, Media posts
 - ✅ **LinkedIn** - Professional posts, Images
+- ✅ **Pinterest** - Image pins, boards, full API support
 
 #### ⏰ Scheduling & Automation
 - ✅ **Scheduled Posts** - Date/time picker for future publishing
@@ -583,6 +584,49 @@ Response (200 OK):
   "database": "connected",
   "timestamp": "2025-11-30T20:56:36.650Z"
 }
+```
+
+### Pinterest OAuth
+
+#### 1. Initiate Pinterest Connection
+```http
+GET /api/oauth/pinterest
+Authorization: Bearer <YOUR_JWT_TOKEN>
+
+Response (200 OK):
+{
+  "url": "https://www.pinterest.com/oauth/?client_id=..."
+}
+```
+
+#### 2. Handle Pinterest Callback
+```http
+GET /api/oauth/pinterest/callback
+```
+This endpoint is called by Pinterest after user authorization. It handles the code exchange and saves the channel.
+
+#### 3. Refresh Pinterest Token
+```http
+POST /api/oauth/pinterest/refresh
+Authorization: Bearer <YOUR_JWT_TOKEN>
+Content-Type: application/json
+
+Request Body:
+{
+  "channelId": "your-pinterest-channel-id"
+}
+```
+
+#### 4. Get Pinterest Boards
+```http
+GET /api/pinterest/boards/:channelId
+Authorization: Bearer <YOUR_JWT_TOKEN>
+```
+
+#### 5. Disconnect Pinterest Channel
+```http
+DELETE /api/oauth/pinterest/:channelId
+Authorization: Bearer <YOUR_JWT_TOKEN>
 ```
 
 ### Testing with curl

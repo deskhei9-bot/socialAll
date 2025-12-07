@@ -38,13 +38,15 @@ export function useAnalytics(days: number = 30) {
     }
 
     try {
-      const response = await fetch(`https://socialautoupload.com/api/analytics/overview?days=${days}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api'}/analytics/overview?days=${days}`, {
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         },
       });
 
       if (!response.ok) {
+        console.error('Failed to fetch analytics:', response.status);
         throw new Error('Failed to fetch analytics');
       }
 
@@ -62,8 +64,9 @@ export function useAnalytics(days: number = 30) {
 
   const getPostAnalytics = async (postId: string): Promise<any> => {
     try {
-      const response = await fetch(`https://socialautoupload.com/api/analytics/post/${postId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api'}/analytics/post/${postId}`, {
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         },
       });
@@ -81,8 +84,9 @@ export function useAnalytics(days: number = 30) {
 
   const getPlatformAnalytics = async (platform: string): Promise<any> => {
     try {
-      const response = await fetch(`https://socialautoupload.com/api/analytics/platform/${platform}?days=${days}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api'}/analytics/platform/${platform}?days=${days}`, {
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         },
       });
@@ -100,8 +104,9 @@ export function useAnalytics(days: number = 30) {
 
   const getTimeseries = async (): Promise<any> => {
     try {
-      const response = await fetch(`https://socialautoupload.com/api/analytics/timeseries?days=${days}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api'}/analytics/timeseries?days=${days}`, {
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
         },
       });
