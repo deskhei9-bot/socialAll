@@ -923,7 +923,7 @@ export default function Channels() {
                         {platformChannels.map((channel) => {
                           const tokenExpiry = channel.token_expires_at ? new Date(channel.token_expires_at) : null;
                           const isTokenExpired = tokenExpiry ? isPast(tokenExpiry) : false;
-                          const isTokenExpiringSoon = tokenExpiry && !isTokenExpired ? isPast(addDays(new Date(), -7)) && tokenExpiry < addDays(new Date(), 7) : false;
+                          const isTokenExpiringSoon = tokenExpiry && !isTokenExpired && tokenExpiry < addDays(new Date(), 7);
                           const lastUpdated = channel.updated_at ? new Date(channel.updated_at) : null;
                           
                           const getConnectionStatus = () => {
