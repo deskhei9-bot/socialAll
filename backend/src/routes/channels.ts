@@ -1,5 +1,6 @@
 import express from 'express';
 import { pool } from '../lib/database';
+import { TokenRefreshService } from '../services/token-refresh';
 
 const router = express.Router();
 
@@ -167,11 +168,69 @@ router.post('/:id/refresh', async (req: any, res) => {
     
     const channel = result.rows[0];
     
-    // TODO: Implement token refresh logic for each platform
-    // For now, just return current channel
-    res.json({ message: 'Token refresh not yet implemented', channel: mapChannelToFrontend(channel) });
+    // Use the token refresh service
+    const refreshResult = await TokenRefreshService.refreshChannelToken(channel);
+    
+    if (refreshResult.success) {
+      // Fetch updated channel
+      const updatedResult = await pool.query(
+        'SELECT * FROM connected_channels WHERE id = $1',
+        [id]
+      );
+      
+      res.json({ 
+        message: 'Token refreshed successfully', 
+        channel: mapChannelToFrontend(updatedResult.rows[0]),
+        newExpiresAt: refreshResult.newExpiresAt 
+      });
+    } else {
+      res.status(400).json({ 
+        error: refreshResult.error || 'Token refresh failed',
+        channel: mapChannelToFrontend(channel)
+      });
+    }
   } catch (error: any) {
     console.error('Error refreshing token:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Refresh all expired tokens for user
+router.post('/refresh-all', async (req: any, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const result = await pool.query(
+      `SELECT * FROM connected_channels 
+       WHERE user_id = $1 
+       AND is_active = true 
+       AND token_expires_at IS NOT NULL 
+       AND token_expires_at <= NOW() + INTERVAL '${TokenRefreshService.REFRESH_DAYS_BEFORE} days'`,
+      [userId]
+    );
+    
+    const results = [];
+    
+    for (const channel of result.rows) {
+      const refreshResult = await TokenRefreshService.refreshChannelToken(channel);
+      results.push({
+        channelId: channel.id,
+        platform: channel.platform,
+        accountName: channel.channel_name,
+        success: refreshResult.success,
+        error: refreshResult.error,
+        newExpiresAt: refreshResult.newExpiresAt,
+      });
+    }
+    
+    const successCount = results.filter(r => r.success).length;
+    
+    res.json({ 
+      message: `Refreshed ${successCount}/${results.length} tokens`,
+      results 
+    });
+  } catch (error: any) {
+    console.error('Error refreshing all tokens:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -8,10 +8,12 @@ import { TelegramService } from './telegram';
 import { LinkedInService } from './linkedin';
 import { PinterestService } from './pinterest';
 import { MediaCleanupService } from './media-cleanup';
+import { TokenRefreshService } from './token-refresh';
 import crypto from 'crypto';
 
 let isRunning = false;
 let intervalId: NodeJS.Timeout | null = null;
+let tokenRefreshIntervalId: NodeJS.Timeout | null = null;
 
 function decryptToken(encryptedToken: string): string {
   const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
@@ -443,16 +445,34 @@ export const SchedulerService = {
     console.log('[Scheduler] Starting scheduler service...');
     if (intervalId) return;
 
+    // Process scheduled posts every minute
     processScheduledPosts();
     intervalId = setInterval(processScheduledPosts, 60 * 1000);
-    console.log('[Scheduler] Scheduler started (checking every 60 seconds)');
+    console.log('[Scheduler] Post scheduler started (checking every 60 seconds)');
+
+    // Process token refresh every hour
+    TokenRefreshService.processExpiringTokens();
+    tokenRefreshIntervalId = setInterval(() => {
+      TokenRefreshService.processExpiringTokens();
+    }, 60 * 60 * 1000); // Every hour
+    console.log(`[Scheduler] Token auto-refresh started (checking every hour, refreshing ${TokenRefreshService.REFRESH_DAYS_BEFORE} days before expiry)`);
   },
 
   stop(): void {
     if (intervalId) {
       clearInterval(intervalId);
       intervalId = null;
-      console.log('[Scheduler] Scheduler stopped');
+      console.log('[Scheduler] Post scheduler stopped');
     }
+    if (tokenRefreshIntervalId) {
+      clearInterval(tokenRefreshIntervalId);
+      tokenRefreshIntervalId = null;
+      console.log('[Scheduler] Token auto-refresh stopped');
+    }
+  },
+
+  // Manual trigger for token refresh
+  async refreshExpiringTokens(): Promise<void> {
+    await TokenRefreshService.processExpiringTokens();
   },
 };
