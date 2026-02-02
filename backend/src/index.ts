@@ -119,6 +119,7 @@ app.use('/api/oauth', oauthRoutes); // OAuth routes handle auth internally
 
 // Protected routes
 import postsRoutes from './routes/posts';
+import duplicateCheckRoutes from './routes/duplicate-check';
 import channelsRoutes from './routes/channels';
 import usersRoutes from './routes/users';
 import uploadRoutes from './routes/upload';
@@ -127,6 +128,7 @@ import aiRoutes from './routes/ai';
 import publishingProfilesRoutes from './routes/publishing-profiles';
 
 app.use('/api/posts', authenticate, postsRoutes);
+app.use('/api/posts', authenticate, duplicateCheckRoutes);
 app.use('/api/channels', authenticate, channelsRoutes);
 app.use('/api/users', authenticate, usersRoutes);
 app.use('/api/upload', authenticate, uploadRoutes);
@@ -135,6 +137,10 @@ app.use('/api/ai', authenticate, aiRoutes);
 app.use('/api/publishing-profiles', authenticate, publishingProfilesRoutes);
 import publishRoutes from './routes/publish';
 app.use('/api/publish', authenticate, publishRoutes);
+
+// YouTube routes
+import youtubeRoutes from './routes/youtube';
+app.use('/api/youtube', authenticate, youtubeRoutes);
 
 // Analytics and Scheduler routes
 import metricsRoutes from './routes/metrics';

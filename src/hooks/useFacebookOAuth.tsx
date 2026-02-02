@@ -11,7 +11,10 @@ export function useFacebookOAuth() {
     try {
       setLoading(true);
       
+      console.log('🔵 Starting Facebook OAuth flow...');
+      
       if (!user?.id) {
+        console.warn('❌ No user ID found');
         toast({
           title: "Authentication Required",
           description: "Please log in to connect your Facebook account",
@@ -21,15 +24,47 @@ export function useFacebookOAuth() {
         return;
       }
 
-      // Redirect to backend OAuth endpoint with userId
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        console.warn('❌ No auth token found');
+        toast({
+          title: "Authentication Required",
+          description: "Please log in again to connect your Facebook account",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const apiUrl = import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api';
-      window.location.href = `${apiUrl}/oauth/facebook?userId=${user.id}`;
+      console.log('📡 Requesting OAuth URL from:', `${apiUrl}/oauth/facebook`);
       
-    } catch (error) {
-      console.error('Facebook OAuth error:', error);
+      const response = await fetch(`${apiUrl}/oauth/facebook?response=json`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      console.log('📥 Response status:', response.status);
+      
+      const data = await response.json();
+      console.log('📦 Response data:', data);
+      
+      if (!response.ok || !data?.url) {
+        const errorMsg = data?.error || data?.message || 'Failed to initiate OAuth';
+        console.error('❌ OAuth initiation failed:', errorMsg);
+        throw new Error(errorMsg);
+      }
+
+      console.log('✅ Redirecting to Facebook OAuth...');
+      window.location.href = data.url;
+      
+    } catch (error: any) {
+      console.error('❌ Facebook OAuth error:', error);
       toast({
         title: "Connection Failed",
-        description: "Failed to initiate Facebook OAuth. Please try again.",
+        description: error?.message || "Failed to initiate Facebook OAuth. Please try again.",
         variant: "destructive",
       });
       setLoading(false);

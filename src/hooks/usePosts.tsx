@@ -61,6 +61,9 @@ export function usePosts() {
     hashtags?: string[];
     status?: string;
     scheduled_at?: string;
+    post_type?: string;
+    metadata?: any;
+    selected_channel_ids?: string[];
   }): Promise<{ data?: Post; error: Error | null }> => {
     if (!user) return { data: undefined, error: new Error('Not authenticated') };
 
@@ -69,7 +72,11 @@ export function usePosts() {
         title: post.title,
         content: post.content,
         platforms: post.platforms,
-        media_url: post.media_urls?.[0],
+        media_url: post.media_urls?.[0], // Keep for backward compatibility
+        media_urls: post.media_urls || [], // NEW: Send full array
+        post_type: post.post_type || 'text',
+        metadata: post.metadata,
+        selected_channel_ids: post.selected_channel_ids,
         status: post.status || 'draft',
         scheduled_for: post.scheduled_at,
       });
@@ -158,12 +165,62 @@ export function usePosts() {
     }
   };
 
+  const retryPublish = async (id: string): Promise<{ error: Error | null }> => {
+    if (!user) return { error: new Error('Not authenticated') };
+
+    try {
+      // Get the post
+      const post = posts.find(p => p.id === id);
+      if (!post) {
+        throw new Error('Post not found');
+      }
+
+      // Increment retry count
+      const retryCount = ((post as any).metadata?.retryCount || 0) + 1;
+
+      // Update metadata with retry count
+      const updatedPost = {
+        ...post,
+        status: 'queued',
+        metadata: {
+          ...(post as any).metadata,
+          retryCount,
+          lastRetryAt: new Date().toISOString(),
+        },
+      };
+
+      const { error } = await apiClient.updatePost(id, updatedPost as any);
+
+      if (error) {
+        throw error;
+      }
+
+      await fetchPosts();
+
+      toast({
+        title: "Retrying post",
+        description: `Attempt: ${retryCount}/3`,
+      });
+
+      return { error: null };
+    } catch (error: any) {
+      console.error('Error retrying post:', error);
+      toast({
+        title: "Cannot retry",
+        description: error.message,
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
   return {
     posts,
     loading,
     createPost,
     updatePost,
     deletePost,
+    retryPublish,
     refetch: fetchPosts,
   };
 }

@@ -78,23 +78,33 @@ export function ProfileManager({ open, onOpenChange, onSave, editProfile }: Prof
   }, [editProfile, open]);
 
   const handleSave = async () => {
-    if (!name.trim() || selectedChannelIds.length === 0) {
+    if (!name.trim()) {
+      alert('Please enter a profile name');
+      return;
+    }
+    
+    if (selectedChannelIds.length === 0) {
+      alert('Please select at least one channel');
       return;
     }
 
     setSaving(true);
     try {
-      await onSave({
+      const profileData = {
         name: name.trim(),
         description: description.trim() || undefined,
         channel_ids: selectedChannelIds,
         is_default: isDefault,
         color,
         icon,
-      });
+      };
+      
+      await onSave(profileData);
+      console.log('✅ Profile saved:', name);
       onOpenChange(false);
     } catch (error) {
-      console.error('Failed to save profile:', error);
+      console.error('❌ Failed to save profile:', error);
+      alert('Failed to save profile: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setSaving(false);
     }

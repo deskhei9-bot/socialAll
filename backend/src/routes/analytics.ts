@@ -3,6 +3,60 @@ import { pool } from '../lib/database';
 
 const router = Router();
 
+// Get dashboard analytics summary
+router.get('/dashboard', async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.id;
+
+    // Get total posts
+    const postsResult = await pool.query(
+      'SELECT COUNT(*) as total FROM posts WHERE user_id = $1',
+      [userId]
+    );
+    const totalPosts = parseInt(postsResult.rows[0]?.total || '0');
+
+    // Get success rate from post_results
+    const successResult = await pool.query(
+      `SELECT 
+        COUNT(*) as total,
+        COUNT(CASE WHEN status = 'success' THEN 1 END) as success
+       FROM post_results pr
+       JOIN posts p ON p.id = pr.post_id
+       WHERE p.user_id = $1`,
+      [userId]
+    );
+    const { total, success } = successResult.rows[0];
+    const successRate = total > 0 ? (success / total) * 100 : 0;
+
+    // Get platform stats
+    const platformResult = await pool.query(
+      `SELECT 
+        pr.platform,
+        COUNT(*) as count,
+        COUNT(CASE WHEN pr.status = 'success' THEN 1 END) as success,
+        COUNT(CASE WHEN pr.status = 'failed' THEN 1 END) as failed
+       FROM post_results pr
+       JOIN posts p ON p.id = pr.post_id
+       WHERE p.user_id = $1
+       GROUP BY pr.platform
+       ORDER BY count DESC`,
+      [userId]
+    );
+
+    const topPlatform = platformResult.rows[0]?.platform || 'none';
+
+    res.json({
+      totalPosts,
+      successRate,
+      topPlatform,
+      platformStats: platformResult.rows,
+    });
+  } catch (error: any) {
+    console.error('Analytics dashboard error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get overall analytics for authenticated user
 router.get('/overview', async (req: Request, res: Response) => {
   try {
@@ -75,6 +129,32 @@ router.get('/overview', async (req: Request, res: Response) => {
       [userId, startDate]
     );
 
+    // Get post status distribution
+    const statusDistribution = await pool.query(
+      `SELECT 
+        status,
+        COUNT(*) as count
+      FROM posts
+      WHERE user_id = $1 AND created_at >= $2
+      GROUP BY status
+      ORDER BY count DESC`,
+      [userId, startDate]
+    );
+
+    // Get platform breakdown
+    const platformBreakdown = await pool.query(
+      `SELECT 
+        pr.platform,
+        COUNT(DISTINCT p.id) as posts,
+        0 as reach,
+        0 as engagement
+      FROM post_results pr
+      JOIN posts p ON pr.post_id = p.id
+      WHERE p.user_id = $1 AND pr.created_at >= $2
+      GROUP BY pr.platform`,
+      [userId, startDate]
+    );
+
     res.json({
       totalPosts: parseInt(postsStats.rows[0].total_posts),
       publishedPosts: parseInt(postsStats.rows[0].published_posts),
@@ -86,6 +166,13 @@ router.get('/overview', async (req: Request, res: Response) => {
       platformStats: platformStats.rows,
       dailyPosts: dailyPosts.rows,
       recentActivity: recentActivity.rows,
+      postStatusDistribution: statusDistribution.rows,
+      dailyTrends: dailyPosts.rows.map(row => ({
+        date: row.date,
+        reach: 0,
+        engagement: 0
+      })),
+      platformBreakdown: platformBreakdown.rows,
     });
   } catch (error) {
     console.error('Error fetching analytics overview:', error);

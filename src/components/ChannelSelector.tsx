@@ -81,15 +81,23 @@ export function ChannelSelector({
     const platformChannelIds = platformChannels.map(ch => ch.id);
     const allSelected = platformChannelIds.every(id => selected.includes(id));
     
+    console.log('🔄 toggleAllPlatform:', {
+      platformChannels: platformChannelIds.length,
+      currentSelected: selected.length,
+      allSelected
+    });
+    
     if (allSelected) {
       // Deselect all from this platform
-      onSelectionChange(
-        selected.filter(id => !platformChannelIds.includes(id))
-      );
+      const newSelection = selected.filter(id => !platformChannelIds.includes(id));
+      console.log('✅ Deselecting all:', newSelection.length);
+      onSelectionChange(newSelection);
     } else {
       // Select all from this platform
       const newIds = platformChannelIds.filter(id => !selected.includes(id));
-      onSelectionChange([...selected, ...newIds]);
+      const newSelection = [...selected, ...newIds];
+      console.log('✅ Selecting all:', newSelection.length);
+      onSelectionChange(newSelection);
     }
   };
 

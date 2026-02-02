@@ -21,9 +21,31 @@ export function useTikTokOAuth() {
         return;
       }
 
-      // Redirect to backend OAuth endpoint with userId
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in again to connect your TikTok account",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const apiUrl = import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api';
-      window.location.href = `${apiUrl}/oauth/tiktok?userId=${user.id}`;
+      const response = await fetch(`${apiUrl}/oauth/tiktok?response=json`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data?.url) {
+        throw new Error(data?.error || 'Failed to initiate OAuth');
+      }
+
+      window.location.href = data.url;
       
     } catch (error) {
       console.error('TikTok OAuth error:', error);

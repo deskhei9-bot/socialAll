@@ -73,6 +73,19 @@ router.post('/', async (req: any, res) => {
       });
     }
     
+    // Validate that all channel IDs belong to the user
+    const channelCheck = await pool.query(
+      `SELECT id FROM connected_channels 
+       WHERE id = ANY($1::uuid[]) AND user_id = $2`,
+      [channel_ids, userId]
+    );
+    
+    if (channelCheck.rows.length !== channel_ids.length) {
+      return res.status(400).json({ 
+        error: 'Some selected channels do not belong to you' 
+      });
+    }
+    
     // If setting as default, unset other defaults first
     if (is_default) {
       await pool.query(
@@ -136,6 +149,21 @@ router.put('/:id', async (req: any, res) => {
     
     if (existingProfile.rows.length === 0) {
       return res.status(404).json({ error: 'Profile not found' });
+    }
+    
+    // Validate channel IDs if provided
+    if (channel_ids && channel_ids.length > 0) {
+      const channelCheck = await pool.query(
+        `SELECT id FROM connected_channels 
+         WHERE id = ANY($1::uuid[]) AND user_id = $2`,
+        [channel_ids, userId]
+      );
+      
+      if (channelCheck.rows.length !== channel_ids.length) {
+        return res.status(400).json({ 
+          error: 'Some selected channels do not belong to you' 
+        });
+      }
     }
     
     // If setting as default, unset other defaults first

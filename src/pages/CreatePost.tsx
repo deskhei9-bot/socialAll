@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Facebook, 
@@ -41,6 +41,7 @@ import { usePosts } from "@/hooks/usePosts";
 import { useActivityLogs } from "@/hooks/useActivityLogs";
 import { usePublishPost } from "@/hooks/usePublishPost";
 import { usePublishingProfiles } from "@/hooks/usePublishingProfiles";
+import { useChannels } from "@/hooks/useChannels";
 import { MediaUploader } from "@/components/MediaUploader";
 import { UploadedMedia } from "@/hooks/useMediaUpload";
 import { CaptionTemplateManager } from "@/components/CaptionTemplateManager";
@@ -52,6 +53,11 @@ import { ChannelSelector } from "@/components/ChannelSelector";
 import { ProfileSelector } from "@/components/ProfileSelector";
 import { ProfileManager } from "@/components/ProfileManager";
 import { PostPreview } from "@/components/PostPreview";
+import { useDraftAutoSave } from "@/hooks/useDraftAutoSave";
+import { useDuplicateCheck } from "@/hooks/useDuplicateCheck";
+import { DuplicateWarning } from "@/components/DuplicateWarning";
+import { useToast } from "@/hooks/use-toast";
+import { DuplicateWarning } from "@/components/DuplicateWarning";
 
 const platforms = [
   { id: "facebook", icon: Facebook, label: "Facebook", color: "hover:border-blue-500 hover:bg-blue-500/10", apiSupported: true },
@@ -68,6 +74,7 @@ export default function CreatePost() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["facebook"]);
   const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]); // NEW
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null); // NEW: For profile-based selection
+  const [manualSelectionMode, setManualSelectionMode] = useState(true); // Default to manual mode - no auto-select
   const [profileManagerOpen, setProfileManagerOpen] = useState(false); // NEW: Profile manager dialog
   const [postType, setPostType] = useState<string>("text");
   const [content, setContent] = useState("");
@@ -79,12 +86,18 @@ export default function CreatePost() {
   const [media, setMedia] = useState<UploadedMedia[]>([]);
   const [templateDialogOpen, setTemplateDialogOpen] = useState(false);
   const [fullscreenMedia, setFullscreenMedia] = useState<UploadedMedia | null>(null);
+  const [similarPosts, setSimilarPosts] = useState<any[]>([]);
+  const [ignoreDuplicate, setIgnoreDuplicate] = useState(false);
   
   // Link metadata
   const [linkUrl, setLinkUrl] = useState("");
 
   const { createPost } = usePosts();
   const { addLog } = useActivityLogs();
+  const { channels } = useChannels();
+  const { saveDraft, loadDraft, clearDraft, hasDraft } = useDraftAutoSave();
+  const { checkDuplicate, checking: checkingDuplicate, result: duplicateResult, clearResult: clearDuplicateResult } = useDuplicateCheck();
+  const { toast } = useToast();
   const { 
     publishToSelectedChannels, 
     publishing, 
@@ -234,6 +247,7 @@ export default function CreatePost() {
     setSelectedPlatforms(prev => 
       prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
     );
+    // Keep manual selection mode - don't auto-select channels
   };
 
   // Auto-filter platforms when post type changes
@@ -247,22 +261,60 @@ export default function CreatePost() {
     }
   }, [postType]);
 
-  // Auto-select channels when platforms change OR when channels load
+  // Auto-detect post type based on uploaded media
   useEffect(() => {
-    // If a profile is selected, don't auto-select channels
-    if (selectedProfileId) return;
+    console.log('📸 Media changed:', media.length, 'files', media);
+    if (media.length === 0) return;
     
-    if (selectedPlatforms.length > 0) {
-      const availableChannels = getChannelsForPlatforms(selectedPlatforms);
-      console.log('Auto-selecting channels:', availableChannels);
-      // Auto-select all available channels
-      if (availableChannels.length > 0) {
-        setSelectedChannelIds(availableChannels.map(ch => ch.id));
+    const firstMedia = media[0];
+    console.log('🔍 First media type:', firstMedia.type);
+    
+    if (firstMedia.type.startsWith('image/')) {
+      // Check if multiple images (album)
+      if (media.length > 1 && media.every(m => m.type.startsWith('image/'))) {
+        console.log('✅ Setting post type to: album');
+        setPostType('album');
+      } else {
+        console.log('✅ Setting post type to: photo');
+        setPostType('photo');
       }
-    } else {
+    } else if (firstMedia.type.startsWith('video/')) {
+      console.log('✅ Setting post type to: video');
+      setPostType('video');
+    }
+  }, [media]);
+
+  // Memoize available channels to prevent unnecessary recalculation
+  const availableChannels = useMemo(() => {
+    return channels.filter(ch => selectedPlatforms.includes(ch.platform) && ch.is_active);
+  }, [selectedPlatforms, channels]);
+
+  // Memoize available channel IDs to prevent reference changes
+  const availableChannelIds = useMemo(() => {
+    return availableChannels.map(ch => ch.id).sort();
+  }, [availableChannels]);
+
+  // Auto-select channels when platforms change (only once per change)
+  useEffect(() => {
+    // Don't auto-select if in manual mode or profile is selected
+    if (manualSelectionMode || selectedProfileId) return;
+    
+    if (selectedPlatforms.length > 0 && availableChannelIds.length > 0) {
+      // Only update if the selection actually changed
+      setSelectedChannelIds(prevIds => {
+        const prevSorted = [...prevIds].sort();
+        const newSorted = [...availableChannelIds].sort();
+        const idsChanged = JSON.stringify(prevSorted) !== JSON.stringify(newSorted);
+        if (idsChanged) {
+          console.log('📊 Auto-selecting channels:', availableChannelIds.length);
+          return availableChannelIds;
+        }
+        return prevIds;
+      });
+    } else if (selectedPlatforms.length === 0) {
       setSelectedChannelIds([]);
     }
-  }, [selectedPlatforms, selectedProfileId, getChannelsForPlatforms]);
+  }, [selectedPlatforms, availableChannelIds, selectedProfileId, manualSelectionMode]);
 
   // Auto-load default profile on mount
   useEffect(() => {
@@ -275,6 +327,87 @@ export default function CreatePost() {
     }
   }, [profilesLoading, profiles]);
 
+  // Load draft on mount
+  useEffect(() => {
+    if (hasDraft()) {
+      const { draft, timestamp } = loadDraft();
+      if (draft) {
+        const timeSince = timestamp ? (Date.now() - new Date(timestamp).getTime()) / 1000 / 60 : 0;
+        toast({
+          title: "Draft found",
+          description: `Restore draft saved ${Math.round(timeSince)} minutes ago?`,
+          action: (
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={clearDraft}>No thanks</Button>
+              <Button size="sm" onClick={() => {
+                setContent(draft.content || '');
+                setTitle(draft.title || '');
+                // Restore other fields as needed
+                toast({ title: "Draft restored" });
+              }}>
+                Restore
+              </Button>
+            </div>
+          ),
+        });
+      }
+    }
+  }, []);
+
+  // Auto-save draft
+  useEffect(() => {
+    if (content || title) {
+      saveDraft({
+        content,
+        title,
+        media_urls: media.map(m => m.url),
+        platforms: selectedPlatforms,
+        scheduled_at: scheduledDate && scheduledTime ? `${scheduledDate}T${scheduledTime}` : null,
+      });
+    }
+  }, [content, title, media, selectedPlatforms, scheduledDate, scheduledTime, saveDraft]);
+
+  // Check for duplicates when content or platforms change
+  useEffect(() => {
+    if (content && content.trim().length >= 10) {
+      checkDuplicate(content, selectedPlatforms);
+    } else {
+      clearDuplicateResult();
+    }
+  }, [content, selectedPlatforms]);
+
+  // Check for duplicates when content changes
+  useEffect(() => {
+    const checkDuplicates = async () => {
+      if (!content || content.trim().length < 10) {
+        setSimilarPosts([]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/posts/check-duplicate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          },
+          body: JSON.stringify({ content }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setSimilarPosts(data.similar || []);
+        }
+      } catch (error) {
+        console.error('Failed to check duplicates:', error);
+      }
+    };
+
+    // Debounce duplicate check
+    const timer = setTimeout(checkDuplicates, 1000);
+    return () => clearTimeout(timer);
+  }, [content]);
+
   // Handle profile selection
   const handleProfileSelect = (profileId: string | null) => {
     setSelectedProfileId(profileId);
@@ -282,34 +415,41 @@ export default function CreatePost() {
       const profile = profiles.find(p => p.id === profileId);
       if (profile) {
         setSelectedChannelIds(profile.channel_ids);
+        setManualSelectionMode(false); // Profile mode
       }
     } else {
-      // Manual mode - reset to auto-select based on platforms
-      if (selectedPlatforms.length > 0) {
-        const availableChannels = getChannelsForPlatforms(selectedPlatforms);
-        setSelectedChannelIds(availableChannels.map(ch => ch.id));
-      }
+      // Manual mode - clear selection, let user select manually
+      setSelectedChannelIds([]);
+      setManualSelectionMode(true);
     }
   };
 
   // Handle manual channel selection (switches to manual mode)
-  const handleChannelSelectionChange = (channelIds: string[]) => {
+  const handleChannelSelectionChange = useCallback((channelIds: string[]) => {
+    console.log('🔄 Channel selection changed:', channelIds.length, 'channels');
     setSelectedChannelIds(channelIds);
     setSelectedProfileId(null); // Switch to manual mode
-  };
+    setManualSelectionMode(true); // Enable manual mode to prevent auto-selection
+  }, []);
 
-  const handleSaveProfile = async (profileData: any) => {
-    await createProfile({
-      name: profileData.name,
-      description: profileData.description,
-      channel_ids: profileData.channel_ids,
-      is_default: profileData.is_default,
-      color: profileData.color,
-      icon: profileData.icon,
-    });
-  };
-
-  const availableChannels = getChannelsForPlatforms(selectedPlatforms);
+  const handleSaveProfile = useCallback(async (profileData: any) => {
+    console.log('💾 Saving profile:', profileData.name);
+    try {
+      const result = await createProfile({
+        name: profileData.name,
+        description: profileData.description,
+        channel_ids: profileData.channel_ids,
+        is_default: profileData.is_default,
+        color: profileData.color,
+        icon: profileData.icon,
+      });
+      console.log('✅ Profile saved successfully');
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to save profile:', error);
+      throw error;
+    }
+  }, [createProfile]);
 
   const handleSubmit = async (status: 'draft' | 'scheduled' | 'queued' | 'published') => {
     if (!content.trim() || selectedPlatforms.length === 0) return;
@@ -322,6 +462,15 @@ export default function CreatePost() {
     }
 
     const mediaUrls = media.map(m => m.url);
+    
+    console.log('📤 Preparing to create post:', {
+      content: content.substring(0, 50),
+      postType,
+      mediaCount: media.length,
+      mediaUrls,
+      platforms: selectedPlatforms,
+      selectedChannels: selectedChannelIds.length
+    });
 
     // Build metadata object
     const metadata: any = {};
@@ -381,6 +530,9 @@ export default function CreatePost() {
         post_id: post.id,
       });
     }
+
+    // Clear draft after successful publish
+    clearDraft();
 
     setIsSubmitting(false);
     navigate('/');
@@ -604,6 +756,16 @@ export default function CreatePost() {
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Duplicate Warning */}
+              {duplicateResult && duplicateResult.isDuplicate && (
+                <DuplicateWarning
+                  matches={duplicateResult.matches}
+                  hasConflict={duplicateResult.hasConflict}
+                  conflictingPlatforms={duplicateResult.conflictingPlatforms}
+                  onDismiss={clearDuplicateResult}
+                />
+              )}
+
               {/* Title Field */}
               <div className="space-y-1.5">
                 <Label htmlFor="post-title" className="text-xs font-medium text-foreground/80">

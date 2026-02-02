@@ -17,6 +17,9 @@ import { usePosts } from "@/hooks/usePosts";
 import { useChannels } from "@/hooks/useChannels";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
+import { TokenHealthMonitor } from "@/components/TokenHealthMonitor";
+import { FailedPostsManager } from "@/components/FailedPostsManager";
+import { YouTubeQuotaTracker } from "@/components/YouTubeQuotaTracker";
 
 const platformIcons: Record<string, React.ReactNode> = {
   facebook: <Facebook className="w-4 h-4" />,
@@ -83,6 +86,15 @@ export default function Dashboard() {
           View Reports
         </Button>
       </div>
+
+      {/* Token Health Monitor */}
+      <TokenHealthMonitor />
+
+      {/* Failed Posts Manager */}
+      <FailedPostsManager />
+
+      {/* YouTube Quota Tracker */}
+      <YouTubeQuotaTracker />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

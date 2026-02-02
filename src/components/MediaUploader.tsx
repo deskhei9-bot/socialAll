@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Upload, X, Image, Video, Loader2, Link as LinkIcon } from "lucide-react";
+import { Upload, X, Image, Video, Loader2, Link as LinkIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -17,7 +17,26 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
   const [isDragging, setIsDragging] = useState(false);
   const [mediaUrl, setMediaUrl] = useState("");
   const [uploadTab, setUploadTab] = useState<"file" | "url">("file");
-  const { uploadMultiple, deleteMedia, uploadFromUrl, uploading, progress } = useMediaUpload();
+  const { uploadMultiple, deleteMedia, uploadFromUrl, uploading, progress, uploadProgress } = useMediaUpload();
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const formatSpeed = (bytesPerSecond: number) => {
+    if (bytesPerSecond < 1024) return `${bytesPerSecond.toFixed(0)} B/s`;
+    if (bytesPerSecond < 1024 * 1024) return `${(bytesPerSecond / 1024).toFixed(1)} KB/s`;
+    return `${(bytesPerSecond / (1024 * 1024)).toFixed(1)} MB/s`;
+  };
+
+  const formatTime = (seconds: number) => {
+    if (seconds < 60) return `${Math.ceil(seconds)}s`;
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.ceil(seconds % 60);
+    return `${minutes}m ${secs}s`;
+  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -36,8 +55,35 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
     const files = Array.from(e.dataTransfer.files);
     if (files.length === 0) return;
 
+    // Validate file sizes
+    const maxSizes = {
+      image: 50 * 1024 * 1024, // 50MB
+      video: 500 * 1024 * 1024, // 500MB
+    };
+
+    const invalidFiles: string[] = [];
+    const validFiles: File[] = [];
+
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/');
+      const maxSize = isVideo ? maxSizes.video : maxSizes.image;
+
+      if (file.size > maxSize) {
+        const limit = isVideo ? '500MB' : '50MB';
+        invalidFiles.push(`${file.name} (${(file.size / (1024 * 1024)).toFixed(1)}MB > ${limit})`);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    if (invalidFiles.length > 0) {
+      alert(`Files are too large:\n${invalidFiles.join('\n')}`);
+    }
+
+    if (validFiles.length === 0) return;
+
     const remainingSlots = maxFiles - media.length;
-    const filesToUpload = files.slice(0, remainingSlots);
+    const filesToUpload = validFiles.slice(0, remainingSlots);
 
     if (filesToUpload.length > 0) {
       const result = await uploadMultiple(filesToUpload);
@@ -54,8 +100,42 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
+    // Validate file sizes before upload
+    const maxSizes = {
+      image: 50 * 1024 * 1024, // 50MB for images
+      video: 500 * 1024 * 1024, // 500MB for videos
+    };
+
+    const invalidFiles: string[] = [];
+    const validFiles: File[] = [];
+
+    for (const file of files) {
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+      const maxSize = isVideo ? maxSizes.video : maxSizes.image;
+
+      if (file.size > maxSize) {
+        const limit = isVideo ? '500MB' : '50MB';
+        invalidFiles.push(`${file.name} (${formatFileSize(file.size)} > ${limit})`);
+      } else {
+        validFiles.push(file);
+      }
+    }
+
+    // Show error for invalid files
+    if (invalidFiles.length > 0) {
+      alert(
+        `The following files are too large:\n\n${invalidFiles.join('\n')}\n\nMax 50MB for images\nMax 500MB for videos`
+      );
+    }
+
+    if (validFiles.length === 0) {
+      e.target.value = '';
+      return;
+    }
+
     const remainingSlots = maxFiles - media.length;
-    const filesToUpload = files.slice(0, remainingSlots);
+    const filesToUpload = validFiles.slice(0, remainingSlots);
 
     if (filesToUpload.length > 0) {
       const result = await uploadMultiple(filesToUpload);
@@ -99,12 +179,6 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
   return (
     <div className="space-y-3">
       {/* Upload Area Only - No Preview Grid */}
@@ -145,11 +219,29 @@ export function MediaUploader({ onMediaChange, media, maxFiles = 10 }: MediaUplo
               />
               <label htmlFor="media-upload" className="cursor-pointer">
                 {uploading && uploadTab === "file" ? (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <Loader2 className="w-6 h-6 mx-auto text-primary animate-spin" />
-                    <p className="text-sm font-medium">Uploading...</p>
-                    <Progress value={progress} className="w-32 mx-auto h-1.5" />
-                    <p className="text-xs text-muted-foreground">{progress}%</p>
+                    <div>
+                      <p className="text-sm font-medium">Uploading {uploadProgress?.fileName || ''}...</p>
+                      {uploadProgress && (
+                        <div className="mt-2 space-y-1">
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{formatFileSize(uploadProgress.uploadedBytes)} / {formatFileSize(uploadProgress.totalBytes)}</span>
+                            <span>{formatSpeed(uploadProgress.speed)}</span>
+                          </div>
+                          <Progress value={uploadProgress.percentage} className="w-full h-2" />
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span>{uploadProgress.percentage}%</span>
+                            {uploadProgress.eta > 0 && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {formatTime(uploadProgress.eta)} remaining
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="flex items-center justify-center gap-2">

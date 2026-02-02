@@ -9,19 +9,11 @@ import { LinkedInService } from './linkedin';
 import { PinterestService } from './pinterest';
 import { MediaCleanupService } from './media-cleanup';
 import { TokenRefreshService } from './token-refresh';
-import crypto from 'crypto';
+import { decryptToken } from '../lib/token-crypto';
 
 let isRunning = false;
 let intervalId: NodeJS.Timeout | null = null;
 let tokenRefreshIntervalId: NodeJS.Timeout | null = null;
-
-function decryptToken(encryptedToken: string): string {
-  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
-  const decipher = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
-  let decrypted = decipher.update(encryptedToken, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
 
 function getSmartTitle(post: any, maxLength: number = 100): string {
   if (post.title && post.title.trim()) {
@@ -391,7 +383,7 @@ async function publishPost(post: any): Promise<void> {
 
   // Auto-cleanup media after successful scheduled post (5 minutes delay)
   if (hasSuccess) {
-    MediaCleanupService.cleanupPostMedia(post.id, { delay: 5 * 60 * 1000 });
+    MediaCleanupService.cleanupPostMedia(post.id, { delay: 30 * 60 * 1000 });
   }
 
   console.log(`[Scheduler] Post ${post.id} finished with status: ${finalStatus}`);

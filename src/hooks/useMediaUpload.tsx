@@ -10,9 +10,19 @@ export interface UploadedMedia {
   size: number;
 }
 
+export interface UploadProgress {
+  percentage: number;
+  uploadedBytes: number;
+  totalBytes: number;
+  speed: number; // bytes per second
+  eta: number; // seconds remaining
+  fileName: string;
+}
+
 export function useMediaUpload() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const { user } = useAuth();
 
   const uploadMedia = async (
@@ -25,6 +35,10 @@ export function useMediaUpload() {
 
     setUploading(true);
     setProgress(0);
+    
+    let startTime = Date.now();
+    let lastLoaded = 0;
+    let lastTime = startTime;
 
     try {
       const formData = new FormData();
@@ -32,11 +46,34 @@ export function useMediaUpload() {
 
       const xhr = new XMLHttpRequest();
 
-      // Track upload progress
+      // Track upload progress with detailed stats
       xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
+          const now = Date.now();
+          const timeDiff = (now - lastTime) / 1000; // seconds
+          const bytesDiff = event.loaded - lastLoaded;
+          
+          // Calculate speed (bytes per second)
+          const speed = timeDiff > 0 ? bytesDiff / timeDiff : 0;
+          
+          // Calculate ETA
+          const remainingBytes = event.total - event.loaded;
+          const eta = speed > 0 ? remainingBytes / speed : 0;
+          
           const percentComplete = Math.round((event.loaded / event.total) * 100);
           setProgress(percentComplete);
+          
+          setUploadProgress({
+            percentage: percentComplete,
+            uploadedBytes: event.loaded,
+            totalBytes: event.total,
+            speed: speed,
+            eta: eta,
+            fileName: file.name,
+          });
+          
+          lastLoaded = event.loaded;
+          lastTime = now;
         }
       });
 
@@ -90,10 +127,12 @@ export function useMediaUpload() {
 
       setUploading(false);
       setProgress(100);
+      setUploadProgress(null);
       return { data: media, error: null };
     } catch (error: any) {
       setUploading(false);
       setProgress(0);
+      setUploadProgress(null);
       return { data: undefined, error };
     }
   };
@@ -105,6 +144,11 @@ export function useMediaUpload() {
 
     setUploading(true);
     setProgress(0);
+    
+    let startTime = Date.now();
+    let lastLoaded = 0;
+    let lastTime = startTime;
+    const totalSize = files.reduce((sum, f) => sum + f.size, 0);
 
     try {
       const formData = new FormData();
@@ -114,11 +158,31 @@ export function useMediaUpload() {
 
       const xhr = new XMLHttpRequest();
 
-      // Track upload progress
+      // Track upload progress with detailed stats
       xhr.upload.addEventListener('progress', (event) => {
         if (event.lengthComputable) {
+          const now = Date.now();
+          const timeDiff = (now - lastTime) / 1000;
+          const bytesDiff = event.loaded - lastLoaded;
+          
+          const speed = timeDiff > 0 ? bytesDiff / timeDiff : 0;
+          const remainingBytes = event.total - event.loaded;
+          const eta = speed > 0 ? remainingBytes / speed : 0;
+          
           const percentComplete = Math.round((event.loaded / event.total) * 100);
           setProgress(percentComplete);
+          
+          setUploadProgress({
+            percentage: percentComplete,
+            uploadedBytes: event.loaded,
+            totalBytes: event.total,
+            speed: speed,
+            eta: eta,
+            fileName: `${files.length} files`,
+          });
+          
+          lastLoaded = event.loaded;
+          lastTime = now;
         }
       });
 
@@ -298,5 +362,6 @@ export function useMediaUpload() {
     uploadFromUrls,
     uploading,
     progress,
+    uploadProgress,
   };
 }

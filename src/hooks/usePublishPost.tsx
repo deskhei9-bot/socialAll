@@ -84,7 +84,15 @@ export function usePublishPost() {
       }
 
       const data = await response.json();
-      const publishResults: PublishResult[] = data.results || [];
+      // Map backend status to frontend success boolean
+      const publishResults: PublishResult[] = (data.results || []).map((r: any) => ({
+        platform: r.platform,
+        channel_id: r.channel_id,
+        channel_name: r.channel_name,
+        success: r.status === 'success',
+        error: r.error,
+        postUrl: r.url || r.postUrl,
+      }));
 
       setResults(publishResults);
       

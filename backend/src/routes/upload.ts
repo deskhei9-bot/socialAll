@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import { pool } from '../lib/database';
 import crypto from 'crypto';
 
@@ -175,9 +176,9 @@ router.delete('/media/:id', async (req: any, res) => {
       return res.status(404).json({ error: 'Media not found' });
     }
 
-    // TODO: Delete physical file from disk
-    const fs = require('fs');
-    const filePath = path.join('/opt/social-symphony', result.rows[0].file_path);
+    // Delete physical file from disk
+    const relativePath = String(result.rows[0].file_path || '').replace(/^\\/g, '');
+    const filePath = path.join('/opt/social-symphony/uploads', relativePath);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
     }

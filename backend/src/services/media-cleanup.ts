@@ -8,7 +8,7 @@ import path from 'path';
  */
 
 interface CleanupOptions {
-  delay?: number; // Delay in milliseconds before cleanup (default: 5 minutes)
+  delay?: number; // Delay in milliseconds before cleanup (default: 30 minutes)
   immediate?: boolean; // Clean up immediately after post
 }
 
@@ -19,7 +19,7 @@ export async function cleanupPostMedia(
   postId: string,
   options: CleanupOptions = {}
 ): Promise<void> {
-  const delay = options.immediate ? 0 : (options.delay || 5 * 60 * 1000); // Default 5 minutes
+  const delay = options.immediate ? 0 : (options.delay || 30 * 60 * 1000); // Default 30 minutes
 
   // Schedule cleanup
   setTimeout(async () => {

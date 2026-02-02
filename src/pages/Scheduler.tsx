@@ -18,11 +18,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { usePosts } from "@/hooks/usePosts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { format, formatDistanceToNow } from "date-fns";
+import { BulkActions } from "@/components/BulkActions";
 
 const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -56,6 +58,7 @@ const statusConfig: Record<string, { icon: React.ReactNode; label: string; color
 
 export default function Scheduler() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
   const { posts, loading } = usePosts();
 
   const year = currentDate.getFullYear();
@@ -412,6 +415,12 @@ export default function Scheduler() {
           </CardContent>
         </Card>
       )}
+
+      {/* Bulk Actions */}
+      <BulkActions 
+        selectedPosts={selectedPosts} 
+        onClearSelection={() => setSelectedPosts([])} 
+      />
     </div>
   );
 }

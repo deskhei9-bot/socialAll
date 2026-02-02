@@ -1,23 +1,7 @@
 import { pool } from '../lib/database';
 import axios from 'axios';
 import { google } from 'googleapis';
-import crypto from 'crypto';
-
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
-
-function encryptToken(token: string): string {
-  const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
-  let encrypted = cipher.update(token, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted;
-}
-
-function decryptToken(encryptedToken: string): string {
-  const decipher = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
-  let decrypted = decipher.update(encryptedToken, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
+import { encryptToken, decryptToken } from '../lib/token-crypto';
 
 // Refresh days before expiry
 const REFRESH_DAYS_BEFORE = 3;

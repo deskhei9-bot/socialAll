@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { cn } from "@/lib/utils";
 import { useActivityLogs } from "@/hooks/useActivityLogs";
 import { useChannels } from "@/hooks/useChannels";
+import { AnalyticsDashboard } from "@/components/AnalyticsDashboard";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatDistanceToNow } from "date-fns";
@@ -154,6 +155,11 @@ export default function Analytics() {
           </Button>
         </div>
       </div>
+
+      {/* Analytics Dashboard Component */}
+      <AnalyticsDashboard />
+
+      {/* Original Analytics Content Below */}
 
       {/* Overview Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -369,7 +375,7 @@ export default function Analytics() {
             ) : (
               <div className="space-y-4">
                 {channels.map((channel) => {
-                  const platformData = analytics?.platformBreakdown.find(p => p.platform === channel.platform);
+                  const platformData = analytics?.platformBreakdown?.find(p => p.platform === channel.platform);
                   const reach = platformData?.reach || 0;
                   const engagement = platformData?.engagement || 0;
                   const engagementRate = reach > 0 ? ((engagement / reach) * 100).toFixed(1) : 0;

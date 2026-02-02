@@ -6,6 +6,8 @@ import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
 import { pipeline } from 'stream';
+import dns from 'dns/promises';
+import net from 'net';
 import { 
   isYouTubeUrl, 
   isTikTokUrl, 
@@ -37,6 +39,89 @@ function isValidUrl(urlString: string): boolean {
   } catch {
     return false;
   }
+}
+
+function isPrivateIp(ip: string): boolean {
+  if (net.isIP(ip) === 4) {
+    const parts = ip.split('.').map(Number);
+    const [a, b] = parts;
+    if (a === 10) return true;
+    if (a === 127) return true;
+    if (a === 0) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    return false;
+  }
+
+  if (net.isIP(ip) === 6) {
+    const normalized = ip.toLowerCase();
+    if (normalized === '::1') return true;
+    if (normalized.startsWith('fc') || normalized.startsWith('fd')) return true; // unique local
+    if (normalized.startsWith('fe80')) return true; // link-local
+    return false;
+  }
+
+  return false;
+}
+
+async function assertPublicUrl(urlString: string): Promise<void> {
+  const url = new URL(urlString);
+  const hostname = url.hostname.toLowerCase();
+
+  if (hostname === 'localhost' || hostname.endsWith('.local')) {
+    throw new Error('Localhost URLs are not allowed');
+  }
+
+  if (net.isIP(hostname)) {
+    if (isPrivateIp(hostname)) {
+      throw new Error('Private IP addresses are not allowed');
+    }
+    return;
+  }
+
+  const records = await dns.lookup(hostname, { all: true });
+  if (!records.length) {
+    throw new Error('Unable to resolve host');
+  }
+
+  for (const record of records) {
+    if (isPrivateIp(record.address)) {
+      throw new Error('Host resolves to a private IP address');
+    }
+  }
+}
+
+async function resolveUrlWithRedirects(urlString: string, maxRedirects = 5): Promise<{ finalUrl: string; headResponse: any | null }> {
+  let currentUrl = urlString;
+  let lastResponse: any | null = null;
+
+  for (let i = 0; i <= maxRedirects; i += 1) {
+    await assertPublicUrl(currentUrl);
+
+    try {
+      const response = await axios.head(currentUrl, {
+        timeout: 10000,
+        maxRedirects: 0,
+        validateStatus: (status) => status >= 200 && status < 400,
+      });
+
+      lastResponse = response;
+
+      if (response.status >= 300 && response.status < 400 && response.headers.location) {
+        const redirectUrl = new URL(response.headers.location, currentUrl).toString();
+        currentUrl = redirectUrl;
+        continue;
+      }
+
+      return { finalUrl: currentUrl, headResponse: response };
+    } catch (error) {
+      // If HEAD fails, fall back to current URL without metadata.
+      return { finalUrl: currentUrl, headResponse: lastResponse };
+    }
+  }
+
+  throw new Error('Too many redirects');
 }
 
 /**
@@ -183,23 +268,21 @@ router.post('/from-url', async (req: any, res) => {
     }
 
     // Handle direct media URLs (original logic)
-    const headResponse = await axios.head(url, {
-      timeout: 10000,
-      maxRedirects: 5,
-    }).catch(() => null);
+    await assertPublicUrl(url);
+    const { finalUrl, headResponse } = await resolveUrlWithRedirects(url, 5);
 
-    const contentType = headResponse?.headers['content-type'] || '';
-    const contentLength = parseInt(headResponse?.headers['content-length'] || '0');
+    let contentType = headResponse?.headers['content-type'] || '';
+    let contentLength = parseInt(headResponse?.headers['content-length'] || '0');
 
-    // Validate content type
-    const mediaType = getMediaType(contentType);
-    if (!mediaType) {
+    // Validate content type when available
+    let mediaType = contentType ? getMediaType(contentType) : null;
+    if (contentType && !mediaType) {
       return res.status(400).json({ 
         error: 'Unsupported media type. Only images and videos are allowed.' 
       });
     }
 
-    // Validate file size (500MB limit)
+    // Validate file size (500MB limit) when available
     const MAX_SIZE = 500 * 1024 * 1024;
     if (contentLength > MAX_SIZE) {
       return res.status(400).json({ 
@@ -209,8 +292,46 @@ router.post('/from-url', async (req: any, res) => {
 
     // Generate unique filename
     const uniqueSuffix = crypto.randomBytes(16).toString('hex');
-    const fileExt = getFileExtension(url, contentType);
+    const fileExt = getFileExtension(finalUrl, contentType);
     const filename = `${Date.now()}-${uniqueSuffix}${fileExt}`;
+
+    // Download file
+    const response = await axios({
+      method: 'GET',
+      url: finalUrl,
+      responseType: 'stream',
+      timeout: 120000, // 2 minutes
+      maxRedirects: 0,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; SocialAutoUpload/1.0)',
+      },
+    });
+
+    if (!contentType) {
+      contentType = response.headers['content-type'] || '';
+      contentLength = parseInt(response.headers['content-length'] || '0');
+    }
+
+    const responseMediaType = getMediaType(contentType);
+    if (!responseMediaType) {
+      response.data.destroy();
+      return res.status(400).json({
+        error: 'Unsupported media type. Only images and videos are allowed.'
+      });
+    }
+
+    if (!mediaType) {
+      mediaType = responseMediaType;
+    }
+
+    if (contentLength > 0) {
+      if (contentLength > MAX_SIZE) {
+        response.data.destroy();
+        return res.status(400).json({
+          error: `File too large. Maximum size is 500MB. File size: ${(contentLength / 1024 / 1024).toFixed(1)}MB`
+        });
+      }
+    }
 
     // Determine upload directory
     const uploadDir = mediaType === 'video' 
@@ -218,18 +339,6 @@ router.post('/from-url', async (req: any, res) => {
       : '/opt/social-symphony/uploads/images';
 
     const filePath = path.join(uploadDir, filename);
-
-    // Download file
-    const response = await axios({
-      method: 'GET',
-      url,
-      responseType: 'stream',
-      timeout: 120000, // 2 minutes
-      maxRedirects: 5,
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; SocialAutoUpload/1.0)',
-      },
-    });
 
     // Save to disk
     await streamPipeline(response.data, fs.createWriteStream(filePath));
@@ -316,17 +425,16 @@ router.post('/from-urls', async (req: any, res) => {
           continue;
         }
 
+        await assertPublicUrl(url);
+
         // Fetch metadata
-        const headResponse = await axios.head(url, {
-          timeout: 10000,
-          maxRedirects: 5,
-        }).catch(() => null);
+        const { finalUrl, headResponse } = await resolveUrlWithRedirects(url, 5);
 
-        const contentType = headResponse?.headers['content-type'] || '';
-        const contentLength = parseInt(headResponse?.headers['content-length'] || '0');
+        let contentType = headResponse?.headers['content-type'] || '';
+        let contentLength = parseInt(headResponse?.headers['content-length'] || '0');
 
-        const mediaType = getMediaType(contentType);
-        if (!mediaType) {
+        let mediaType = contentType ? getMediaType(contentType) : null;
+        if (contentType && !mediaType) {
           errors.push({ url, error: 'Unsupported media type' });
           continue;
         }
@@ -339,26 +447,51 @@ router.post('/from-urls', async (req: any, res) => {
 
         // Generate filename
         const uniqueSuffix = crypto.randomBytes(16).toString('hex');
-        const fileExt = getFileExtension(url, contentType);
+        const fileExt = getFileExtension(finalUrl, contentType);
         const filename = `${Date.now()}-${uniqueSuffix}${fileExt}`;
+
+        // Download
+        const response = await axios({
+          method: 'GET',
+          url: finalUrl,
+          responseType: 'stream',
+          timeout: 120000,
+          maxRedirects: 0,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; SocialAutoUpload/1.0)',
+          },
+        });
+
+        if (!contentType) {
+          contentType = response.headers['content-type'] || '';
+          contentLength = parseInt(response.headers['content-length'] || '0');
+        }
+
+        const responseMediaType = getMediaType(contentType);
+        if (!responseMediaType) {
+          response.data.destroy();
+          errors.push({ url, error: 'Unsupported media type' });
+          continue;
+        }
+
+        if (!mediaType) {
+          mediaType = responseMediaType;
+        }
+
+        if (contentLength > 0) {
+          const MAX_SIZE = 500 * 1024 * 1024;
+          if (contentLength > MAX_SIZE) {
+            response.data.destroy();
+            errors.push({ url, error: 'File too large (max 500MB)' });
+            continue;
+          }
+        }
 
         const uploadDir = mediaType === 'video' 
           ? '/opt/social-symphony/uploads/videos'
           : '/opt/social-symphony/uploads/images';
 
         const filePath = path.join(uploadDir, filename);
-
-        // Download
-        const response = await axios({
-          method: 'GET',
-          url,
-          responseType: 'stream',
-          timeout: 120000,
-          maxRedirects: 5,
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; SocialAutoUpload/1.0)',
-          },
-        });
 
         await streamPipeline(response.data, fs.createWriteStream(filePath));
 

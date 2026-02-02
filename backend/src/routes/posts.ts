@@ -1,5 +1,6 @@
 import express from 'express';
 import { pool } from '../lib/database';
+import { findSimilarContent } from '../lib/content-hash';
 
 const router = express.Router();
 
@@ -63,6 +64,16 @@ router.post('/', async (req: any, res) => {
       post_type,
       selected_channel_ids // NEW: Array of channel IDs to publish to
     } = req.body;
+    
+    console.log('📝 Creating post:', {
+      userId,
+      post_type,
+      media_url,
+      media_urls,
+      media_urls_length: media_urls?.length,
+      platforms,
+      content: content?.substring(0, 50)
+    });
     
     const result = await pool.query(
       `INSERT INTO posts (
@@ -178,6 +189,43 @@ router.delete('/:id', async (req: any, res) => {
     res.json({ message: 'Post deleted successfully' });
   } catch (error: any) {
     console.error('Error deleting post:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Check for duplicate/similar content
+router.post('/check-duplicate', async (req: any, res) => {
+  try {
+    const userId = req.user.id;
+    const { content } = req.body;
+
+    if (!content || content.trim().length < 10) {
+      return res.json({ similar: [] });
+    }
+
+    // Get user's recent posts (last 30 days)
+    const result = await pool.query(
+      `SELECT id, content, created_at, platforms
+       FROM posts 
+       WHERE user_id = $1 
+         AND created_at >= NOW() - INTERVAL '30 days'
+       ORDER BY created_at DESC`,
+      [userId]
+    );
+
+    const similar = findSimilarContent(content, result.rows);
+
+    res.json({ 
+      similar: similar.map(s => ({
+        id: s.post.id,
+        content: s.post.content.substring(0, 100),
+        similarity: Math.round(s.similarity * 100),
+        created_at: s.post.created_at,
+        platforms: s.post.platforms,
+      }))
+    });
+  } catch (error: any) {
+    console.error('Error checking duplicates:', error);
     res.status(500).json({ error: error.message });
   }
 });

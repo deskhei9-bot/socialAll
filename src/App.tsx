@@ -7,24 +7,36 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { useUserRole } from "./hooks/useUserRole";
 import { ThemeProvider } from "./components/ThemeProvider";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
-import Dashboard from "./pages/Dashboard";
-import CreatePost from "./pages/CreatePost";
-import Scheduler from "./pages/Scheduler";
-import Channels from "./pages/Channels";
-import Analytics from "./pages/Analytics";
-import Settings from "./pages/Settings";
-import Templates from "./pages/Templates";
-import Auth from "./pages/Auth";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import ManageUsers from "./pages/admin/ManageUsers";
-import SystemAnalytics from "./pages/admin/SystemAnalytics";
-import SystemSettings from "./pages/admin/SystemSettings";
-import Status from "./pages/Status";
 import { Loader2 } from "lucide-react";
+import { lazy, Suspense } from "react";
+
+// Lazy load pages for code splitting
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const CreatePost = lazy(() => import("./pages/CreatePost"));
+const Scheduler = lazy(() => import("./pages/Scheduler"));
+const Channels = lazy(() => import("./pages/Channels"));
+const Analytics = lazy(() => import("./pages/Analytics"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Templates = lazy(() => import("./pages/Templates"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const ManageUsers = lazy(() => import("./pages/admin/ManageUsers"));
+const SystemAnalytics = lazy(() => import("./pages/admin/SystemAnalytics"));
+const SystemSettings = lazy(() => import("./pages/admin/SystemSettings"));
+const Status = lazy(() => import("./pages/Status"));
 
 const queryClient = new QueryClient();
+
+// Loading fallback component
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -96,14 +108,14 @@ function AppRoutes() {
   const homeRoute = user ? (
     <Route path="/" element={<Navigate to="/dashboard" replace />} />
   ) : (
-    <Route path="/" element={<Index />} />
+    <Route path="/" element={<Suspense fallback={<LoadingFallback />}><Index /></Suspense>} />
   );
 
   return (
     <Routes>
       {homeRoute}
-      <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <Auth />} />
-      <Route path="/status" element={<Status />} />
+      <Route path="/auth" element={user ? <Navigate to="/dashboard" replace /> : <Suspense fallback={<LoadingFallback />}><Auth /></Suspense>} />
+      <Route path="/status" element={<Suspense fallback={<LoadingFallback />}><Status /></Suspense>} />
       
       <Route
         element={
@@ -113,22 +125,22 @@ function AppRoutes() {
         }
       >
         {/* User routes */}
-        <Route path="/dashboard" element={<UserRoute><Dashboard /></UserRoute>} />
-        <Route path="/create" element={<UserRoute><CreatePost /></UserRoute>} />
-        <Route path="/scheduler" element={<UserRoute><Scheduler /></UserRoute>} />
-        <Route path="/channels" element={<UserRoute><Channels /></UserRoute>} />
-        <Route path="/analytics" element={<UserRoute><Analytics /></UserRoute>} />
-        <Route path="/templates" element={<UserRoute><Templates /></UserRoute>} />
-        <Route path="/settings" element={<UserRoute><Settings /></UserRoute>} />
+        <Route path="/dashboard" element={<UserRoute><Suspense fallback={<LoadingFallback />}><Dashboard /></Suspense></UserRoute>} />
+        <Route path="/create" element={<UserRoute><Suspense fallback={<LoadingFallback />}><CreatePost /></Suspense></UserRoute>} />
+        <Route path="/scheduler" element={<UserRoute><Suspense fallback={<LoadingFallback />}><Scheduler /></Suspense></UserRoute>} />
+        <Route path="/channels" element={<UserRoute><Suspense fallback={<LoadingFallback />}><Channels /></Suspense></UserRoute>} />
+        <Route path="/analytics" element={<UserRoute><Suspense fallback={<LoadingFallback />}><Analytics /></Suspense></UserRoute>} />
+        <Route path="/templates" element={<UserRoute><Suspense fallback={<LoadingFallback />}><Templates /></Suspense></UserRoute>} />
+        <Route path="/settings" element={<UserRoute><Suspense fallback={<LoadingFallback />}><Settings /></Suspense></UserRoute>} />
         
         {/* Admin routes */}
-        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-        <Route path="/admin/users" element={<AdminRoute><ManageUsers /></AdminRoute>} />
-        <Route path="/admin/analytics" element={<AdminRoute><SystemAnalytics /></AdminRoute>} />
-        <Route path="/admin/settings" element={<AdminRoute><SystemSettings /></AdminRoute>} />
+        <Route path="/admin" element={<AdminRoute><Suspense fallback={<LoadingFallback />}><AdminDashboard /></Suspense></AdminRoute>} />
+        <Route path="/admin/users" element={<AdminRoute><Suspense fallback={<LoadingFallback />}><ManageUsers /></Suspense></AdminRoute>} />
+        <Route path="/admin/analytics" element={<AdminRoute><Suspense fallback={<LoadingFallback />}><SystemAnalytics /></Suspense></AdminRoute>} />
+        <Route path="/admin/settings" element={<AdminRoute><Suspense fallback={<LoadingFallback />}><SystemSettings /></Suspense></AdminRoute>} />
       </Route>
       
-      <Route path="*" element={<NotFound />} />
+      <Route path="*" element={<Suspense fallback={<LoadingFallback />}><NotFound /></Suspense>} />
     </Routes>
   );
 }

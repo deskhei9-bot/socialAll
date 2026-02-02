@@ -21,9 +21,31 @@ export function useYouTubeOAuth() {
         return;
       }
 
-      // Redirect to backend OAuth endpoint with userId
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in again to connect your YouTube channel",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const apiUrl = import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api';
-      window.location.href = `${apiUrl}/oauth/youtube?userId=${user.id}`;
+      const response = await fetch(`${apiUrl}/oauth/youtube?response=json`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data?.url) {
+        throw new Error(data?.error || 'Failed to initiate OAuth');
+      }
+
+      window.location.href = data.url;
       
     } catch (error) {
       console.error('YouTube OAuth error:', error);

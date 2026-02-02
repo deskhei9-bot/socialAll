@@ -2,19 +2,14 @@ import express from 'express';
 import axios from 'axios';
 import crypto from 'crypto';
 import { pool } from '../../lib/database';
+import { createOAuthState, verifyOAuthState } from '../../lib/oauth-state';
+import { getUserIdFromRequest } from '../../lib/oauth-request';
+import { encryptToken } from '../../lib/token-crypto';
 
 const router = express.Router();
 
 // Store temporary PKCE code verifiers (in production, use Redis)
 const codeVerifiers = new Map<string, { codeVerifier: string; userId: string }>();
-
-function encryptToken(token: string): string {
-  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
-  const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
-  let encrypted = cipher.update(token, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted;
-}
 
 // Generate PKCE code verifier and challenge
 function generatePKCE() {
@@ -35,31 +30,11 @@ router.get('/', (req: any, res) => {
   console.log('📍 TikTok OAuth GET / route hit');
   console.log('Query params:', req.query);
   
-  // Get user ID from query parameter (passed from frontend)
-  const userIdFromQuery = req.query.userId;
-  
-  // Or try to get from auth header if available
-  let userId = userIdFromQuery;
-  
-  if (!userId) {
-    // Try to authenticate from header
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      try {
-        const token = authHeader.substring(7);
-        const { verifyToken } = require('../../lib/auth');
-        const payload = verifyToken(token);
-        userId = payload.userId;
-        console.log('✅ User ID from auth header:', userId);
-      } catch (error) {
-        console.log('⚠️ Auth header verification failed:', error);
-      }
-    }
-  }
+  const userId = getUserIdFromRequest(req);
   
   if (!userId) {
     console.log('❌ No userId found - returning 401');
-    return res.status(401).json({ error: 'Unauthorized: userId required in query or auth header' });
+    return res.status(401).json({ error: 'Unauthorized: valid auth token required' });
   }
 
   const CLIENT_KEY = process.env.TIKTOK_CLIENT_KEY;
@@ -82,7 +57,7 @@ router.get('/', (req: any, res) => {
 
   // Generate PKCE
   const { codeVerifier, codeChallenge } = generatePKCE();
-  const state = crypto.randomBytes(16).toString('hex');
+  const state = createOAuthState({ userId, provider: 'tiktok' });
 
   // Store code verifier temporarily (expires in 15 minutes)
   codeVerifiers.set(state, { codeVerifier, userId });
@@ -102,6 +77,10 @@ router.get('/', (req: any, res) => {
   console.log(`🔐 TikTok OAuth initiated for user ${userId}`);
   console.log(`📍 Redirect URI: ${REDIRECT_URI}`);
   
+  if (req.query.response === 'json' || req.headers.accept?.includes('application/json')) {
+    return res.json({ url: authUrl });
+  }
+
   res.redirect(authUrl);
 });
 
@@ -122,13 +101,20 @@ router.get('/callback', async (req: any, res) => {
     return res.redirect(`${process.env.FRONTEND_URL}/channels?error=missing_code_or_state`);
   }
 
+  let userId: string;
+  try {
+    ({ userId } = verifyOAuthState(state as string));
+  } catch (err) {
+    return res.redirect(`${process.env.FRONTEND_URL}/channels?error=invalid_state`);
+  }
+
   // Retrieve stored code verifier
   const storedData = codeVerifiers.get(state as string);
   if (!storedData) {
     return res.redirect(`${process.env.FRONTEND_URL}/channels?error=tiktok_state_expired`);
   }
 
-  const { codeVerifier, userId } = storedData;
+  const { codeVerifier } = storedData;
   console.log(`📥 TikTok OAuth callback received for user ${userId}`);
 
   try {

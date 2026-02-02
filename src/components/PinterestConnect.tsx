@@ -8,9 +8,12 @@ export function PinterestConnect() {
   const handleConnect = async () => {
     setConnecting(true);
     try {
-      const response = await fetch('/api/oauth/pinterest', {
+      const token = localStorage.getItem('auth_token');
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://socialautoupload.com/api';
+      const response = await fetch(`${apiUrl}/oauth/pinterest?response=json`, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          Authorization: `Bearer ${token || ''}`,
+          Accept: 'application/json',
         }
       });
       const data = await response.json();

@@ -2,7 +2,11 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { query } from './database';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+const rawJwtSecret = process.env.JWT_SECRET;
+if (!rawJwtSecret && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET is required in production');
+}
+const JWT_SECRET = rawJwtSecret || 'dev-insecure-secret';
 const SALT_ROUNDS = 10;
 
 export interface User {

@@ -1,17 +1,11 @@
 import express from 'express';
 import axios from 'axios';
-import crypto from 'crypto';
 import { pool } from '../../lib/database';
+import { createOAuthState, verifyOAuthState } from '../../lib/oauth-state';
+import { getUserIdFromRequest } from '../../lib/oauth-request';
+import { encryptToken } from '../../lib/token-crypto';
 
 const router = express.Router();
-
-function encryptToken(token: string): string {
-  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
-  const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
-  let encrypted = cipher.update(token, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted;
-}
 
 /**
  * GET /api/oauth/pinterest
@@ -22,31 +16,11 @@ router.get('/', (req: any, res) => {
   console.log('📍 Pinterest OAuth GET / route hit');
   console.log('Query params:', req.query);
   
-  // Get user ID from query parameter (passed from frontend)
-  const userIdFromQuery = req.query.userId;
-  
-  // Or try to get from auth header if available
-  let userId = userIdFromQuery;
-  
-  if (!userId) {
-    // Try to authenticate from header
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      try {
-        const token = authHeader.substring(7);
-        const { verifyToken } = require('../../lib/auth');
-        const payload = verifyToken(token);
-        userId = payload.userId;
-        console.log('✅ User ID from auth header:', userId);
-      } catch (error) {
-        console.log('⚠️ Auth header verification failed:', error);
-      }
-    }
-  }
+  const userId = getUserIdFromRequest(req);
   
   if (!userId) {
     console.log('❌ No userId found - returning 401');
-    return res.status(401).json({ error: 'Unauthorized: userId required in query or auth header' });
+    return res.status(401).json({ error: 'Unauthorized: valid auth token required' });
   }
 
   const CLIENT_ID = process.env.PINTEREST_CLIENT_ID;
@@ -68,7 +42,7 @@ router.get('/', (req: any, res) => {
     'user_accounts:read',
   ].join(',');
 
-  const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
+  const state = createOAuthState({ userId, provider: 'pinterest' });
 
   const authUrl = `https://www.pinterest.com/oauth/?` +
     `client_id=${CLIENT_ID}&` +
@@ -80,6 +54,10 @@ router.get('/', (req: any, res) => {
   console.log(`🔐 Pinterest OAuth initiated for user ${userId}`);
   console.log(`📍 Redirect URI: ${REDIRECT_URI}`);
   
+  if (req.query.response === 'json' || req.headers.accept?.includes('application/json')) {
+    return res.json({ url: authUrl });
+  }
+
   res.redirect(authUrl);
 });
 
@@ -101,8 +79,7 @@ router.get('/callback', async (req: any, res) => {
   }
 
   try {
-    const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString());
-    const userId = stateData.userId;
+    const { userId } = verifyOAuthState(state as string);
     console.log(`📥 Pinterest OAuth callback received for user ${userId}`);
 
     const CLIENT_ID = process.env.PINTEREST_CLIENT_ID;

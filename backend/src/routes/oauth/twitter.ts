@@ -1,20 +1,13 @@
 import express from 'express';
-import crypto from 'crypto';
 import { TwitterApi } from 'twitter-api-v2';
 import { pool } from '../../lib/database';
+import { getUserIdFromRequest } from '../../lib/oauth-request';
+import { encryptToken } from '../../lib/token-crypto';
 
 const router = express.Router();
 
 // Store temporary OAuth tokens (in production, use Redis)
 const oauthTokens = new Map<string, { oauth_token_secret: string; userId: string }>();
-
-function encryptToken(token: string): string {
-  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
-  const cipher = crypto.createCipher('aes-256-cbc', ENCRYPTION_KEY);
-  let encrypted = cipher.update(token, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return encrypted;
-}
 
 /**
  * GET /api/oauth/twitter
@@ -25,31 +18,11 @@ router.get('/', async (req: any, res) => {
   console.log('📍 Twitter OAuth GET / route hit');
   console.log('Query params:', req.query);
   
-  // Get user ID from query parameter (passed from frontend)
-  const userIdFromQuery = req.query.userId;
-  
-  // Or try to get from auth header if available
-  let userId = userIdFromQuery;
-  
-  if (!userId) {
-    // Try to authenticate from header
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      try {
-        const token = authHeader.substring(7);
-        const { verifyToken } = require('../../lib/auth');
-        const payload = verifyToken(token);
-        userId = payload.userId;
-        console.log('✅ User ID from auth header:', userId);
-      } catch (error) {
-        console.log('⚠️ Auth header verification failed:', error);
-      }
-    }
-  }
+  const userId = getUserIdFromRequest(req);
   
   if (!userId) {
     console.log('❌ No userId found - returning 401');
-    return res.status(401).json({ error: 'Unauthorized: userId required in query or auth header' });
+    return res.status(401).json({ error: 'Unauthorized: valid auth token required' });
   }
 
   const TWITTER_CLIENT_ID = process.env.TWITTER_CLIENT_ID;
@@ -86,6 +59,10 @@ router.get('/', async (req: any, res) => {
     }, 15 * 60 * 1000);
 
     console.log(`🔐 Twitter OAuth initiated for user ${userId}`);
+    if (req.query.response === 'json' || req.headers.accept?.includes('application/json')) {
+      return res.json({ url: authLink.url });
+    }
+
     res.redirect(authLink.url);
 
   } catch (error: any) {

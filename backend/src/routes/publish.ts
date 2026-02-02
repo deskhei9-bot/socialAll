@@ -8,17 +8,10 @@ import { TwitterService } from '../services/twitter';
 import { TelegramService } from '../services/telegram';
 import { LinkedInService } from '../services/linkedin';
 import { MediaCleanupService } from '../services/media-cleanup';
-import crypto from 'crypto';
+import { decryptToken } from '../lib/token-crypto';
+import { retryWithBackoff } from '../lib/retry';
 
 const router = express.Router();
-
-function decryptToken(encryptedToken: string): string {
-  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production';
-  const decipher = crypto.createDecipher('aes-256-cbc', ENCRYPTION_KEY);
-  let decrypted = decipher.update(encryptedToken, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
 
 /**
  * Generate a smart title for platforms that require it (YouTube, Pinterest)
@@ -68,6 +61,10 @@ router.post('/', async (req: any, res) => {
     const postType = post.post_type || 'text';
     const results: any[] = [];
     
+    // Get first media URL from array (for photo/video posts)
+    const firstMediaUrl = post.media_urls && post.media_urls.length > 0 ? post.media_urls[0] : post.media_url;
+    const allMediaUrls = post.media_urls || [];
+    
     let channelsToPublish: any[] = [];
     
     if (selectedChannelIds.length > 0) {
@@ -106,63 +103,72 @@ router.post('/', async (req: any, res) => {
       try {
         let publishResult;
         
-        if (platform === 'facebook') {
-          // Publish based on post type
-          switch (postType) {
-            case 'reel':
-              if (post.media_url && post.media_url.includes('/videos/')) {
-                const filePath = post.media_url.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
-                publishResult = await FacebookService.publishReel(accessToken, channelId, filePath, post.content);
-              } else {
-                throw new Error('Reel requires a video file');
-              }
-              break;
+        // Wrap publish call with retry logic
+        publishResult = await retryWithBackoff(async () => {
+          if (platform === 'facebook') {
+            // Publish based on post type
+            switch (postType) {
+              case 'reel':
+                if (firstMediaUrl && firstMediaUrl.includes('/videos/')) {
+                  const filePath = firstMediaUrl.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
+                  return await FacebookService.publishReel(accessToken, channelId, filePath, post.content);
+                } else {
+                  throw new Error('Reel requires a video file');
+                }
 
-            case 'album':
-              // Expect multiple media URLs in metadata
-              const mediaUrls = post.metadata?.media_urls || [];
-              if (mediaUrls.length > 0) {
-                publishResult = await FacebookService.publishPhotoAlbum(accessToken, channelId, mediaUrls, post.content);
-              } else {
-                throw new Error('Album requires multiple photos');
-              }
-              break;
+              case 'album':
+                const albumUrls = allMediaUrls.length > 1 ? allMediaUrls : (post.metadata?.media_urls || []);
+                if (albumUrls.length > 1) {
+                  return await FacebookService.publishPhotoAlbum(accessToken, channelId, albumUrls, post.content);
+                } else {
+                  throw new Error('Album requires at least 2 photos');
+                }
 
-            case 'link':
-              const linkUrl = post.metadata?.link_url || post.media_url;
-              if (linkUrl) {
-                publishResult = await FacebookService.publishLink(accessToken, channelId, linkUrl, post.content);
-              } else {
-                throw new Error('Link post requires a URL');
-              }
-              break;
+              case 'link':
+                const linkUrl = post.metadata?.link_url || firstMediaUrl;
+                if (linkUrl) {
+                  return await FacebookService.publishLink(accessToken, channelId, linkUrl, post.content);
+                } else {
+                  throw new Error('Link post requires a URL');
+                }
 
-            case 'video':
-              if (post.media_url && post.media_url.includes('/videos/')) {
-                const filePath = post.media_url.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
-                publishResult = await FacebookService.publishVideoPost(accessToken, channelId, filePath, post.content);
-              } else {
-                throw new Error('Video post requires a video file');
-              }
-              break;
+              case 'video':
+                if (firstMediaUrl && firstMediaUrl.includes('/videos/')) {
+                  const filePath = firstMediaUrl.replace('https://socialautoupload.com/uploads/', '/opt/social-symphony/uploads/');
+                  return await FacebookService.publishVideoPost(accessToken, channelId, filePath, post.content);
+                } else {
+                  throw new Error('Video post requires a video file');
+                }
 
-            case 'photo':
-              if (post.media_url && post.media_url.includes('/images/')) {
-                publishResult = await FacebookService.publishPhotoPost(accessToken, channelId, post.media_url, post.content);
-              } else {
-                throw new Error('Photo post requires an image');
-              }
-              break;
+              case 'photo':
+                if (firstMediaUrl && firstMediaUrl.includes('/images/')) {
+                  return await FacebookService.publishPhotoPost(accessToken, channelId, firstMediaUrl, post.content);
+                } else {
+                  throw new Error('Photo post requires an image');
+                }
 
-            case 'text':
-            default:
-              publishResult = await FacebookService.publishTextPost(accessToken, channelId, post.content);
-              break;
+              case 'text':
+              default:
+                return await FacebookService.publishTextPost(accessToken, channelId, post.content);
+            }
           }
+          
+          // Return placeholder for other platforms
+          return null;
+        }, {
+          maxAttempts: 3,
+          initialDelay: 1000,
+          maxDelay: 5000,
+          onRetry: (attempt, error) => {
+            console.log(`[Publish] Retry attempt ${attempt} for ${platform} (${channelName}):`, error.message);
+          }
+        });
+        
+        if (platform === 'facebook' && publishResult) {
 
           await pool.query(
-            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, published_at, metadata)
-             VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, metadata)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               post_id,
               channel.id,
@@ -260,8 +266,8 @@ router.post('/', async (req: any, res) => {
           }
 
           await pool.query(
-            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, published_at, metadata)
-             VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, metadata)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               post_id,
               channel.id,
@@ -342,8 +348,8 @@ router.post('/', async (req: any, res) => {
           }
 
           await pool.query(
-            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, published_at, metadata)
-             VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, metadata)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               post_id,
               channel.id,
@@ -387,8 +393,8 @@ router.post('/', async (req: any, res) => {
             );
 
             await pool.query(
-              `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, published_at, metadata)
-               VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+              `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, metadata)
+               VALUES ($1, $2, $3, $4, $5, $6)`,
               [
                 post_id,
                 channel.id,
@@ -457,8 +463,8 @@ router.post('/', async (req: any, res) => {
           }
 
           await pool.query(
-            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, published_at, metadata)
-             VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, metadata)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               post_id,
               channel.id,
@@ -533,8 +539,8 @@ router.post('/', async (req: any, res) => {
           }
 
           await pool.query(
-            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, published_at, metadata)
-             VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, metadata)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               post_id,
               channel.id,
@@ -629,8 +635,8 @@ router.post('/', async (req: any, res) => {
           }
 
           await pool.query(
-            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, published_at, metadata)
-             VALUES ($1, $2, $3, $4, $5, NOW(), $6)`,
+            `INSERT INTO post_results (post_id, channel_id, platform, platform_post_id, status, metadata)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
             [
               post_id,
               channel.id,
@@ -674,7 +680,7 @@ router.post('/', async (req: any, res) => {
 
     // ✅ Auto-cleanup media after successful publish (5 minutes delay)
     if (anySuccess) {
-      MediaCleanupService.cleanupPostMedia(post_id, { delay: 5 * 60 * 1000 });
+      MediaCleanupService.cleanupPostMedia(post_id, { delay: 30 * 60 * 1000 });
     }
 
     res.json({ success: anySuccess, results, post_status: newStatus });
@@ -707,7 +713,7 @@ router.get('/results/:post_id', async (req: any, res) => {
        FROM post_results pr
        LEFT JOIN connected_channels cc ON pr.channel_id = cc.id
        WHERE pr.post_id = $1
-       ORDER BY pr.published_at DESC`,
+       ORDER BY pr.created_at DESC`,
       [post_id]
     );
 
