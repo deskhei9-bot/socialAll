@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://socialautoupload.com/docs
+    about: Check our comprehensive documentation
+  - name: 💬 Discussions
+    url: https://github.com/deskhei9-bot/socialAll/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 🚀 Quick Start Guide
+    url: https://github.com/deskhei9-bot/socialAll/blob/master/docs/QUICK_START.md
+    about: Get started with Social Symphony in 5 minutes

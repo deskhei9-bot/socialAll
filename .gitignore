@@ -1,16 +1,24 @@
 # Dependencies
 node_modules/
+/.pnp
+.pnp.js
 
 # Environment variables
 .env
 .env.local
+.env.development.local
+.env.test.local
+.env.production.local
 .env.production
 backend/.env
+backend/.env.local
 
 # Build outputs
 dist/
 build/
 *.tsbuildinfo
+.next/
+out/
 
 # Logs
 logs/
@@ -18,44 +26,143 @@ logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 pm2-*.log
 
 # OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# IDE
+# IDE & Editors
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.sublime-project
+.sublime-workspace
+*.code-workspace
 
 # Temporary files
 tmp/
 temp/
+*.tmp
 
 # Uploads (don't commit user uploads)
 uploads/
 public/uploads/
+!uploads/.gitkeep
 
-# Database backups
+# Database
 *.sql
 *.dump
+*.sqlite
+*.sqlite3
+
+# Backups
 backups/
-
-# PM2
-.pm2/
-
-# Backup files
 *.backup
 *.old
 *.bak
+archive/
+
+# PM2
+.pm2/
+ecosystem.config.js.local
 
 # Test coverage
 coverage/
+.nyc_output/
 
 # Cache
 .cache/
 .npm/
 .eslintcache
+.parcel-cache/
+.turbo/
+
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# dotenv environment variable files
+.env.development
+.env.test
+.env.staging
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Secrets and sensitive files
+*.pem
+*.key
+*.crt
+*.p12
+secrets/
+.secrets/
+
+# Lock files (keep one)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Documentation build artifacts
+docs/.vuepress/dist
+docs/.vitepress/dist
+
+# Local development
+.local/
+local/
+
+# Sentry
+.sentryclirc
+
+# Production artifacts
+*.production.js.map
+*.production.css.map

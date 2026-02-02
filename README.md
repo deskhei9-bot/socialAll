@@ -1,274 +1,133 @@
-# Social Symphony - Self-Hosted Social Media Auto Publisher
+# Social Symphony - Multi-Platform Social Media Publisher
 
-**Production URL**: https://socialautoupload.com  
-**Status**: ✅ Live & Operational (97% Complete - Production Ready)  
-**Last Updated**: December 5, 2025
+<div align="center">
 
-## 🎯 ရည်ရွယ်ချက် (Project Vision)
+**🚀 All-in-One Social Media Auto Publisher**
 
-Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, LinkedIn** စသော လူကြိုက်များသည့် social media platforms များအားလုံးကို **တစ်နေရာတည်းမှ** အလိုအလျောက် post များ တင်ပို့နိုင်သော **All-In-One Social Media Publisher** ဖြစ်ပါသည်။
+[![Production Status](https://img.shields.io/badge/Status-Live-success)](https://socialautoupload.com)
+[![Version](https://img.shields.io/badge/Version-1.0.0-blue)]()
 
-အလုပ်လုပ်ပုံက Content ကို web app ထဲ upload ဘယ် channels ကိုတင်မလဲရွေး Now or Schedule Queue workers က API တစ်ခုချင်းစီဆီ Publish
+**Production**: [socialautoupload.com](https://socialautoupload.com)  
+**Status**: ✅ Live & Operational (85% Complete)  
+**Last Updated**: February 2, 2026
 
-### 🌟 အဓိက ရည်ရွယ်ချက်များ:
-
-1. **တစ်နေရာတည်း စီမံခန့်ခွဲမှု (Centralized Management)**
-   - Platform ၆ ခုစလုံးကို တစ် dashboard တည်းကနေ စီမံခန့်ခွဲနိုင်မည်
-   - Content တစ်ခုတည်းကို multiple platforms များသို့ တစ်ချိန်တည်းတင်ပို့နိုင်မည်
-   - Account များကို OAuth2.0 ဖြင့် လုံခြုံစွာ ချိတ်ဆက်နိုင်မည်
-
-2. **အလိုအလျောက် တင်ပို့မှု (Automatic Publishing)**
-   - အချိန်ကြိုတင်စီစဉ်ပြီး scheduled posts များ auto-publish လုပ်နိုင်မည်
-   - Queue system ဖြင့် posts များကို စီစဉ်တင်ပို့နိုင်မည်
-   - Bulk posting ဖြင့် content များစွာကို တစ်ခါတည်း upload လုပ်နိုင်မည်
-
-3. **AI-Powered Content Creation**
-   - Gemini Pro / GPT-4 ဖြင့် captions များ auto-generate လုပ်နိုင်မည်
-   - Platform-specific hashtags များ AI ကနေ အကြံပြုပေးမည်
-   - Multiple tones (professional, casual, engaging, etc.) ရွေးချယ်နိုင်မည်
-
-4. **Platform-Specific Optimizations**
-   - Facebook: Text, Photo, Video, Reel, Album, Link posts
-   - YouTube: Videos, Shorts with full metadata (description, tags, category, privacy)
-   - TikTok: Videos with privacy controls (comments, duet, stitch permissions)
-   - Instagram: Photos, Videos, Reels
-   - Twitter: Text, Media posts
-   - LinkedIn: Professional posts, Images
-
-5. **Analytics & Insights**
-   - Real-time performance metrics (reach, engagement)
-   - Platform-wise analytics breakdown
-   - Time-series data visualization
-   - Success rate tracking
-
-6. **100% Self-Hosted & Privacy-Focused**
-   - Zero cloud dependencies (no Supabase, Firebase, AWS)
-   - သင့် server တွင်သာ data သိမ်းဆည်းမည်
-   - Full control over your content and credentials
-   - GDPR & privacy compliant
-
-### 🎭 ဘယ်သူတွေအတွက် သင့်တော်သလဲ?
-
-- **Social Media Managers**: Multiple clients များ၏ accounts များကို စီမံရသူများ
-- **Content Creators**: Influencers, YouTubers, TikTokers များ
-- **Digital Marketing Agencies**: Client campaigns များ စီမံရသူများ
-- **Small Business Owners**: Own brand ကို promote လုပ်ရသူများ
-- **News Publishers**: သတင်းများကို multiple platforms များတွင် တင်ပို့ရသူများ
-- **Myanmar Developers**: Self-hosted solution လိုအပ်သူများ
+</div>
 
 ---
 
-## 🎯 Project Status
+## 📖 Quick Navigation
 
-**Version**: 1.0.0 (Production)  
-**Deployment Date**: November 30, 2025  
-**Last Updated**: December 2, 2025  
-**Server**: VPS (Hetzner Cloud - Ubuntu 24.04)  
-**Domain**: socialautoupload.com (Cloudflare DNS + Proxy)  
-**Infrastructure**: 100% Self-Hosted (Zero Cloud Dependencies)
-
-### 🎉 Latest Updates (December 2, 2025)
-
-#### 📹 Social Media URL Support
-- ✅ **YouTube Video Downloads** - yt-dlp integration
-- ✅ **TikTok Video Downloads** - Direct video extraction
-- ✅ **Facebook Video Downloads** - Public video support
-- ✅ **Twitter/X Media** - Video and image downloads
-- ✅ **Instagram Media** - Photo and video downloads (limited)
-- ✅ **Telegram Media** - Channel video/photo downloads
-- ✅ **7 Platforms Supported** - Paste URL to auto-download
-
-#### 🎨 Enhanced Media Preview System
-- ✅ **Dual-View Layout** - Visual grid preview + Text-based file list
-- ✅ **Fullscreen Media Viewer** - Click any media to view full size
-- ✅ **Smart Aspect Ratio** - Videos show in original ratio (no cropping)
-- ✅ **Color-Coded Icons** - Blue (photos) / Purple (videos)
-- ✅ **Individual Delete** - X icon on each file in text list
-- ✅ **Bulk Delete** - "Clear All" button
-- ✅ **Hover Effects** - "Full View" label on hover
-- ✅ **File Info Display** - Name, type, size in overlay
-
-#### 🎬 Video Processing
-- ✅ **H.264 Codec Priority** - 99% browser compatibility
-- ✅ **yt-dlp v2025.11.12** - Latest video downloader
-- ✅ **Auto Format Selection** - Best quality with H.264
-- ✅ **FFmpeg Post-Processing** - AV1 → H.264 conversion
-- ✅ **Platform-Specific Settings** - Optimized per platform
-
-#### 🌙 UI/UX Improvements
-- ✅ **Dark/Light Theme Toggle** - System preference + manual switch
-- ✅ **Streamlined Preview Panel** - No duplicate sections
-- ✅ **Upload from URL** - Paste social media links directly
-- ✅ **Nginx Static Serving** - Fast media file delivery
-- ✅ **Mobile-Friendly** - Responsive layout
-
-### ✨ Key Features (လက်ရှိ အလုပ်လုပ်နေသော Features)
-
-#### 🤖 AI-Powered Content Tools
-- ✅ **AI Caption Generator** - 7 different tones (Gemini Pro / GPT-4)
-  - Professional, Casual, Engaging, Friendly, Informative, Funny, Inspiring
-  - Platform-aware caption generation
-  - Topic-based customization
-- ✅ **AI Hashtag Suggester** - Smart hashtag recommendations
-  - Configurable count (5, 10, 15, 20 hashtags)
-  - Platform-specific hashtags
-  - Content-based suggestions
-
-#### 📱 Multi-Platform Support
-- ✅ **Facebook** - Text, Photo, Video, Reel, Album (up to 10), Link posts
-- ✅ **YouTube** - Videos, Shorts with metadata (description, tags, 14 categories, privacy)
-- ✅ **TikTok** - Videos with privacy controls (comments, duet, stitch)
-- ✅ **Instagram** - Photo, Video, Reel posts
-- ✅ **Twitter** - Text, Media posts
-- ✅ **LinkedIn** - Professional posts, Images
-- ✅ **Pinterest** - Image pins, boards, full API support
-
-#### ⏰ Scheduling & Automation
-- ✅ **Scheduled Posts** - Date/time picker for future publishing
-- ✅ **Auto-Publisher** - PM2-managed service runs every 60 seconds
-- ✅ **Queue System** - Draft → Queued → Publishing → Published workflow
-- ✅ **Multi-Platform Publishing** - Single post to multiple platforms simultaneously
-
-#### 📊 Analytics & Monitoring
-- ✅ **Real-Time Dashboard** - Live post performance metrics
-- ✅ **Platform Breakdown** - Individual platform analytics
-- ✅ **Success Rate Tracking** - Publishing success/failure monitoring
-- ✅ **Time-Series Data** - Historical performance charts
-- ✅ **Activity Logs** - Complete audit trail
-
-#### 🎨 Advanced Content Management
-- ✅ **Post Type Selector** - Platform-aware content types
-- ✅ **YouTube Metadata** - Description, tags, category, privacy settings
-- ✅ **TikTok Permissions** - Comments, duet, stitch controls
-- ✅ **Facebook Albums** - Multi-photo uploads (max 10)
-- ✅ **Link Posts** - Share URLs with previews
-- ✅ **Media Uploader** - Drag & drop, multiple files, progress tracking
-- ✅ **Social Media URL Upload** - YouTube, TikTok, Facebook, Twitter, Instagram, Telegram
-- ✅ **Fullscreen Media Viewer** - Click preview to view full size
-- ✅ **Dual Preview Layout** - Visual grid + Text-based file list with delete buttons
-- ✅ **Smart Video Processing** - H.264 codec, aspect ratio preservation
-
-#### 🔐 Authentication & Security
-- ✅ **JWT Authentication** - 30-day token expiration
-- ✅ **OAuth Integration** - Ready for Facebook, YouTube, TikTok
-- ✅ **Encrypted Storage** - API keys and tokens encrypted
-- ✅ **Role-Based Access** - Admin and user roles
-- ✅ **Session Management** - Active session tracking
-
-### ✅ Completed Components (အပြည့်အဝ အလုပ်လုပ်နေပြီး)
-
-#### 🖥️ Server Infrastructure
-- ✅ Ubuntu 24.04.3 LTS on VPS (4GB RAM, 2 CPU, 75GB SSD)
-- ✅ UFW Firewall configured (ports 22, 80, 443)
-- ✅ Fail2ban active for SSH protection
-- ✅ System monitoring and logging
-
-#### 🗄️ Database Layer
-- ✅ PostgreSQL 16 installed and running
-- ✅ Database: `social_symphony` with 9 tables
-- ✅ Extensions: uuid-ossp, pgcrypto
-- ✅ Connection pooling configured
-- ✅ Admin user created (admin@socialautoupload.com)
-
-#### 🔧 Backend API
-- ✅ Node.js 20.19.6 runtime
-- ✅ Express.js + TypeScript
-- ✅ PM2 process manager with auto-restart
-- ✅ Running on localhost:3001
-- ✅ JWT authentication system (30-day tokens)
-- ✅ bcrypt password hashing (10 rounds)
-- ✅ User registration endpoint
-- ✅ Login endpoint
-- ✅ Token verification endpoint
-- ✅ Get current user endpoint
-- ✅ Health check endpoint
-- ✅ Session management
-- ✅ Activity logging ready
-
-#### 🌐 Frontend
-- ✅ React 18 + TypeScript + Vite
-- ✅ Production build deployed
-- ✅ shadcn-ui + Tailwind CSS
-- ✅ Served via Nginx
-- ✅ Located at: `/var/www/socialautoupload.com/public_html/`
-
-#### 🔒 SSL/HTTPS
-- ✅ Let's Encrypt SSL certificate (ECDSA)
-- ✅ Valid until: February 28, 2026 (89 days)
-- ✅ Auto-renewal configured
-- ✅ HTTPS working perfectly
-- ✅ HTTP to HTTPS redirect
-
-#### 🌍 Web Server (Nginx)
-- ✅ Nginx 1.24.0
-- ✅ Reverse proxy to backend (localhost:3001)
-- ✅ SSL termination
-- ✅ Security headers configured
-- ✅ Gzip compression enabled
-- ✅ Access and error logging
-
-#### 🛡️ Security
-- ✅ Cloudflare DNS with proxy (hiding origin IP)
-- ✅ UFW firewall active
-- ✅ Fail2ban protecting SSH (2 IPs banned)
-- ✅ CORS configured
-- ✅ Helmet.js security headers
-- ✅ Parameterized queries (SQL injection protection)
+- [Overview](#-overview) | [Features](#-features) | [Platforms](#-supported-platforms)
+- [Technology](#-technology-stack) | [Architecture](#-architecture) 
+- [Getting Started](#-getting-started) | [Documentation](#-documentation)
+- [Status](#-project-status) | [Roadmap](#-roadmap)
 
 ---
 
-### ⚠️ In Progress / Pending (ဆက်လက်လုပ်ဆောင်ရမည့် အရာများ)
+## 🎯 Overview
 
-#### Backend API Endpoints (လိုအပ်သေးသော API များ)
-- ✅ Posts CRUD (create, read, update, delete) - **Implemented**
-- ✅ Media upload handling (multer integration) - **Working**
-- ✅ Social media URL downloads (yt-dlp) - **7 platforms supported**
-- ✅ Video processing (H.264 conversion) - **FFmpeg integration**
-- ✅ AI caption generation (Gemini/OpenAI) - **API routes ready**
-- ✅ Hashtag suggestions - **API routes ready**
-- ✅ Scheduled posts processor - **Running every 60s**
-- ✅ Analytics endpoints - **4 endpoints deployed**
-- ✅ Static file serving (/uploads/) - **Nginx configured**
-- ⏳ Connected channels management - **Database ready, UI pending**
-- ⏳ OAuth endpoints (Facebook, YouTube, TikTok) - **Partially implemented**
+**Social Symphony** is a powerful, self-hosted social media management platform that enables publishing content across **7 major social media platforms** from a single unified dashboard.
 
-#### Frontend Integration (Frontend ပြုပြင်ရန်)
-- ✅ Custom API client implemented (`api-client.ts`)
-- ✅ Self-hosted API endpoints integrated
-- ✅ All API calls use `/api/*` endpoints
-- ✅ JWT authentication flow implemented
-- ✅ Supabase dependencies removed
-- ✅ AI components integrated (CaptionGenerator, HashtagSuggestions)
-- ✅ Post type selector with platform-aware types
-- ✅ YouTube metadata fields (description, tags, category, privacy)
-- ✅ TikTok metadata fields (privacy, permissions)
-- ✅ Link post type support
-- ✅ Facebook album support (multi-photo upload)
-- ⏳ OAuth connection UI for platforms
+### What is Social Symphony?
 
-#### OAuth Setup (Social Media ချိတ်ဆက်မှု)
-- ⏳ Facebook App configuration & OAuth flow
-- ⏳ YouTube/Google OAuth setup & token refresh
-- ⏳ TikTok developer app & OAuth integration
-- ⏳ Instagram Graph API integration
-- ⏳ Twitter API v2 integration
-- ⏳ LinkedIn OAuth setup
-- ✅ Token storage and encryption - **Database ready**
+- 📝 **Create Once, Publish Everywhere**: Single interface for all platforms
+- ⏰ **Smart Scheduling**: Auto-publish at optimal times
+- 🤖 **AI-Powered**: Generate captions and hashtags with AI
+- 📊 **Analytics Dashboard**: Track performance across platforms
+- 🔒 **Self-Hosted**: Complete data control and privacy
 
-#### Additional Features (နောက်ထပ် features များ)
-- ⏳ Email notifications setup
-- ⏳ Automated database backups (daily/weekly)
-- ⏳ Monitoring dashboard (server metrics)
-- ⏳ Rate limiting implementation (API protection)
-- ⏳ Redis caching layer (performance optimization)
-- ⏳ Caption templates library
-- ⏳ Post duplication feature
-- ⏳ Bulk import from CSV/Excel
-- ⏳ Custom branding (white-label ready)
+### မြန်မာဘာသာ (Myanmar Language)
+
+Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, LinkedIn, Pinterest** စသော လူကြိုက်များသည့် social media platforms ၇ ခုကို **တစ်နေရာတည်းမှ** အလိုအလျောက် post များ တင်ပို့နိုင်သော **All-In-One Social Media Publisher** ဖြစ်ပါသည်။
+
+**အဓိက အားသာချက်များ:**
+- ✅ Platform ၇ ခုကို တစ် dashboard တည်းကနေ စီမံခန့်ခွဲ
+- ✅ AI ဖြင့် captions နှင့် hashtags auto-generate
+- ✅ အချိန်ကြိုတင်သတ်မှတ်ပြီး scheduled posts
+- ✅ Analytics dashboard ဖြင့် performance tracking
+- ✅ 100% Self-hosted - သင့် server တွင်သာ data သိမ်းဆည်း
+
+[**📖 Myanmar Language Documentation →**](./README_MM.md)
 
 ---
 
-## 🏗️ System Architecture
+## ✨ Key Features
+
+### 🚀 Multi-Platform Publishing
+- **7 Platforms**: Facebook, YouTube, TikTok, Instagram, Twitter, LinkedIn, Pinterest
+- **Bulk Publishing**: Post to multiple platforms simultaneously
+- **Post Types**: Text, images, videos, albums, reels, shorts
+- **Scheduling**: Auto-publish with PM2 background service (60s interval)
+
+### 🤖 AI-Powered Content Tools
+- **Caption Generator**: 7 tones (Professional, Casual, Engaging, Friendly, Informative, Funny, Inspiring)
+- **Hashtag Suggester**: 5-20 smart hashtags per platform
+- **Platform-Aware**: Optimized content for each social network
+- **APIs**: Gemini Pro / GPT-4 integration
+
+### 📹 Media Management
+- **File Upload**: Drag & drop with progress tracking
+- **URL Download**: YouTube, TikTok, Facebook, Twitter, Instagram, Telegram (7 platforms)
+- **Smart Processing**: H.264 codec, AV1→H.264 conversion, aspect ratio preservation
+- **Preview System**: Visual grid + text list, fullscreen viewer, individual delete
+
+### 📊 Analytics & Insights
+- **Real-Time Dashboard**: Live performance metrics
+- **Platform Breakdown**: Individual platform analytics
+- **Success Tracking**: Publishing success/failure rates
+- **Activity Logs**: Complete audit trail
+
+### 🔐 Security & Authentication
+- **JWT Auth**: 30-day token expiration
+- **OAuth Ready**: Social platform integration (Pinterest ✅ Live)
+- **Encrypted Storage**: API keys and tokens encrypted
+- **Role-Based Access**: Admin and user roles
+
+---
+
+## 🌐 Supported Platforms
+
+| Platform | Status | OAuth | Post Types | Analytics |
+|----------|--------|-------|------------|-----------|
+| **Facebook** | ✅ API Ready | ⏳ Pending | Text, Photo, Video, Reel, Album, Link | ✅ Yes |
+| **YouTube** | ✅ API Ready | ⏳ Pending | Video, Short | ✅ Yes |
+| **TikTok** | ✅ API Ready | ⏳ Pending | Video | ✅ Yes |
+| **Instagram** | ✅ API Ready | ⏳ Pending | Photo, Video, Reel | ✅ Yes |
+| **Twitter/X** | ✅ API Ready | ⏳ Pending | Text, Media | ✅ Yes |
+| **LinkedIn** | ✅ API Ready | ⏳ Pending | Text, Image | ✅ Yes |
+| **Pinterest** | ✅ **LIVE** | ✅ Working | Image, Pin | ✅ Yes |
+
+**✅ API Ready**: Backend implemented, OAuth pending  
+**✅ LIVE**: Fully operational with OAuth  
+**⏳ Pending**: Planned for implementation
+
+---
+
+## 🛠 Technology Stack
+
+### Frontend
+- React 18.3 + TypeScript 5.7 + Vite 6
+- shadcn/ui + Tailwind CSS 3.4
+- TanStack Query (React Query) v5
+- React Router v6 + React Hook Form
+- Lucide Icons + Recharts + date-fns
+
+### Backend
+- Node.js 20.19.6 + Express.js 4.x
+- TypeScript 5.x + PM2 process manager
+- JWT auth + bcrypt password hashing
+- Multer (uploads) + yt-dlp + FFmpeg
+
+### Database & Infrastructure
+- PostgreSQL 16.7 with connection pooling
+- Ubuntu 24.04 LTS + Nginx 1.24.0
+- Let's Encrypt SSL + Cloudflare CDN
+- UFW Firewall + Fail2ban
+- Hetzner Cloud VPS (4GB RAM, 2 CPU, 75GB SSD)
+
+---
+
+## 🏗 System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -358,9 +217,324 @@ Social Symphony သည် **Facebook, YouTube, TikTok, Instagram, Twitter, Linke
 - **IDS/IPS**: Fail2ban
 - **Server**: Hetzner Cloud VPS
 
+```
+
+**Components:**
+- **Cloudflare**: DNS + CDN + DDoS protection
+- **Nginx**: Reverse proxy + SSL termination + static files
+- **Backend API**: Express + TypeScript on Port 3001 (PM2 managed)
+- **Frontend**: React SPA served as static files
+- **PostgreSQL**: Database with 9 tables, connection pooling
+- **Security**: UFW firewall + Fail2ban + JWT auth
+
 ---
 
 ## 📦 Database Schema
+
+**9 Tables** | **PostgreSQL 16** | **Size: ~312KB**
+
+```sql
+users              # User accounts (JWT auth, bcrypt passwords)
+profiles           # Extended user information
+sessions           # Active session tracking
+posts              # Social media posts (drafts, scheduled, published)
+connected_channels # OAuth-connected social accounts
+post_results       # Publishing results and analytics
+media_uploads      # Uploaded media tracking
+api_keys           # Third-party API keys (encrypted)
+activity_logs      # User activity audit trail
+```
+
+**Features:**
+- UUID primary keys
+- Encrypted token storage (pgcrypto)
+- Connection pooling (max 20)
+- Parameterized queries (SQL injection protection)
+
+---
+
+## 🔐 Security Implementation
+
+### Authentication
+- **JWT Tokens**: HS256 algorithm, 30-day expiration
+- **Password Hashing**: bcrypt with 10 salt rounds
+- **OAuth Ready**: Token storage with encryption
+
+### Network Security
+```bash
+UFW Firewall:
+- Port 22 (SSH)   → ALLOW (Fail2ban protected)
+- Port 80 (HTTP)  → ALLOW (→ HTTPS redirect)
+- Port 443 (HTTPS) → ALLOW
+- All other ports  → DENY
+
+Fail2ban: 5 retries, 10min ban
+Currently banned: 2 IPs
+```
+
+### Application Security
+- **CORS**: Configured for frontend domain only
+- **Helmet.js**: Security headers (X-Frame-Options, CSP, etc.)
+- **SQL Injection**: Parameterized queries only
+- **Error Handling**: Sanitized error messages
+
+### SSL/TLS
+- **Protocol**: TLSv1.2 + TLSv1.3
+- **Certificate**: Let's Encrypt ECDSA
+- **OCSP Stapling**: Enabled
+- **Grade**: A+ capable
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+```bash
+Node.js 20+, PostgreSQL 16+, npm/yarn, Git
+Optional: FFmpeg, yt-dlp
+```
+
+### Quick Start (Development)
+```bash
+# 1. Clone and install
+git clone <repository-url>
+cd social-symphony
+npm install && cd backend && npm install && cd ..
+
+# 2. Setup database
+createdb social_symphony
+psql social_symphony < database/schema.sql
+
+# 3. Configure environment
+cp backend/.env.example backend/.env
+# Edit backend/.env with your settings
+
+# 4. Start development servers
+cd backend && npm run dev      # → http://localhost:3001
+cd .. && npm run dev           # → http://localhost:5173
+```
+
+### Production Deployment
+See **[Deployment Guide](./DEPLOYMENT_GUIDE.md)** for detailed instructions.
+
+---
+
+## 📚 Documentation
+
+### 📘 Essential Docs
+| Document | Description |
+|----------|-------------|
+| **[📑 Documentation Index](./docs/INDEX.md)** | Complete docs navigation |
+| **[🚀 Quick Start Guide](./docs/QUICK_START.md)** | Get started in 5 minutes |
+| **[📖 API Documentation](./docs/API_DOCUMENTATION.md)** | REST API reference |
+| **[🔑 OAuth Setup](./docs/OAUTH_SETUP.md)** | Social media integration |
+| **[🚢 Deployment Guide](./DEPLOYMENT_GUIDE.md)** | Production setup |
+| **[📝 Content Types Guide](./CONTENT_TYPES_GUIDE.md)** | Platform post types |
+| **[🏠 Self-Hosting Guide](./SELF-HOSTING.md)** | Run on your server |
+
+### 🇲🇲 Myanmar Language
+- [README (မြန်မာ)](./README_MM.md)
+- [Content Types (မြန်မာ)](./CONTENT_TYPES_GUIDE_MM.md)
+- [Publishing Profiles (မြန်မာ)](./PUBLISHING_PROFILES_GUIDE_MM.md)
+
+### 🔧 Developer Docs
+- [Backend README](./backend/README.md)
+- [Changelog](./CHANGELOG.md)
+- [Project Roadmap](./PROJECT_ROADMAP.md)
+- [Secrets/Environment](./SECRETS.md)
+
+---
+
+## 📊 Project Status
+
+**Version**: 1.0.0  
+**Deployed**: November 30, 2025  
+**Last Updated**: February 2, 2026  
+**Status**: ✅ Production (85% Complete)
+
+### Current Implementation
+
+| Component | Progress | Status |
+|-----------|----------|--------|
+| **Infrastructure** | 100% | ✅ Complete |
+| **Backend API** | 90% | ✅ Prod Ready |
+| **Frontend** | 85% | ✅ Prod Ready |
+| **Database** | 100% | ✅ Complete |
+| **Security** | 95% | ✅ Prod Ready |
+| **OAuth** | 15% | ⏳ In Progress |
+| **Documentation** | 90% | ✅ Complete |
+| **Overall** | **85%** | **✅ Production** |
+
+### ✅ Completed (Production Ready)
+
+**Infrastructure & Deployment**
+- ✅ VPS server (Ubuntu 24.04, Hetzner Cloud)
+- ✅ Nginx + SSL (Let's Encrypt) + Cloudflare CDN
+- ✅ Firewall (UFW) + Fail2ban
+- ✅ PM2 process management + systemd
+
+**Backend API (18/20 endpoints)**
+- ✅ Authentication (register, login, verify, me)
+- ✅ Posts CRUD (create, list, update, delete)
+- ✅ Media upload (Multer + file validation)
+- ✅ Social URL downloads (7 platforms via yt-dlp)
+- ✅ Video processing (FFmpeg H.264 conversion)
+- ✅ AI caption generation (Gemini/GPT-4)
+- ✅ Hashtag suggestions
+- ✅ Scheduled posts processor (PM2 service)
+- ✅ Analytics (4 endpoints)
+- ✅ Health check
+- ⏳ OAuth (Pinterest ✅, others pending)
+
+**Frontend Application**
+- ✅ React 18 + TypeScript SPA
+- ✅ Authentication UI (login, register)
+- ✅ Dashboard with analytics charts
+- ✅ Post creation interface
+- ✅ Media uploader (drag & drop, URL input)
+- ✅ Fullscreen media viewer
+- ✅ AI tools (caption generator, hashtag suggester)
+- ✅ Scheduled posts calendar
+- ✅ Dark/Light theme toggle
+- ✅ Responsive mobile design
+
+**Database**
+- ✅ PostgreSQL 16 with 9 tables
+- ✅ Connection pooling (max 20)
+- ✅ Encrypted token storage
+- ✅ UUID primary keys
+
+### ⏳ In Progress
+
+**OAuth Integration** (High Priority)
+- ✅ Pinterest OAuth (Complete)
+- ⏳ Facebook App Review + OAuth
+- ⏳ YouTube/Google OAuth
+- ⏳ TikTok OAuth
+- ⏳ Instagram Graph API
+- ⏳ Twitter API v2
+- ⏳ LinkedIn OAuth
+
+**Additional Features**
+- ⏳ Email notifications
+- ⏳ Automated backups
+- ⏳ Rate limiting
+- ⏳ Redis caching
+- ⏳ Post templates
+- ⏳ Bulk import (CSV/Excel)
+
+---
+
+## 🗺 Roadmap
+
+### Phase 1: Foundation ✅ (Complete)
+- [x] Infrastructure + Database + Authentication
+- [x] Basic post creation + Media upload
+
+### Phase 2: Core Features ✅ (Complete)
+- [x] Multi-platform API + Scheduling
+- [x] AI tools + Analytics + URL downloads
+
+### Phase 3: OAuth Integration 🔄 (In Progress)
+- [x] Pinterest ✅
+- [ ] Facebook, YouTube, TikTok, Instagram, Twitter, LinkedIn
+
+### Phase 4: Advanced Features 📅 (Planned)
+- [ ] Notifications + Templates + Bulk import
+- [ ] Team collaboration + Advanced analytics
+
+### Phase 5: Enterprise 🔮 (Future)
+- [ ] Multi-user + White-label + Mobile app
+- [ ] Browser extension + Integrations
+
+---
+
+## 👥 Who Should Use This?
+
+### Perfect For:
+- **Social Media Managers** - Managing multiple client accounts
+- **Content Creators** - Influencers, YouTubers, TikTokers
+- **Digital Agencies** - Running campaigns across platforms
+- **Small Businesses** - Promoting your brand
+- **News Publishers** - Distributing content
+- **Myanmar Developers** - Self-hosted solutions
+
+### Use Cases:
+- Schedule a week's posts in one session
+- Post to all platforms simultaneously
+- Generate AI captions in seconds
+- Track analytics across accounts
+- Self-host with complete privacy
+
+---
+
+## 🌟 Why Social Symphony?
+
+### ✅ **100% Self-Hosted**
+- No cloud dependencies (no Supabase, Firebase, AWS)
+- Your data stays on your server
+- GDPR & privacy compliant
+- Full control
+
+### ⚡ **Modern Technology**
+- React 18 + TypeScript
+- Fast Vite build
+- PostgreSQL database
+- PM2 process management
+
+### 🤖 **AI-Powered**
+- Gemini Pro + GPT-4
+- Smart captions
+- Intelligent hashtags
+
+### 🔒 **Production Ready**
+- SSL/TLS encryption
+- Cloudflare CDN
+- Monitoring & logging
+- Automated backups ready
+
+### 👨‍💻 **Developer Friendly**
+- Clean TypeScript code
+- Comprehensive API docs
+- Easy to extend
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! Please:
+1. Fork the repository
+2. Create feature branch (`feature/amazing-feature`)
+3. Follow TypeScript + ESLint standards
+4. Write tests (coverage > 80%)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is proprietary and private.
+
+---
+
+## 📞 Contact & Support
+
+- **Production**: [socialautoupload.com](https://socialautoupload.com)
+- **Status**: ✅ Live & Operational
+- **Documentation**: [docs/INDEX.md](./docs/INDEX.md)
+- **Version**: 1.0.0
+
+---
+
+<div align="center">
+
+**Version 1.0.0** | **February 2, 2026**
+
+[📚 Docs](./docs/INDEX.md) • [🚀 Quick Start](./docs/QUICK_START.md) • [📖 API](./docs/API_DOCUMENTATION.md) • [📝 Changelog](./CHANGELOG.md)
+
+**Made with 🚀 for Myanmar Developers**
+
+</div>
 
 ```sql
 -- Authentication & Users
